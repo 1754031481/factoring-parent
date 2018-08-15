@@ -1,0 +1,79 @@
+div.pagediv{
+	text-align: center;
+	color: #555;
+}
+div.pagediv a{
+	text-decoration: none;
+	
+}
+div.pagediv span,div.pagediv a{
+	font-size:14px;
+	display: inline-block;
+	box-sizing: border-box;
+}
+a.disabled{
+	color:#bbb;
+	cursor: not-allowed;
+}
+.dataPagenum,.ellipses{
+	color: #555;
+	background: #FFFFFF;
+	width: 35px;
+	height: 30px;
+	line-height: 30px;
+	border: 1px solid #ccc;
+	border-left: 0;
+}
+.nextbtn,.prebtn,.firstbtn,.lastbtn{
+	color: #555;
+	background: #FFFFFF;
+	width: 60px;
+	height: 30px;
+	line-height: 30px;
+	border: 1px solid #ccc;
+}
+.nextbtn,.prebtn,.lastbtn{
+	border-left:0;
+}
+.firstbtn{
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+.lastbtn{
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+	margin-right: 10px;
+}
+.datainput{
+	width: 40px;
+	height: 30px;
+	color:#555;
+	font-size: 15px;
+	text-align: center;
+	border-radius: 3px;
+	border: 1px solid #ccc;
+	margin: 0 3px;
+}
+.dataokbtn{
+	height: 32px;
+	line-height: 32px;
+	color: #ffffff;
+	background: #00b983;
+	border: 1px solid #04a777;
+	cursor: pointer;
+	padding:0 12px;
+	margin-left: 10px;
+}
+.nextpage{
+	color: #00b983;
+	border: 1px solid #00b983;
+}
+.borderL{
+	border-left: 1px solid #dfdfdf;
+}
+.current{
+	color: #ffffff;
+	background: #00b983;
+	border-color: #00b983;
+	border-radius: 3px;
+}

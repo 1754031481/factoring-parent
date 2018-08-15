@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>奖项预览</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <script TYPE="text/javascript" th:src="@{/static/js/plugins/My97DatePicker/WdatePicker.js}"></script>
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">奖项预览</a></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>奖项预览</h2>
+            <div class="ph_snbBtn">
+
+            </div>
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="example" >
+                <tr>
+                    <td>奖项</td>
+                    <td>奖项金额</td>
+                    <td>奖券数</td>
+                    <td>开奖总金额</td>
+                </tr>
+                <tr  th:if="${not #lists.isEmpty(prizePoolVOS)}" th:each="prize:${prizePoolVOS}">
+                    <td th:text="${prize.name}"></td>
+                    <td th:text="${#numbers.formatDecimal(prize.price / 10000,1,2)}"></td>
+                    <td th:text="${prize.lotteryNum}">未开奖</td>
+                    <td th:text="${#numbers.formatDecimal(prize.lotteryNum * prize.price / 10000,1,2)}">已开奖</td>
+                </tr>
+                <tr>
+                    <td>合计</td>
+                    <td th:text="${#numbers.formatDecimal(prizeSumPrice / 10000,1,2)}"></td>
+                    <td th:text="${lotterySumNum}"></td>
+                    <td th:text="${#numbers.formatDecimal(prizeOpnePrice / 10000,1,2)}"></td>
+                </tr>
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+    <!--导出start-->
+    <div hidden>
+        <form action="/web/unlineSettlement/export"  id="orderExport" method="post">
+            <input type="hidden" name="startTime" value="" id="e_starTime"/>
+            <input type="hidden" name="endTime" value="" id="e_endTime"/>
+            <input type="hidden" name="orderNo" value="" id="e_orderNo"/>
+            <input type="hidden" name="hunterPhone" value="" id="e_hunterPhone"/>
+            <input type="hidden" name="status" value="" id="e_status"/>
+        </form>
+    </div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+
+</script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>视频列表</title>
+    <link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/base.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/page/pager.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/aliplayer-min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/videolist.css}"/>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/treetable/jquery.treeTable.css}">
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+    <link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/plugins/layer/layer.css}"/>
+    <style type="text/css">
+        #videoTable tr td {
+            width: 400px;
+            height: 400px;
+            position: relative;
+        }
+        .videoCss{
+            width: 100%;
+            height: 260px;
+        }
+        .img1{
+            position: absolute;
+            z-index: 1001;
+            right:20px;
+            bottom:115px;
+        }
+        .img2{
+            position: absolute;
+            z-index: 1001;
+            right:70px;
+            bottom:115px;
+        }
+    </style>
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">视频管理</a>&nbsp;&gt;&nbsp;<span>视频列表</span> </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>视频列表</h2>
+            <shiro:hasPermission name="uploadVideo">
+                <div class="ph_snbBtn">
+                    <input name="" type="button" th:onclick="'uploadVideo();'" value="上传视频">
+                </div>
+            </shiro:hasPermission>
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <form id="queryForm">
+            <div class="ph_screen">
+                <table class="ph_tableBox">
+                    <tr>
+                        <th>视频标题：</th>
+                        <td><input type="text" name="title" id="title"></td>
+                        <th>发布时间：</th>
+                        <td colspan="2" style="width: 300px">
+                            <p class="dayBox"><input class="start_rise date start" style="width: 100px" name="startTime" type="text" id="startTime">&nbsp;-&nbsp;
+                                <input class="start_rise date end" style="width: 100px" name="endTime" type="text" id="endTime"></p>
+                        </td>
+                        <td colspan="6">
+                            <shiro:hasPermission name="queryVideo">
+                                <input name="" type="button" th:onclick="'queryByCondition();'" value="查询">
+                            </shiro:hasPermission>
+                            <input name="" type="button" th:onclick="'resetForm();'" value="重置">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </form>
+        <!--end 筛选条件-->
+
+        <!--视频列表-->
+        <div class="ph_wareBox">
+            <ul class="product_list"></ul>
+        </div>
+        <!--end 视频列表-->
+        <div style="float: left;width: 100%;margin-top: 10px;text-align: right" class="dataTables_info">
+            <ul class="pagination" id="page1" style="vertical-align: middle;"></ul>
+            <span style="font-size: 14px;">
+				当前显示
+				<span style="color: #000" id="start"></span>
+				到
+				<span style="color: #000" id="end">0</span>
+				条数据，共
+				<span style="color: #000" id="total">0</span>
+				条数据
+			</span>
+        </div>
+    </div>
+    <!--end 主体内容-->
+</div>
+<!--遮罩层-->
+<div class="maskBox"></div>
+<!--end 遮罩层-->
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript"   th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/page/pager.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script>
+    $(function () {
+
+        $.post(
+            "/web/video/getVideoList",
+            {
+                pageSize: 6,
+                pageNum: 1,
+                startTime: '',
+                title: '',
+                isBan: ''
+            },
+            function (data) {
+                var total = data.code;
+                $('#total').text(total);
+                Page({
+                    num: Math.ceil(total/6),
+                    elem: $('#page1'),
+                    callback: function (n) {
+                        getList(n,total);
+                    }
+                });
+                loadHtml(data.data,1);
+            },
+            'json'
+        );
+    });
+
+    function getList(n,total){
+        var title = $("#title").val();
+        var endTime = $("#endTime").val();
+        var startTime = $("#startTime").val();
+        $.post(
+            "/web/video/getVideoList",
+            {
+                pageSize: 6,
+                pageNum: n,
+                startTime: startTime,
+                endTime:endTime,
+                title: title
+            },
+            function (data) {
+                var total = data.code;
+                $('#total').text(total);
+                loadHtml(data.data,n);
+            },
+            'json'
+        );
+    }
+    function loadHtml(current,code) {
+        //处理分页信息
+        pageNum = code;
+        var start=(pageNum-1)*6+1;
+        var end=start+current.length-1;
+        var content="";
+        for (var i=0 ; i<current.length; i++){
+                content += '<li class="product_item"><div class="productWrap">'
+                //直播已结束需显示
+                content +=   "<div class='bfvideo' style='width: 100%;height: 260px;position: absolute;left: 0;top: 0; z-index: 1000;background-image: url(/static/images/play.png),url("+current[i].imgUrl+");background-repeat: no-repeat,no-repeat;background-position: center;background-size:100px 100px,100% 260px; '></div><video class = 'videoCss'controls='controls' src='"+current[i].address+"'></video>"
+                content += '<div class="product_info"><div style="overflow: hidden"><span class="pro_name" style="font-size: 13px; width:90px;verflow: hidden; text-overflow:ellipsis; white-space: nowrap;margin: auto" title="'+ current[i].name +'" >标题:' + current[i].name + '</span><p class="clearfix">';
+                content += '<span class="start_time rt" style="font-size: 13px;">发布时间:' + current[i].createdTime + '</span></p></div>';
+
+                if (current[i].topTime == null) {
+                    content += '<div  class="clearfix live_handle"><button style="float: left" onclick="setTop(' + current[i].id + ',this)"  value="1">置顶</button>';
+                } else if (current[i].topTime != null) {
+                    content += '<div  class="clearfix live_handle"><button style="float: left" onclick="setTop(' + current[i].id + ',this)"  value="2">取消置顶</button>';
+                }
+            content += '<div  class="clearfix live_handle"><button style="float: right" onclick="toVideoDetail(' + current[i].id + ')">查看</button>';
+            content += '<img class="img1" onclick="toUpdateVideo(' + current[i].id + ')" src="/static/images/edit.png" style="width: 40px;height: 40px"/>' +
+                '<img class="img2" onclick="toDeleteVideo(' + current[i].id + ')" src="/static/images/delete.png" style="width: 40px;height: 40px"/></a></div>';
+            content += '</div></li>';
+        }
+        $('.product_list').html(content);
+        $('#start').text(start);
+        $('#end').text(end);
+    }
+    function uploadVideo() {
+        window.location.href = "/web/video/toUploadVideo";
+    }
+    $(document).on("click",".bfvideo",function () {
+        $(this).hide();
+        $(this).parent().find("video")[0].play();
+    });
+    function setTop(id,e) {
+        var flag=$(e).attr('value');
+        if (flag == 1){
+            //置顶
+            $.ajax({
+                type: 'POST',
+                url: "/web/video/setTopVideo",
+                data: {"vId":id},
+                success: function (data) {
+                    if (data.success){
+                        //修改成功
+                        layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0},function () {
+                            window.location.href = "/web/video/toVideoList";
+                        });
+//                        $(e).html("取消置顶");
+//                        $(e).attr('value',2);
+
+                    } else {
+                        //修改失败
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                    }
+                },
+                dataType: "json"
+            });
+        }
+        if (flag == 2){
+            //取消置顶
+            $.ajax({
+                type: 'POST',
+                url: "/web/video/cancelTopVideo",
+                data: {"vId":id},
+                success: function (data) {
+                    if (data.success){
+                        //修改成功
+                        layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0},function () {
+                            window.location.href = "/web/video/toVideoList";
+                        });
+//                        $(e).html("置顶");
+//                        $(e).attr('value',1);
+
+                    } else {
+                        //修改失败
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                    }
+                },
+                dataType: "json"
+            });
+        }
+    }
+    function queryByCondition() {
+        var title = $("#title").val();
+        var endTime = $("#endTime").val();
+        var startTime = $("#startTime").val();
+        $.ajax({
+            type: 'POST',
+            url: "/web/video/getVideoList",
+            data: {
+                pageSize: 6,
+                pageNum: 1,
+                startTime: startTime,
+                endTime:endTime,
+                title: title
+            },
+            success: function (data) {
+                var total = data.code;
+                $('#total').text(total);
+                Page({
+                    num: Math.ceil(total/6),
+                    elem: $('#page1'),
+                    callback: function (n) {
+                        getList(n,total);
+                    }
+                });
+                loadHtml(data.data,1);
+            },
+            dataType: "json"
+        })
+    }
+    /*重置查询条件*/
+    function resetForm() {
+        console.log("重置参数");
+        $("#title").val("");
+        $("#startTime").val("");
+        $("#endTime").val("");
+    }
+    function toUpdateVideo(id) {
+        location.href = "/web/video/toUpdateVideo?vId=" + id;
+    }
+    function toDeleteVideo(id) {
+        var titles;
+        layer.confirm('确定删除吗？', {
+            title: titles,
+            icon: 3,
+            btnAlign: 'c',
+            closeBtn: 0
+        }, function (index) {
+            $.ajax({
+                async: false,
+                url: "/web/video/deleteVideo",
+                data: {
+                    "vId": id
+                },
+                type: "post",
+                dataType: "json",
+                success: function (data) {
+                    if (data.success) {
+                        layer.alert('操作成功', {icon: 1,btnAlign: 'c', closeBtn : 0});
+                        location.reload();
+                    } else {
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                        return false;
+                    }
+                }
+            });
+            layer.close(index);
+        });
+    }
+    function toVideoDetail(id) {
+        location.href = "/web/video/toVideoDetail?vId=" + id;
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org"
+		xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>服务专员考核列表</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" th:href="@{/static/js/datepicker/css/bootstrap-datepicker.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}">
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="javascript:void(0)">服务专员管理</a>&nbsp;&gt;&nbsp;<span>服务专员考核列表</span> </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>服务专员考核列表</h2>
+            <div class="ph_snbBtn">
+                <shiro:hasPermission name="hunterCheckExport">
+	                <input name="" type="button" value="导出" onclick="exportData()">
+                </shiro:hasPermission>
+            </div>
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <form id="queryForm">
+        <div class="ph_screen">
+            <table class="ph_tableBox">
+                <tr>
+                    <th>服务专员账号：</th>
+                    <td><input name="" type="text" id="phone"></td>
+                    <th>服务专员姓名：</th>
+                    <td><input name="" type="text" id="name"></td>
+                    <th>服务专员工号：</th>
+                    <td><input name="" type="text" id="jobNum"></td>
+                    <th>服务专员身份：</th>
+                    <td>
+                        <select class="selectpicker" name="" id="level" >
+                            <option value="">全部</option>
+                            <option value="0">准服务专员</option>
+                            <option value="1">服务专员</option>
+                            <option value="2">服务经理</option>
+                        </select>
+                    </td>
+                    <td >
+                        <input name="" type="button" value="查询" onclick="query()">
+                        <input name="" type="button" value="重置" onclick="resetForm()">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        </form>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList"id="example">
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+    <form class="form-inline" id="export_data" th:action="@{/web/headhunting/exportHeadhuntingData}">
+    	<input type="hidden" id="e_telphone" name="accountNumber"/>
+    </form>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--属性输入框的增加和删除-->
+<script type="text/javascript" th:src="@{/static/js/common/attrbox.js}"></script><!--图片点击放大-->
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!-- 验证 -->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--图片点击放大-->
+<script type="text/javascript" th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/imgUp.js}"></script>
+<script type="text/javascript">
+	var tb;
+    $(function() {
+
+        //分页
+        tb = $('#example').DataTable({
+            "lengthChange": false,
+            "ordering": false,
+            "searching": false,
+            "bServerSide": true,
+            "autoWidth": false,
+            "sPaginationType": "full_numbers",
+            "bJQueryUI": true,
+            "sDom": '<"">t<"F"ip>',
+            "sAjaxSource": "/web/headhunting/getHunterCheckList", //ajax调用接口
+            "aoColumnDefs": [{sDefaultContent: '',aTargets: [ '_all' ]}],
+            "aoColumns": [
+				  	{ "sTitle" : "序号","mData": "id" ,"class":"sClass"},
+	                { "sTitle" : "服务专员账号","mData": "phone","class":"sClass" },
+	                { "sTitle" : "服务专员姓名","mData": "name","class":"sClass" },
+                    { "sTitle" : "服务专员工号","mData": "jobNum","class":"sClass" },
+	                { "sTitle" : "服务专员身份","mData": "level","class":"sClass" ,"mRender":function(data,type,full) {
+                        if (data==0) {
+                            return  '准服务专员';
+                        }else if(data==1){
+                            return  '服务专员';
+                        }else if(data==2){
+                            return  '服务经理';
+                        }
+                        return '普通用户';
+                    }},
+                    { "sTitle" :  "[[${nowStr}]]业绩","mData": "currentMonthAchievement","class":"sClass" ,"mRender" : function ( data, type, full ) {
+                        return (data==null)?"0.00":(data/10000).toFixed(2);
+                    }},
+	                { "sTitle" : "[[${lastStr}]]业绩","mData": "lastMonthAchievement","class":"sClass" ,"mRender" : function ( data, type, full ) {
+                        return (data==null)?"0.00":(data/10000).toFixed(2);
+                    }},
+                    { "sTitle" : "[[${beforeLastStr}]]业绩","mData": "beforeLastMonthAchievement","class":"sClass","mRender" : function ( data, type, full ) {
+                        return (data==null)?"0.00":(data/10000).toFixed(2);
+                    }},
+                    { "sTitle" : "下级考核达标率","mData": "standardRate","class":"sClass" ,"mRender" : function ( data, type, full ) {
+                        return (data==null)?"":data+"%&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:;' onclick='showStandard("+full.id+")'>查看</a>";
+                    }},
+	                {
+	                    "sWidth": "110px",
+	                    "sTitle": "操作",
+	                    "mData": "id",
+	                    "sClass": "ph_tableShow",
+	                    "mRender": function (data, type, full) {
+                                var text = '<div class="ph_operateBox"><input class="ph_operate" name="" type="button" value="操作选项"  >';
+	                    	  text = text + '<ul class="ph_operateList hide" role="menu">';
+                            if ('[[${session.hunterCheckDetail}]]'!='') {
+                                text += "<li><a class='Js_btn' href='javascript:showDetail(" + full.id + ");'>查看详情</a></li>";
+                            }
+                            if ('[[${session.hunterCheckBrand}]]'!='') {
+                                text += "<li><a class='Js_btn' href='javascript:showBrand(" + full.id + ");'>服务专员考核</a></li>";
+                            }
+							  text = text + '</ul></div>';
+							  return text;
+						}
+	                }
+             ],
+            "oLanguage" : {
+                "sProcessing" : "数据加载中······",
+                "sLengthMenu" : "显示 _MENU_ 条记录",
+                "sZeroRecords" : "没有您要搜索的内容！",
+                "sEmptyTable" : "列表中无数据存在！",
+                "sInfo" : "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+                "sInfoEmpty" : "显示 0 到 0 条记录",
+                "sInfoFiltered" : "数据列表中共  _MAX_ 条记录",
+                "oPaginate" : {
+                    "sFirst" : "首页",
+                    "sPrevious" : "上一页",
+                    "sNext" : "下一页",
+                    "sLast" : "末页"
+                }
+            },
+            "fnServerData" : function ( sSource, aoData, fnCallback, oSettings ) {
+            	console.log(aoData);
+                oSettings.jqXHR = $.ajax( {
+                    "dataType" 	: 'json',
+                    "type" 		: "GET",
+                    "async"     : 'false',
+                    "url" 		: sSource,
+                    "data" 		: {
+                        'pageNum': (aoData[3].value/aoData[4].value)+1,
+                        'pageSize' :  aoData[4].value,
+                        'phone'  :  $("#phone").val(),
+                        'name'  :  $("#name").val(),
+                        'jobNum'  :  $("#jobNum").val(),
+                        'level'  :  $("#level").val()
+                    },
+                    "success"	: fnCallback
+                } );
+            },
+            "fnInitComplete": function (oSettings, json) {
+                //点击图片放大初始化
+                $('.zoom-img').viewer({
+                    url: 'src',
+                    navbar: false,
+                    keyboard: true,
+                    title: true
+                });
+            },
+            "fnDrawCallback": function (){
+            	//点击图片放大初始化
+                $('.zoom-img').viewer({
+                    url: 'src',
+                    navbar: false,
+                    keyboard: true,
+                    title: true
+                });
+                var api = this.api();
+                var startIndex= api.context[0]._iDisplayStart;//获取到本页开始的条数
+                api.column(0).nodes().each(function(cell, i) {
+                    cell.innerHTML = startIndex + i + 1;
+                });
+            }
+        });
+    });
+    //条件查询重新加载数据
+    function query() {
+        tb.draw();
+    };
+    // showStandard 下级考核达标率明细
+    function showStandard(hunterId){
+    	layer.open({
+            type: 2,
+            title: '下级考核达标率明细',
+            closeBtn : 0,
+            area: ['950px','650px'],
+            btn:['关闭'],
+            btnAlign: 'c',
+            shadeClose:true,
+            content: '/web/headhunting/toHunterStandardDetailPage?hunterId='+hunterId
+        });
+    }
+
+    // showDetail 查看详情
+    function showDetail(hunterId){
+        layer.open({
+            type: 2,
+            title: '服务专员考核详情',
+            closeBtn : 0,
+            area: ['950px','650px'],
+            btn:['关闭'],
+            btnAlign: 'c',
+            shadeClose:true,
+            content: '/web/headhunting/toHunterCheckDetailPage?hunterId='+hunterId
+        });
+    }
+
+    // showBrand 服务专员考核品牌
+    function showBrand(hunterId){
+        layer.open({
+            type: 2,
+            title: '服务专员考核品牌',
+            closeBtn : 0,
+            area: ['1020px','650px'],
+            btn:['关闭'],
+            btnAlign: 'c',
+            shadeClose:true,
+            content: '/web/headhunting/toHunterCheckBrandPage?hunterId='+hunterId
+        });
+    }
+    // 导出数据
+    function exportData(){
+    	var telPhone = $('#telPhone').val().trim();
+    	$("#e_telphone").val(telPhone);
+    	$('#export_data').submit();
+    }
+    // 重置
+    function resetForm(){
+        clearData("queryForm");
+    }
+
+    function clearData(id) {
+        $("#" + id)[0].reset();
+        var selected = $("#" + id).find("select");
+        if (selected.length > 0) {
+            for (var i = 0, length = selected.length; i< length; i++) {
+                var id = selected.eq(i).attr("id");
+                selected.eq(i).selectpicker('val','');
+            }
+        }
+    }
+
+</script>
+</body>
+</html>

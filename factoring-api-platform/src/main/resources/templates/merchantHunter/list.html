@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>服务专员管理</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+</head>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">服务专员管理></a><span>服务专员列表</span></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+
+            <h2>服务专员列表</h2>
+            <div class="ph_snbBtn">
+                <shiro:hasPermission name="huntsAdd">
+                    <span id="ph_snbBt">
+                        <input class="Js_deliver" name="" id="adds" type="button" value="添加驻店专员">
+
+                    </span>
+                </shiro:hasPermission>
+               <!--<shiro:hasPermission name="merchantHunterExport">
+                      <input name="" type="button" th:onclick="'exportExcel();'" value="导出">
+                </shiro:hasPermission>-->
+            </div>
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <form id="queryForm">
+            <div class="ph_screen">
+                <shiro:hasPermission name="merchantHunterQueryFind">
+                    <table class="ph_tableBox">
+                        <tr>
+                            <th>服务专员账号：</th>
+
+                            <td><input type="text" name = "phone" id="phone"></td>
+
+                        </tr>
+                        <tr>
+                            <th>时间：</th>
+                            <td colspan="2">
+                                <!--<p class="dayBox"><input class="start_rise date start" name="createdTime" type="text" id="createdTime">-->
+                                <p class="dayBox"><input class="start_rise date start" name="startTime" type="text" id="startTime">&nbsp;-&nbsp;
+                                    <input class="start_rise date end" name="endTime" type="text" id="endTime"></p>
+                            </td>
+                            <td>
+                                <input name="" type="button" th:onclick="'query();'" value="查询">
+                                <input name="" type="button" th:onclick="'resetForm();'" value="重置">
+                            </td>
+                        </tr>
+                    </table>
+                </shiro:hasPermission>
+            </div>
+        </form>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="example">
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+
+
+<!--导出start-->
+<div hidden>
+    <form action="/web/merchant/getMerchantHunterExport"  id="merchantHunter" method="post">
+        <input type="hidden" name="startTime" value="" id="e_starTime"/>
+        <input type="hidden" name="endTime" value="" id="e_endTime"/>
+        <input type="hidden" name="orderNo" value="" id="e_orderNo"/>
+        <input type="hidden" name="terminalUnit" value="" id="e_terminalUnit"/>
+        <input type="hidden" name="status" value="" id="e_status"/>
+    </form>
+</div>
+
+<!--遮罩层-->
+<div class="maskBox"></div>
+<!--end 遮罩层-->
+<!--添加用户弹窗-->
+<div class="PopupBox" id="deliverBox">
+    <!--内容-->
+    <div class="PopupCon">
+        <div class="ph_subPoCon ph_screen">
+            <form id="addUserForm">
+                <table class="ph_tableBox">
+                    <input id="editUserId" name="id" type="hidden">
+                    <tr>
+                        <td>
+                            <span class="require">*</span >账号：
+                            <input  id="editTelphone" name="phone" type="text">
+                            <div  id="checkdiv" style="color: red;font-size: 12px; margin: 0 auto;"></div>
+                        </td>
+                    </tr>
+                    <!--<tr>
+                        <th><span class="require">*</span>账号：</th>
+                        <td><input id="editTelphone" name="telphone"
+                                   class="validate[required, maxSize[11]]"
+                                   type="text"></td>
+                        <div  id="checkdiv" style="color: red;font-size: 12px; margin: 0 auto;"></div>
+                    </tr>-->
+                    <tr>
+
+                  </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--end 内容-->
+</div>
+<!--end 添加用户弹窗-->
+
+<!--分配角色弹窗-->
+<div class="PopupBox" id="ph_lookBox">
+    <!--内容-->
+    <div class="PopupCon">
+        <div class="lookCon ph_wareBox">
+            <form id="userRoleForm">
+                <input id="userId" name="userId" type="hidden">
+                <input id="tel" name="telPhone" type="hidden">
+                <table class="ph_wareList" id="userRole">
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--end 内容-->
+</div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    var flage = 0;
+    var tb;
+    var sessionUser = [[${session.login_back_session}]];
+    console.log(sessionUser.id)
+    var userId = sessionUser.id;
+    var merchantId;
+    $.ajax({
+        type: "POST",
+        url: "/web/merchant/checkHunterMerchant",
+        data: {userId:userId},
+        success: function (d) {
+            console.log(d);
+            if (d.code == 200) {
+                merchantId =d.data;
+                $.ajax({
+                    type: "POST",
+                    url: "/web/merchant/checkHunterOnlyOne",
+                    data: {merchantId:merchantId},
+                    success: function (d) {
+                        console.log(d);
+                        if (d.code == 200) {
+                            // 一个店铺只能添加一个
+                            $("#adds").attr("disabled","disabled");
+                            if (flage == 1) {
+                                window.location.href = "";
+                            }
+
+                        } else {
+
+                        }
+                    }
+                });
+            } else {
+
+            }
+        }
+    });
+
+
+    // 校验是否是会员
+    $("#editTelphone").blur(function(){
+
+        var hunterId = $("#editTelphone").val();
+        /*var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
+        if (!myreg.test(hunterId)) {
+            $("#checkdiv").html("*添加驻店专员必须为普济一城会员");
+        } else {
+            $("#checkdiv").html("");
+        }*/
+        // $("#addUserForm").serialize()
+
+       $.ajax({
+            type: "POST",
+            url: "/web/merchant/checkHunters",
+            data: {hunterId:hunterId},
+            success: function (d) {
+                console.log(d);
+                if (d.success) {
+                    $("#checkdiv").html(d.message);
+                } else {
+                    $("#checkdiv").html(d.message);
+                }
+            }
+        });
+    });
+
+    $(function () {
+        var Popupe = new PopupBase();
+
+        Popupe.show('.ph_wareBox', '.Js_btn', '.maskBox,.DeterBox');
+        Popupe.showHide('.subQuemit', '.refundBox,.ph_lookBox', '.SucBox');
+        Popupe.show('.ph_wareBox,.ph_snbBtn', '.Js_deliver', '.maskBox,.deliverBox');
+        Popupe.show('.ph_wareBox', '.lookBtn', '.maskBox,.ph_lookBox');
+        Popupe.hide('.close', '.maskBox,.regionBox,.DeterBox,.SucBox,.deliverBox,.ph_lookBox');
+        tb = $('#example').DataTable({
+            "lengthChange": false,
+            "ordering": false,
+            "searching": false,
+            "bServerSide": true,
+            "sPaginationType": "full_numbers",
+            "bJQueryUI": true,
+            "sDom": '<"">t<"F"ip>',
+            "sAjaxSource": "/web/merchant/list", //ajax调用接口
+            "aoColumnDefs": [{sDefaultContent: '',aTargets: [ '_all' ]}],
+            "aoColumns": [
+                { "sWidth": "50px", "sTitle" : "序号","mData": "id" , "class": "sClass", "mRender": function (data, type, full, meta) {
+                        return meta.row + 1 + meta.settings._iDisplayStart;
+                    }
+                },
+                // { "sTitle" : "创建时间","mData": "createdTime","sWidth" : "200px"},
+                {
+                    "sWidth" : "200px",
+                    "sTitle": "创建时间", "mData":
+                        function (obj) {
+                            return getMyDate(obj.createdTime)//update_time是实体类的属性
+                        }
+                },
+                { "sTitle" : "服务专员账号","mData": "phone" ,"sWidth":"200px"},
+                {
+                    "sTitle": "分享总收入(元)",
+                    "mData": "profitMoney",
+                    "sWidth": "180px",
+                    "mRender": function (data, type, full) {
+                        return (data==null)?"0.0":(data /10000).toFixed(2);
+                    }
+                }
+              /*  ,
+                {
+                    "sWidth": "110px",
+                    "sTitle": "操作",
+                    "mData": "",
+                    "sClass": "ph_tableShow",
+                    "mRender": function (data, type, full) {
+                        console.log("fullId"+full.id)
+                        var text = '<div class="ph_operateBox"><input class="ph_operate" name="" type="button" value="操作选项">';
+                        text = text + '<ul class="ph_operateList hide" role="menu">';
+                        text += '<li ><a href="#" onclick="deleteById(\'' + full.id + '\');">删除</a> </li>';
+                        text = text + '</ul></div>';
+                        return text;
+                    }
+                }*/
+            ],
+            "oLanguage": {
+                "sProcessing": "数据加载中······",
+                "sLengthMenu": "显示 _MENU_ 条记录",
+                "sZeroRecords": "没有您要搜索的内容！",
+                "sEmptyTable": "列表中无数据存在！",
+                "sInfo": "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+                "sInfoEmpty": "显示 0 到 0 条记录",
+                "sInfoFiltered": "数据列表中共  _MAX_ 条记录",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "fnServerData": function (sSource, aoData, fnCallback, oSettings) {
+                oSettings.jqXHR = $.ajax({
+                    "dataType": 'json',
+                    "type": "GET",
+                    "async": 'false',
+                    "url": sSource,
+                    "data": {
+                        'pageNum': (aoData[3].value / aoData[4].value) + 1,
+                        'pageSize': aoData[4].value,
+                        'phone':  $("#phone").val(),
+                        'startTime' : $('#startTime').val(),
+                        'endTime' :  $('#endTime').val()
+                    },
+                    "success": fnCallback
+                });
+            }
+        });
+        // 添加专员以及校验
+        $('#ph_snbBt').on('click', '.Js_deliver', function () {
+            layer.open({
+                type: 1,
+                title: '添加驻店专员',
+                closeBtn: 0,
+                area: ['442px', '240px'],
+                btn: ['保存', '取消'],
+                btnAlign: 'c',
+                content: $('#deliverBox'),
+                
+                btn1: function (index) {
+                    var hunterId = $("#editTelphone").val();
+                    // 添加之前校验
+                    $.ajax({
+                        type: "POST",
+                        url: "/web/merchant/checkHunters",
+                        data: {hunterId:hunterId},
+                        success: function (d) {
+                             // alert(111)
+                            if (d.code == 200) {
+                                $("#checkdiv").html(d.message);
+                                // 校验成功
+                                //  alert(d.data);
+
+                                $("#editUserId").attr("value", d.data);
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/web/merchant/add",
+                                    data: $("#addUserForm").serialize(),
+                                    success: function (d) {
+                                        console.log(d);
+                                        if (d.success) {
+                                            layer.alert("保存失败！", {
+                                                icon: 2,
+                                                title: '提示',
+                                                closeBtn: 0,
+                                                btnAlign: 'c'
+                                            });
+                                            tb.draw();
+                                        } else {
+                                            flage = 1;
+                                            layer.alert(d.message, {
+                                                icon: 1,
+                                                title: '成功',
+                                                closeBtn: 0,
+                                                btnAlign: 'c'
+                                            });
+                                            window.location.href = "";
+                                        }
+                                    }
+
+                                });
+
+                                layer.close(index);
+                            } else {
+
+                                $("#checkdiv").html(d.message);
+                            }
+                        },
+                        error: function (d) {
+                            console.log(d);
+                            if (d.code == 400) {
+                                $("#checkdiv").html(d.message);
+                            } else {
+
+                                $("#checkdiv").html(d.message);
+
+                            }
+                        }
+                    });
+                    // $('#addUserForm')[0].reset()
+                }
+            });
+        });
+        //验证初始化
+        $('#addUserForm').validationEngine({
+            promptPosition: 'bottomLeft'
+            , autoPositionUpdate: false
+            , addPromptClass: 'formError-text'
+            , autoHidePrompt: true
+            , autoHideDelay: 3000
+            , fadeDuration: 0.3
+        });
+
+    });
+
+    function reset() {
+        $("#selectForm")[0].reset();
+        $("#isable").selectpicker('val', "");
+    }
+
+    //条件查询重新加载数据
+    function query() {
+        tb.draw();
+    }
+
+    function editUser(id, userName, telphone) {
+        //给表单赋值
+        if (userName == 'null') {
+            $("#userName").val("");
+        } else {
+            $("#userName").val(userName);
+        }
+        $("#editUserId").val(id);
+        $("#editTelphone").val(telphone);
+
+        layer.open({
+            type: 1,
+            title: '编辑用户',
+            closeBtn: 0,
+            area: ['442px', '230px'],
+            btn: ['保存', '取消'],
+            btnAlign: 'c',
+            content: $('#deliverBox'),
+            btn1: function (index) {
+                var flag = $("#addUserForm").validationEngine("validate");
+                if (!flag) {
+                    return false;
+                }
+                $.ajax({
+//              async       : false,
+                    type: "POST",
+                    url: "/web/permission/user/update",
+                    data: $("#addUserForm").serialize(),
+                    success: function (d) {
+                        console.log(d);
+                        if (d.success) {
+                            tb.draw(false);
+                            layer.alert("保存成功！", {
+                                icon: 1,
+                                title: '提示',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        } else {
+                            layer.alert(d.message, {
+                                icon: 2,
+                                title: '失败',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        }
+                    }
+                });
+                $('#addUserForm')[0].reset()
+                layer.close(index);
+
+            },
+            btn2: function (index) {
+                //清空表单
+                $('#addUserForm')[0].reset()
+                layer.close(index);
+            }
+        });
+    }
+
+    //删除驻店专员
+    function deleteById(userId) {
+        console.log("*************"+userId);
+        layer.confirm('是否删除该驻店专员？', {
+            icon: 3,
+            btn: ['是', '否'], //按钮
+            btn1: function (index) {
+                $.ajax({
+                    async: false,
+                    url: "/web/merchant/delete",
+                    data: {userId: userId},
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code = "200") {
+                            tb.draw(false);
+                            layer.alert(data.message, {
+                                icon: 1,
+                                title: '提示',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        } else {
+                            layer.alert(data.message, {
+                                icon: 2,
+                                title: '失败',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        }
+                    }
+                });
+                layer.close(index);
+            },
+
+        });
+    }
+
+    //冻结
+    function frozenById(userId, telphone) {
+        console.log("*************"+userId);
+        layer.confirm('是否冻结用户？', {
+            icon: 3,
+            btn: ['是', '否'], //按钮
+            btn1: function (index) {
+
+                $.ajax({
+                    async: false,
+                    url: "/web/permission/user/frozen",
+                    data: {id: userId, telphone: telphone},
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code = "200") {
+                            tb.draw(false);
+                            layer.alert("冻结成功,该用户已被踢出！", {
+                                icon: 1,
+                                title: '提示',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        } else {
+                            layer.alert(data.message, {
+                                icon: 2,
+                                title: '失败',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        }
+                    }
+                });
+                layer.close(index);
+            }
+        });
+    }
+    //解冻
+    function startById(userId) {
+        layer.confirm('是否解冻用户？', {
+            icon: 3,
+            btn: ['是', '否'], //按钮
+            btn1: function (index) {
+                $.ajax({
+                    async: false,
+                    url: "/web/permission/user/start",
+                    data: {id: userId},
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code = "200") {
+                            tb.draw(false);
+                            layer.alert("解冻成功！", {
+                                icon: 1,
+                                title: '提示',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        } else {
+                            layer.alert(data.message, {
+                                icon: 2,
+                                title: '失败',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        }
+                    }
+                });
+                layer.close(index);
+            }
+        });
+    }
+
+    //加载角色
+    function showRole(userId, telPhone, userName) {
+        $("#userId").val(userId);
+        $("#tel").val(telPhone);
+        //获取已选角色
+        var chooseRole = new Array();
+        $(function () {
+            //获取角色数据
+            $.ajax({
+                async: false,
+                type: "GET",
+                url: "/web/permission/userdp/getUserRole?userId=" + userId,
+                success: function (data) {
+                    if (data.data) {
+                        chooseRole = data.data;
+                    } else {
+                        layer.alert("加载用户已选角色数据异常!", {
+                            icon: 2,
+                            title: '失败',
+                            closeBtn: 0,
+                            btnAlign: 'c'
+                        });
+                    }
+                }
+            });
+
+            //获取角色数据
+            $.ajax({
+                async: false,
+                type: "GET",
+                url: "/web/permission/roledp/list/all",
+                success: function (data) {
+                    if (data.data) {
+
+                        var th = '<thead><tr> <th width="50"><input class="check-all" name="" type="checkbox"></th><th>编号</th><th>角色名称</th><th>角色描述</th><th>状态</th> </tr></thead>'
+                        var trs = '';
+                        var selectAll = true;
+
+                        for (var i = 0; i < data.data.length; i++) {
+
+                            if (data.data[i].status == 0) {
+                                data.data[i].status = '启用';
+                            } else {
+                                data.data[i].status = '禁用';
+                            }
+
+                            if (!data.data[i].description) {
+                                data.data[i].description = '';
+                            }
+
+                            var selected = false;
+                            var tr = '<tr><th><input class="ids" name="roleIds" value="' + data.data[i].id + '" type="checkbox" ></th><td >' + data.data[i].id + '</td><td >' + data.data[i].roleName + '</td><td >' + data.data[i].description + '</td><td >' + data.data[i].status + '</td></tr>';
+                            if (chooseRole && chooseRole.length != 0) {
+                                for (var j = 0; j < chooseRole.length; j++) {
+                                    if (chooseRole[j] == data.data[i].id) {
+                                        tr = '<tr><th><input class="ids" name="roleIds" value="' + data.data[i].id + '" type="checkbox" checked="checked"></th><td >' + data.data[i].id + '</td><td >' + data.data[i].roleName + '</td><td >' + data.data[i].description + '</td><td >' + data.data[i].status + '</td></tr>';
+                                        selected = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            trs += tr;
+                            if (!selected) {
+                                selectAll = false;
+                            }
+                        }
+
+                        if (selectAll) {
+                            th = '<thead><tr> <th width="50"><input class="check-all" name="" type="checkbox" checked="checked"></th><th>编号</th><th>角色名称</th><th>角色描述</th><th>状态</th> </tr></thead>'
+                        }
+
+                        $("#userRole").append(th + '<tbody>' + trs + '</tbody>');
+
+                    } else {
+                        layer.alert("加载角色数据异常!", {
+                            icon: 2,
+                            title: '失败',
+                            closeBtn: 0,
+                            btnAlign: 'c'
+                        });
+                    }
+                }
+            });
+
+            if(userName=='null'){
+                userName=telPhone+'(电话)';
+            }
+
+            layer.open({
+                type: 1,
+                title: '对【' + userName+ '】分配角色',
+                closeBtn: 0,
+                area: ['666px', '440px'],
+                btn: ['保存', '取消'],
+                btnAlign: 'c',
+                content: $('#ph_lookBox'),
+                btn1: function (index) {
+                    updateRole(userId);
+                    layer.close(index);
+                    $("#userRole").empty();
+                },
+                btn2: function (index) {
+                    layer.close(index);
+                    $("#userRole").empty();
+                }
+            });
+        });
+    }
+    //修改角色
+    function updateRole(userId) {
+        $.ajax({
+            async: false,
+            url: "/web/permission/user/updateUserPermission",
+            data: $("#userRoleForm").serialize(),
+            type: "POST",
+            success: function (data) {
+                if (data.code == "200") {
+                    tb.draw(false);
+                    layer.alert("角色分配成功,该用户将重新登录！", {
+                        icon: 1,
+                        title: '提示',
+                        closeBtn: 0,
+                        btnAlign: 'c',
+                        btn1: function (index) {
+                            if (userId == sessionUser.id) {
+                                window.location.href = '/web/permission/user/listPage'
+                            }
+                            tb.draw(false);
+                            layer.close(index);
+                        }
+                    });
+                } else {
+                    layer.alert(data.message, {
+                        icon: 2,
+                        title: '失败',
+                        closeBtn: 0,
+                        btnAlign: 'c'
+                    });
+                }
+            }
+        });
+    }
+    //导出
+   /* var getExcel = function () {
+        var provinceId=$("select[name='provinceId']").attr("data-area-code-selected"),
+            cityId=$("select[name='cityId']").attr("data-area-code-selected"),
+            countyId=$("select[name='countyId']").attr("data-area-code-selected");
+        var data = {
+            /!*'supplierType': $("#supplierType").val(),
+            'status': $('#status').val(),
+            'isFrozen': $('#isFrozen').val(),
+            'userTelphone': $('#userTelphone').val(),
+            'provinceId': provinceId ? provinceId : "",
+            'cityId': cityId ? cityId:"",
+            'countyId': countyId ? countyId : "",
+            'supplierName': $('#supplierName').val(),
+            'isDelete':0,
+            'positionExtendsId': getPositionVal()*!/
+            'createdTime': $('#createdTime').val(),
+            'hunterId': hunterId ? hunterId : "",
+            'profitMoney': $('#profitMoney').val()
+        };
+        exportExcel("ajaxSubmit", "/web/supplier/getExport", data);
+    };
+*/
+    /**
+     * 导出数据
+     */
+    function exportExcel() {
+        $('#e_starTime').val($('#startTime').val());
+        $('#e_endTime').val($('#endTime').val());
+        $('#e_orderNo').val($('#orderNo').val());
+        $('#e_terminalUnit').val($('#terminalUnit').val());
+        $('#e_status').val($('#status').val());
+        $('#merchantHunter').submit();
+    }
+    /**
+     * 重置内容
+     */
+    //重置查询条件--star
+    function resetForm() {
+        clearData("queryForm");
+    }
+    function clearData(id) {
+        $("#" + id)[0].reset();
+        var selected = $("#" + id).find("select");
+        if (selected.length > 0) {
+            for (var i = 0, length = selected.length; i< length; i++) {
+                selected.eq(i).selectpicker('val','');
+            }
+        }
+    }
+    //重置查询条件-end
+
+    function getMyDate(time){
+        if(typeof(time)=="undefined"){
+            return "";
+        }
+        var oDate = new Date(time),
+            oYear = oDate.getFullYear(),
+            oMonth = oDate.getMonth()+1,
+            oDay = oDate.getDate(),
+            oHour = oDate.getHours(),
+            oMin = oDate.getMinutes(),
+            oSen = oDate.getSeconds(),
+            oTime = oYear +'-'+ getzf(oMonth) +'-'+ getzf(oDay) +' '+ getzf(oHour) +':'+ getzf(oMin) +':'+getzf(oSen);//最后拼接时间
+
+        return oTime;
+    };
+
+    //补0操作,当时间数据小于10的时候，给该数据前面加一个0
+    function getzf(num){
+        if(parseInt(num) < 10){
+            num = '0'+num;
+        }
+        return num;
+    }
+</script>
+</body>
+</html>

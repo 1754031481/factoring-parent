@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>奖池详情</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <script TYPE="text/javascript" th:src="@{/static/js/plugins/My97DatePicker/WdatePicker.js}"></script>
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">奖池详情</a></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>奖池详情</h2>
+            <div class="ph_snbBtn">
+
+            </div>
+        </div>
+        <form id="queryForm" th:action="@{/web/lottery/prizeDetails}" th:method="POST">
+            <div class="ph_screen">
+                <shiro:hasPermission name="orderOnlineQuery">
+                    <table class="ph_tableBox">
+                        <tr>
+                            <th>奖项券号：</th>
+                            <td colspan="2">
+                                <p class="dayBox">
+                                    <input type="text" name="num">
+                                </p>
+                            </td>
+                            <th>奖项等级：</th>
+                            <td colspan="2">
+                                <p class="dayBox">
+                                    <input type="text" name="prizeName">
+                                </p>
+                            </td>
+                            <th>手机号：</th>
+                            <td colspan="2">
+                                <p class="dayBox">
+                                    <input type="text" name="phone">
+                                </p>
+                            </td>
+                            <td>
+                                <input name="" type="button" value="查询" onclick="query()">
+                            </td>
+                        </tr>
+                    </table>
+                </shiro:hasPermission>
+            </div>
+        </form>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="example" >
+                <!--<tr>-->
+                    <!--<td>奖项</td>-->
+                    <!--<td>奖项金额</td>-->
+                    <!--<td>券号</td>-->
+                    <!--<td>开奖时间</td>-->
+                    <!--<td>订单总金额</td>-->
+                    <!--<td>状态</td>-->
+                <!--</tr>-->
+                <!--<tr  th:if="${not #lists.isEmpty(prizePoolVOS)}" th:each="prize:${prizePoolVOS}">-->
+                    <!--<td th:text="${prize.prizeName}"></td>-->
+                    <!--<td th:text="${prize.prizePrice}"></td>-->
+                    <!--<td th:text="${prize.num}">未开奖</td>-->
+                    <!--<td th:text="${prize.lotteryOpenTime}">已开奖</td>-->
+                    <!--<td th:text="${prize.orderSumPrice}"></td>-->
+                    <!--<td th:if="${prize.status == 0}">未开奖</td>-->
+                    <!--<td th:if="${prize.status == 1}">已开奖</td>-->
+                <!--</tr>-->
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    var id = [[${id}]];
+    var tb;
+    //分页
+    tb = $('#example').DataTable({
+        "lengthChange": false,
+        "ordering": false,
+        "searching": false,
+
+        "bServerSide": true,
+        "sPaginationType": "full_numbers",
+        "bJQueryUI": true,
+        "sDom": '<"">t<"F"ip>',
+        "sAjaxSource": "/web/lottery/prizeDetails", //ajax调用接口
+        "aoColumnDefs": [{sDefaultContent: '', aTargets: ['_all']}],
+        "aoColumns": [
+            {
+                "sWidth": "50px",
+                "sTitle": "序号",
+                "mData": "id",
+                "class": "sClass",
+                "mRender": function (data, type, full, meta) {
+                    return meta.row + 1 + meta.settings._iDisplayStart;
+                }
+            },
+            {"sTitle": "奖项", "mData": "name", "sWidth": "250px"},
+            {"sTitle": "奖项金额", "mData": function (obj) {
+                    return obj.price / 10000.00;
+                }},
+            {"sTitle": "奖券数", "mData": "lotteryNum"},
+            { "sTitle": "开奖时间","mData":
+                function(obj){
+                    return getMyDate(obj.lotteryOpenTime)
+                }
+            },
+            {"sTitle": "订单总金额", "mData": "orderSumPrice","mRender": function (data, type, full){
+                return full.orderSumPrice / 10000.00;
+                }},
+            {
+                "sTitle": "状态", "mData": "status", "mRender": function (data, type, full) {
+                var text;
+                if (full.status == 1) {
+                    text = "已开奖";
+                }  else if (full.status == 0) {
+                    text = "未开奖";
+                }
+                return text;
+            }
+            }
+        ],
+        "oLanguage": {
+            "sProcessing": "数据加载中······",
+            "sLengthMenu": "显示 _MENU_ 条记录",
+            "sZeroRecords": "没有您要搜索的内容！",
+            "sEmptyTable": "列表中无数据存在！",
+            "sInfo": "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+            "sInfoEmpty": "显示 0 到 0 条记录",
+            "sInfoFiltered": "数据列表中共  _MAX_ 条记录",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        },
+        "fnServerData": function (sSource, aoData, fnCallback, oSettings) {
+            oSettings.jqXHR = $.ajax({
+                "dataType": 'json',
+                "type": "GET",
+                "async": 'false',
+                "url": sSource,
+                "data": {
+                    'pageNum': (aoData[3].value / aoData[4].value) + 1,
+                    'pageSize': aoData[4].value,
+                    'prizeName': $.trim($("[name='prizeName']").val()),
+                    'id':id
+
+                },
+                "success": fnCallback
+            });
+        },
+        "fnDrawCallback": function () {
+            var api = this.api();
+            var startIndex = api.context[0]._iDisplayStart;//获取到本页开始的条数
+            api.column(0).nodes().each(function (cell, i) {
+                cell.innerHTML = startIndex + i + 1;
+            });
+        }
+    });
+    function query() {
+        tb.draw();
+    }
+    //将时间戳格式化
+    function getMyDate(time){
+        if(typeof(time)=="undefined"){
+            return "";
+        }
+        var oDate = new Date(time),
+            oYear = oDate.getFullYear(),
+            oMonth = oDate.getMonth()+1,
+            oDay = oDate.getDate(),
+            oHour = oDate.getHours(),
+            oMin = oDate.getMinutes(),
+            oSen = oDate.getSeconds(),
+            oTime = oYear +'-'+ getzf(oMonth) +'-'+ getzf(oDay) +' '+ getzf(oHour) +':'+ getzf(oMin) +':'+getzf(oSen);//最后拼接时间
+        if (oTime == '1970-01-01 08:00:00'){
+            return "";
+        }
+        return oTime;
+    };
+    //补0操作,当时间数据小于10的时候，给该数据前面加一个0
+    function getzf(num){
+        if(parseInt(num) < 10){
+            num = '0'+num;
+        }
+        return num;
+    }
+</script>
+</body>
+</html>

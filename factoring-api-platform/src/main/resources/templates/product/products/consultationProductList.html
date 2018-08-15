@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>商品列表</title>
+    <link rel="stylesheet"  th:href="@{/static/css/common/models.css}" />
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet"   th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet"  th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+       <link rel="stylesheet" th:href="@{/static/js/plugins/layer/layer.css}" />
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}">
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <!--end 标题-->
+        <!--筛选条件-->
+        <div class="ph_screen">
+            <table class="ph_tableBox">
+                <tr>
+                    <th>商品品牌：</th>
+                    <td>
+                        <select class="selectpicker" data-live-search="true"  id="brandId">
+                            <option value="">请选择</option>
+                            <option  th:each="sp:${brandList}"   th:value="${sp.id}"
+                                     th:text="${sp.name}"></option>
+                        </select>
+                    </td>
+                    <th>商品名称：</th>
+                    <td><input type="text" id="productName" name="productName" ></td>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align: right">
+                        <input name="" type="button"  onclick="javascript:query();" value="查询"><input name="" type="button"  onclick="javascript:reset();" value="重置">
+                    </td>
+                </tr>
+            </table>
+            <input type="hidden"    id="levleHidden"  value=""/>
+	       	<input type="hidden"    id="productClassifyId"  name="productClassifyId" value=""/>
+        </div>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="example"></table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+
+<!--bootstrap-select-->
+<script type="text/javascript"  th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/formCheck.js}"></script>
+<!--分页-->
+<script type="text/javascript"   th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/common/number.js}"></script>
+    <!--图片点击放大-->
+    <script type="text/javascript" th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+<script type="text/javascript"  th:inline="javascript">
+var tb;
+$(function() {
+    var Popupe = new PopupBase();
+    Popupe.show('.ph_wareBox','.lookBtn', '.maskBox,.ph_lookBox');
+    Popupe.show('.ph_wareBox','.lookBtn', '.maskBox,.ph_lookBox');
+    Popupe.show('.ph_wareBox','.Js_btn', '.maskBox,.DeterBox');
+    Popupe.showHide('.submit', '.DeterBox','.SucBox');
+    Popupe.hide('.close', '.maskBox,.DeterBox,.SucBox,.ph_lookBox');
+    tb=$('#example').DataTable({
+        "lengthChange": false,
+        "ordering": false,
+        "searching": false,
+
+        "bServerSide": true,
+        "autoWidth": false,
+         "sPaginationType": "full_numbers",
+         //"bJQueryUI": true,
+         "sDom": '<"">t<"F"ip>',
+        "sAjaxSource":"/web/product/getConsultationProductByPage", //ajax调用接口
+         "aoColumnDefs": [{sDefaultContent: '',aTargets: [ '_all' ]}],
+         "aoColumns": [
+             { "sWidth": "50px", "sTitle" : "<input type='checkbox' onclick='checkAll(this)' />","mData": "id" , "class": "sClass", "mRender": function (data, type, full, meta) {
+                 return "<input type='checkbox' name='productId' value='"+data+"'/>";
+             }
+             },
+             { "sWidth": "50px", "sTitle" : "序号","mData": "type" , "class": "sClass", "mRender": function (data, type, full, meta) {
+                 return meta.row + 1 + meta.settings._iDisplayStart;
+             }
+             },
+             { "sTitle" : "商品品牌","mData": "brandName"},
+             { "sTitle" : "商品名称","mData": "name"},
+             {
+                 "sTitle": "商品图片", "mData": "imageurl", "mRender": function (data, type, full) {
+                 var text = ""
+                 if (data) {
+                     text = "<img src='" + data + "' class='show-img zoom-img'/>";
+                 }
+                 return text;
+             }
+             }
+         ],
+        "oLanguage" : {
+            "sProcessing" : "数据加载中······",
+            "sLengthMenu" : "显示 _MENU_ 条记录",
+            "sZeroRecords" : "没有您要搜索的内容！",
+            "sEmptyTable" : "列表中无数据存在！",
+            "sInfo" : "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+            "sInfoEmpty" : "显示 0 到 0 条记录",
+            "sInfoFiltered" : "数据列表中共  _MAX_ 条记录",
+            "oPaginate" : {
+                "sFirst" : "首页",
+                "sPrevious" : "上一页",
+                "sNext" : "下一页",
+                "sLast" : "末页"
+            }
+        },
+        "fnServerData" : function ( sSource, aoData, fnCallback, oSettings ) {
+            oSettings.jqXHR = $.ajax( {
+                "dataType" 	: 'json',
+                "type" 		: "GET",
+                "async"     : 'false',
+                "url" 		: sSource,
+                "data" 		: {
+                    'pageNum': (aoData[3].value/aoData[4].value)+1,
+                    'pageSize' :  aoData[4].value,
+                    'brandId' : $('#brandId').val(),
+                    'productName' : $('#productName').val()
+                },
+                "success"	: fnCallback
+            } );
+        },
+        "fnDrawCallback": function () {
+            //点击图片放大初始化
+            $('.zoom-img').viewer({
+                url: 'src',
+                navbar: false,
+                keyboard: true,
+                title: true
+            });
+        }
+    });
+});
+
+//条件查询重新加载数据
+function query() {
+	  tb.draw();
+};
+
+
+function  reset(){
+    $('#productName').val("");
+	$("#brandId").val("");
+	$('.selectpicker').selectpicker('refresh');
+}
+
+function checkAll(e) {
+    $("input[name='productId']").prop("checked",$(e).prop("checked"));
+}
+
+</script>
+</body>
+</html>

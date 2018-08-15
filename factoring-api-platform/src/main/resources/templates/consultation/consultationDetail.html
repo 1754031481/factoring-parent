@@ -1,0 +1,86 @@
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>资讯详情</title>
+    <link rel="stylesheet" th:href="@{/static/css/consultation/base.css}" />
+    <link rel="stylesheet" th:href="@{/static/css/consultation/page_new.css}" />
+    <link rel="stylesheet" th:href="@{/static/css/consultation/product_list.css}" />
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}"/>
+</head>
+
+<body>
+<div class="box box9">
+    <h2><span></span>资讯详情<button class="close_tab" id="cancel">关闭</button><button id="refresh">刷新</button></h2>
+    <div class="choose_lei">
+
+        <div class="right">
+            <div class="ping_list">
+                <h3 th:text="${consultation.title}">这一次的懒人虾尾，包你过瘾</h3>
+                <h4>用户名称/手机号：<span th:text="${consultation.phone}">餐厨专题</span>发布时间:<span th:text="${consultation.createdTime}">2017-03-22 11:05</span></h4>
+                <div th:each="consultationDetail:${consultationDetailList}" >
+                    <p th:if="${consultationDetail.type == 0}" th:text="${consultationDetail.content}">小龙虾自从在严选上架以来，一直是饮食类的明星商品。评论区的好评与晒图迅速突破999+，6月初我们还在公司园区摆下龙虾宴，1.28吨小龙虾2小时内就被一扫而空，可见小龙虾的魅力实在难挡。</p>
+                    <div class="link_content" th:if="${consultationDetail.type == 1 && consultationDetail.cover!=1}" >
+                    <img th:src="${#strings.contains(consultationDetail.attachmentAddress,'https://ph-images.oss-cn-shenzhen.aliyuncs.com/')||#strings.contains(consultationDetail.attachmentAddress,'http://yst-images.img-cn-hangzhou.aliyuncs.com/')}?${consultationDetail.attachmentAddress}:'http://yst-images.img-cn-hangzhou.aliyuncs.com/'+${consultationDetail.attachmentAddress}" class="zoom-img">
+                    </div>
+                    <div class="link_product" th:if="${consultationDetail.type == 2}">
+                        <img th:src="${consultationDetail.imageurl}" class="zoom-img"/>
+                        <p class="pro_name" th:text="${consultationDetail.specificationName}">麻辣虾尾 250克*4袋（净虾600克）</p>
+                        <p class="pro_cont" th:text="${consultationDetail.productName}">鲜嫩虾球，便捷饕餮</p>
+                        <p class="pro_price" th:text="'¥'+${#numbers.formatDecimal(consultationDetail.salePrice,1,2)}">¥99</p>
+                    </div>
+                    <div class="link_product" th:if="${consultationDetail.type == 3}">
+                        <audio controls="controls" th:src="${#strings.contains(consultationDetail.attachmentAddress,'https://ph-images.oss-cn-shenzhen.aliyuncs.com/')||#strings.contains(consultationDetail.attachmentAddress,'http://yst-images.img-cn-hangzhou.aliyuncs.com/')}?${consultationDetail.attachmentAddress}:'http://yst-images.img-cn-hangzhou.aliyuncs.com/'+${consultationDetail.attachmentAddress}"></audio>
+                    </div>
+                    <div class="link_product" th:if="${consultationDetail.type == 4}">
+                        <video width="250px" controls="controls" th:src="${#strings.contains(consultationDetail.attachmentAddress,'https://ph-images.oss-cn-shenzhen.aliyuncs.com/')||#strings.contains(consultationDetail.attachmentAddress,'http://yst-images.img-cn-hangzhou.aliyuncs.com/')}?${consultationDetail.attachmentAddress}:'http://yst-images.img-cn-hangzhou.aliyuncs.com/'+${consultationDetail.attachmentAddress}"></video>
+                    </div>
+                </div>
+
+
+                <h5 style="text-align: right;"><span class="shoucang" th:text="'点赞 '+${consultation.fabulousNum}">点赞 1000</span><span class="yuedu" th:text="'阅读 '+${consultation.readNum}">阅读 1000</span><span class="zhuanfa" th:text="'分享 '+${consultation.shareNum}">分享 1000</span></h5>
+                <div id="comment">
+                </div>
+            </div>
+        </div>
+        <div class="left">
+            <p>封面主题</p>
+            <div th:each="consultationDetail:${consultationDetailList}">
+                <img th:if="${consultationDetail.type == 1 && consultationDetail.cover==1}" th:src="${#strings.contains(consultationDetail.attachmentAddress,'https://ph-images.oss-cn-shenzhen.aliyuncs.com/')||#strings.contains(consultationDetail.attachmentAddress,'http://yst-images.img-cn-hangzhou.aliyuncs.com/')}?${consultationDetail.attachmentAddress}:'http://yst-images.img-cn-hangzhou.aliyuncs.com/'+${consultationDetail.attachmentAddress}" class="zoom-img">
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<!--图片点击放大-->
+<script type="text/javascript" th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+<!--分页插件-->
+<script type="text/javascript" th:src="@{/static/js/common/page_new.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+
+<script th:inline="javascript">
+    var consultationId = "[[${consultation.id}]]";
+    var pageNum = [[${param.pageNum[0]}]];
+    $(function () {
+        $('.zoom-img').viewer({
+            url: 'src',
+            navbar: false,
+            keyboard: true,
+            title: true
+        });
+        //取消
+        $("#cancel").click(function () {
+            window.location.href=[[${param.backUrl}]]+"?toBack=1";
+        });
+        //刷新
+        $("#refresh").click(function () {
+            window.location.reload();
+        });
+        $("#comment").load("/web/consultation/getConsultationCommentList?consultationId="+consultationId);
+    })
+</script>
+</body>
+</html>
+

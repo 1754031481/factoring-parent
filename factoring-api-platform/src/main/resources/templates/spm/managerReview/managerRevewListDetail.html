@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>库存申请记录详情</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <script TYPE="text/javascript" th:src="@{/static/js/plugins/My97DatePicker/WdatePicker.js}"></script>
+</head>
+<body>
+<div class="MainContent">
+    <div class="current">当前位置：<a href="#">库存申请记录详情</a></div>
+    <div class="MainCont">
+        <div class="ph_subTit">
+            <h2>库存申请记录详情</h2>
+            <input type="hidden" name="id" th:value="${id}">
+            <div class="ph_snbBtn">
+
+            </div>
+        </div>
+        <form>
+            <div class="ph_screen">
+                <shiro:hasPermission name="orderOnlineQuery">
+                    <table class="ph_tableBox">
+                    </table>
+                </shiro:hasPermission>
+            </div>
+        </form>
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="example">
+
+            </table>
+        </div>
+        <div class="PopupBtn">
+            <input type="button" th:onclick="'javascript:approval(\''+4+'\')'" name="go" value="审批通过"></input>
+            <input type="button" th:onclick="'javascript:approval(\''+2+'\')'" name="out" value="驳回"></input>
+            <input type="button" onclick="toManagerList()" value="返回"></input>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    var tb;
+    //分页
+    tb = $('#example').DataTable({
+        "lengthChange": false,
+        "ordering": false,
+        "searching": false,
+
+        "bServerSide": true,
+        "sPaginationType": "full_numbers",
+        "bJQueryUI": true,
+        "sDom": '<"">t<"F"ip>',
+        "sAjaxSource": "getManagerReviewList", //ajax调用接口
+        "aoColumnDefs": [{sDefaultContent: '', aTargets: ['_all']}],
+        "aoColumns": [
+            {
+                "sWidth": "50px",
+                "sTitle": "序号",
+                "mData": "id",
+                "class": "sClass",
+                "mRender": function (data, type, full, meta) {
+                    return meta.row + 1 + meta.settings._iDisplayStart;
+                }
+            },
+            {"sTitle": "商品名称", "mData": "productName", "sWidth": "250px"},
+            {"sTitle": "旧库存", "mData": "oldRepertory"},
+            {"sTitle": "盘点库存", "mData": "checkRepertory"},
+            {"sTitle": "差值", "mData": "difValue"},
+            {
+                "sTitle": "状态", "mData": "detailStatus", "mRender": function (data, type, full) {
+                    var text;
+                    if (full.detailStatus == 1) {
+                        text = "财务待审核";
+                    } else if (full.detailStatus == 0) {
+                        text = "店长待审核";
+                    } else if (full.detailStatus == 2) {
+                        text = "店长已驳回";
+                    } else if (full.detailStatus == 3) {
+                        text = "财务已驳回";
+                    } else if (full.detailStatus == 4) {
+                        text = "审核通过";
+                    }
+                    if (full.detailStatus != 0) {
+                        $("[name='go']").attr("disabled", true);
+                        $("[name='out']").attr("disabled", true);
+                    }
+                    return text;
+                }
+            },
+            {
+                "sTitle": "操作时间", "mData": "operatingTimeDetail", "mRender": function (data, type, full) {
+                    var date = new Date(full.operatingTimeDetail);
+                    var Y = date.getFullYear() + '-';
+                    var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                    var D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + ' ';
+                    var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+                    var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+                    var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+                    return Y + M + D + h + m + s;
+                }
+            }
+        ],
+        "oLanguage": {
+            "sProcessing": "数据加载中······",
+            "sLengthMenu": "显示 _MENU_ 条记录",
+            "sZeroRecords": "没有您要搜索的内容！",
+            "sEmptyTable": "列表中无数据存在！",
+            "sInfo": "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+            "sInfoEmpty": "显示 0 到 0 条记录",
+            "sInfoFiltered": "数据列表中共  _MAX_ 条记录",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        },
+        "fnServerData": function (sSource, aoData, fnCallback, oSettings) {
+            oSettings.jqXHR = $.ajax({
+                "dataType": 'json',
+                "type": "GET",
+                "async": 'false',
+                "url": sSource,
+                "data": {
+                    'pageNum': (aoData[3].value / aoData[4].value) + 1,
+                    'pageSize': aoData[4].value,
+                    'id': $.trim($("[name='id']").val())
+                },
+                "success": fnCallback
+            });
+        },
+        "fnDrawCallback": function () {
+            var api = this.api();
+            var startIndex = api.context[0]._iDisplayStart;//获取到本页开始的条数
+            api.column(0).nodes().each(function (cell, i) {
+                cell.innerHTML = startIndex + i + 1;
+            });
+        }
+    });
+
+    function query() {
+        tb.draw();
+    }
+
+    function approval(status) {
+        if (status == null || status == '') {
+            layer.msg("服务器错误!");
+            return;
+        }
+        var id = $("[name='id']").val();
+        if (id == null || id == '') {
+            layer.msg("服务器错误!");
+            return;
+        }
+        if (status == 4) {
+            //信息框-例2
+            // var index = layer.confirm('确定审核通过吗？', {
+            //     time: 0, //不自动关闭,
+            //     icon: 3
+            //     ,btn: ['确定', '取消']
+            //     ,yes: function(index){
+            //         layer.close(index);
+            layer.prompt({
+                title: '输入审核通过备注(必填)',
+                formType: 2,
+                value: '通过',
+                maxlength: 200,
+                minlength: 1
+            }, function (value, index, elem) {
+                var dzRemark = value;
+                $.ajax({
+                    url: "approval",
+                    data: {id: id, status: status, dzRemark: dzRemark},
+                    type: "post",
+                    success: function (data) {
+                        if (data.success) {
+                            layer.alert("审核通过成功", {
+                                icon: 1,
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            }, function () {
+                                location.href = "toManagerList";
+                            })
+                        } else {
+                            layer.alert("审核通过失败", {
+                                icon: 2,
+                                title: '失败',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        }
+                    }
+                })
+            });
+            //     }
+            // });
+            // layer.style(index, {
+            //     width: '260px',
+            //     height:'153px'
+            // });
+        } else if (status == 2) {
+            //信息框-例2
+            // var index = layer.confirm('确定驳回申请吗？', {
+            //     time: 0, //不自动关闭
+            //     icon: 3
+            //     ,btn: ['确定', '取消']
+            //     ,yes: function(index){
+            //         layer.close(index);
+            layer.prompt({
+                title: '输入驳回备注(必填)',
+                formType: 2,
+                value: '驳回',
+                maxlength: 200,
+                minlength: 1
+            }, function (value, index, elem) {
+                var dzRemark = value;
+                $.ajax({
+                    url: "approval",
+                    data: {id: id, status: status, dzRemark: dzRemark},
+                    type: "post",
+                    success: function (data) {
+                        if (data.success) {
+                            layer.alert("驳回申请成功", {
+                                icon: 1,
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            }, function () {
+                                location.href = "toManagerList";
+                            })
+                        } else {
+                            layer.alert("驳回申请失败", {
+                                icon: 2,
+                                title: '失败',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        }
+                    }
+                })
+            });
+            //     }
+            // });
+            // layer.style(index, {
+            //     width: '260px',
+            //     height:'153px'
+            // });
+        }
+    }
+
+    function toManagerList() {
+        location.href = "toManagerList";
+    }
+</script>
+</body>
+</html>

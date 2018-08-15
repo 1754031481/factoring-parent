@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org"
+		xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>服务专员列表</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" th:href="@{/static/js/datepicker/css/bootstrap-datepicker.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}">
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="javascript:void(0)">服务专员管理</a>&nbsp;&gt;&nbsp;<span>服务专员列表</span> </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>服务专员列表</h2>
+            <div class="ph_snbBtn">
+                <shiro:hasPermission name="hunterAdd">
+	                <input name="" type="button" onclick="showAddHeadHunting()" value="添加服务专员">
+                </shiro:hasPermission>
+                <shiro:hasPermission name="hunterExport">
+	                <input name="" type="button" value="导出" onclick="exportData()">
+                </shiro:hasPermission>
+            </div>
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <form id="queryForm">
+        <div class="ph_screen">
+            <table class="ph_tableBox">
+                <tr>
+                    <th>服务专员账号：</th>
+                    <td><input name="" type="text" id="phone"></td>
+                    <th>服务专员姓名：</th>
+                    <td><input name="" type="text" id="name"></td>
+                    <th>服务专员工号：</th>
+                    <td><input name="" type="text" id="jobNum"></td>
+                    <th>服务专员身份：</th>
+                    <td>
+                        <select class="selectpicker" name="" id="level" >
+                            <option value="">全部</option>
+                            <option value="0">准服务专员</option>
+                            <option value="1">服务专员</option>
+                            <option value="2">服务经理</option>
+                        </select>
+                    </td>
+                    <td >
+                        <input name="" type="button" value="查询" onclick="query()">
+                        <input name="" type="button" value="重置" onclick="resetForm()">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        </form>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList"id="example">
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+<!--添加服务专员弹窗-->
+<div class="PopupBox" id="Js_divisionBox">
+    <!--内容-->
+    <div class="PopupCon">
+        <div class="ph_subPoCon ph_screen">
+            <form class="form-inline" id="add_verify">
+                <input class='zoom-img-input' type='hidden' name='papersImg' value="" id="papersImg">
+                <table class="ph_tableBox">
+                    <tr>
+                        <th><span class="require">*</span>手机号：</th>
+                        <td><input name="phone" type="text" style="width: 200px;" maxlength="11" id="phone1" class="validate[required,custom[phone],maxSize[11]]" onblur="checkIsCard(this)" ></td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>姓名：</th>
+                        <td><input name="name" type="text" style="width: 200px;" maxlength="11" id="name1" class="validate[required]"></td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>身份证号：</th>
+                        <td><input name="card" type="text" style="width: 200px;" maxlength="18" id="card" class="validate[required,custom[IDCard],maxSize[18]]"></td>
+                    </tr>
+                    <tr>
+                        <th>推荐服务专员账号：</th>
+                        <td><select class = "form-control selectpicker show-tick" data-live-search = "true"  name="reciveHunterId" id="reciveHunterId" >
+                            <option value="">请选择</option>
+                            <option th:each="hunter,sn:${hunterList}" th:value="${hunter.id}" th:text="${hunter.name}+','+${hunter.phone}"></option>
+                        </select></td>
+                    </tr>
+                   <tr>
+                        <th><span class="require">*</span>证件：</th>
+                        <td><div class="content-box">
+                            <div class="img-box addIndustry">
+                                <span class="imgup-notice">请上传证件照，照片大小不超过5M，限制格式：JPG、JPEG、PNG、BMP</span>
+                                <div class="img-box">
+                                    <section class="img-section">
+                                        <div class="z_photo upimg-div" data-file-type=3 >
+                                            <section class="z_file left">
+                                                <img th:src="@{/static/images/add.png}" class="add-img">
+                                                <input id="file" type="file" class="file validate[required]" value=""
+                                                       accept="image/jpg,image/jpeg,image/png,image/bmp"/>
+                                            </section>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div></td>
+                    </tr>
+                    <!--<tr>
+                        <th><span class="require">*</span>手机验证码：</th>
+                        <td><input name="code" style="width: 150px;" type="text" maxlength="6" id="code" class="validate[required,maxSize[6]]">
+                        <input type="button" onclick="getSmsCode(this)" id="send" value="获取验证码"></td>
+                    </tr>-->
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--end 内容-->
+    <form class="form-inline" id="export_data" th:action="@{/web/headhunting/exportHeadhuntingData}">
+    	<input type="hidden" id="e_phone" name="phone"/>
+        <input type="hidden" id="e_name" name="name"/>
+        <input type="hidden" id="e_level" name="level"/>
+        <input type="hidden" id="e_jobNum" name="jobNum"/>
+    </form>
+</div>
+<!--end 添加服务专员弹窗-->
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--属性输入框的增加和删除-->
+<script type="text/javascript" th:src="@{/static/js/common/attrbox.js}"></script><!--图片点击放大-->
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!-- 验证 -->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--图片点击放大-->
+<script type="text/javascript" th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/imgUp.js}"></script>
+<script type="text/javascript">
+	var tb;
+    $(function() {
+        //上传图片
+        $("#file").each(function (i, file) {
+            $(file).takungaeImgup({
+                maxImage: $(file).attr("data-file-maxImage"),
+                needNameInput: false,
+                formData: {
+                    'module': 'hunter'
+                },
+                success: function () {
+                    $("#papersImg").val($(".up-img").attr("data-img-upload-src"));
+                }
+            });
+        });
+
+        //删除重新生成图片
+//        $(".img-section").on("click", function () {
+//            generateImg();
+//        });
+    	//验证初始化
+        $('#add_verify').validationEngine({
+            validationEventTrigger: 'blur'//触发验证的事件，支持事件可参考 jQuery 的事件说明。
+            ,scroll: true//	屏幕自动滚动到第一个验证不通过的位置。
+            ,focusFirstField: true//验证未通过时，是否给第一个不通过的控件获取焦点。
+            ,validateNonVisibleFields: false//是否验证不可见的元素（如 type="hidden" 的输入框，或多个输入控件在选项卡切换中）
+            ,promptPosition:'bottomLeft'//位置
+            ,addPromptClass:'formError-text'//提示纯文本样式
+            ,autoPositionUpdate:false
+        });
+
+        //分页
+        tb = $('#example').DataTable({
+            "lengthChange": false,
+            "ordering": false,
+            "searching": false,
+            "bServerSide": true,
+            "autoWidth": true,
+            "sPaginationType": "full_numbers",
+            "bJQueryUI": true,
+            "sDom": '<"">t<"F"ip>',
+            "sAjaxSource": "/web/headhunting/getHeadhuntingList", //ajax调用接口
+            "aoColumnDefs": [{sDefaultContent: '',aTargets: [ '_all' ]}],
+            "aoColumns": [
+				  	{ "sTitle" : "序号","mData": "id" ,"class":"sClass"},
+	                { "sTitle" : "服务专员账号","mData": "phone","class":"sClass" },
+	                { "sTitle" : "服务专员姓名","mData": "name","class":"sClass" },
+                    { "sTitle" : "服务专员工号","mData": "jobNum","class":"sClass" },
+                    { "sTitle" : "身份证号","mData": "card","class":"sClass" },
+	                { "sTitle" : "服务专员身份","mData": "level","class":"sClass" ,"mRender":function(data,type,full) {
+                        if (data==0) {
+                            return  '准服务专员';
+                        }else if(data==1){
+                            return  '服务专员';
+                        }else if(data==2){
+                            return  '服务经理';
+                        }
+                        return '普通用户';
+                    }},
+	                { "sTitle" : "服务专员证件","mData": "papersImg","class":"sClass" ,"mRender":function(data,type,full) {
+                        if (data) {
+                            return  '<img class="show-img zoom-img" src="' + data + '" alt="">';
+                        }
+                        return '';
+                    } },
+	                { "sTitle" : "申请时间","sWidth": "150px","mData": "createdTime","class":"sClass" },
+                    { "sTitle" : "认证时间","sWidth": "150px","mData": "auditTime","class":"sClass" },
+                    { "sTitle" : "店铺名称","mData": "merchantName","class":"sClass" },
+                    { "sTitle" : "店铺帐号","mData": "merchantPhone","class":"sClass" },
+	                {
+	                    "sWidth": "110px",
+	                    "sTitle": "操作",
+	                    "mData": "id",
+	                    "sClass": "ph_tableShow",
+	                    "mRender": function (data, type, full) {
+                                var text = '<div class="ph_operateBox"><input class="ph_operate" name="" type="button" value="操作选项" >';
+	                    	  text = text + '<ul class="ph_operateList hide" role="menu">';
+                            if(full.auditStatus==0){
+                            if ('[[${session.hunterPass}]]'!='') {
+                                text += "<li><a class='Js_btn' href='javascript:audit(" + full.id + ",1);'>通过</a></li>";
+                            }
+                            if ('[[${session.hunterBack}]]'!='') {
+                                text += "<li><a class='Js_btn' href='javascript:audit(" + full.id + ",2);'>驳回</a></li>";
+                            }
+                            }
+							  text = text + '</ul></div>';
+							  return text;
+						}
+	                }
+             ],
+            "oLanguage" : {
+                "sProcessing" : "数据加载中······",
+                "sLengthMenu" : "显示 _MENU_ 条记录",
+                "sZeroRecords" : "没有您要搜索的内容！",
+                "sEmptyTable" : "列表中无数据存在！",
+                "sInfo" : "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+                "sInfoEmpty" : "显示 0 到 0 条记录",
+                "sInfoFiltered" : "数据列表中共  _MAX_ 条记录",
+                "oPaginate" : {
+                    "sFirst" : "首页",
+                    "sPrevious" : "上一页",
+                    "sNext" : "下一页",
+                    "sLast" : "末页"
+                }
+            },
+            "fnServerData" : function ( sSource, aoData, fnCallback, oSettings ) {
+            	console.log(aoData);
+                oSettings.jqXHR = $.ajax( {
+                    "dataType" 	: 'json',
+                    "type" 		: "GET",
+                    "async"     : 'false',
+                    "url" 		: sSource,
+                    "data" 		: {
+                        'pageNum': (aoData[3].value/aoData[4].value)+1,
+                        'pageSize' :  aoData[4].value,
+                        'phone'  :  $("#phone").val(),
+                        'name'  :  $("#name").val(),
+                        'jobNum'  :  $("#jobNum").val(),
+                        'level'  :  $("#level").val()
+                    },
+                    "success"	: fnCallback
+                } );
+            },
+            "fnInitComplete": function (oSettings, json) {
+                //点击图片放大初始化
+                $('.zoom-img').viewer({
+                    url: 'src',
+                    navbar: false,
+                    keyboard: true,
+                    title: true
+                });
+                //无操作置灰
+                $.each($(".ph_operateList"),function(){
+                    if($(this).find("li").length==0){
+                        var btn=$(this).parent().find(".ph_operate");
+                        btn.attr("style","color: grey");
+                        btn.attr("disabled","disabled");
+                    }
+                });
+            },
+            "fnDrawCallback": function (){
+            	//点击图片放大初始化
+                $('.zoom-img').viewer({
+                    url: 'src',
+                    navbar: false,
+                    keyboard: true,
+                    title: true
+                });
+
+                //无操作置灰
+                $.each($(".ph_operateList"),function(){
+                    if($(this).find("li").length==0){
+                        var btn=$(this).parent().find(".ph_operate");
+                        btn.attr("style","color: grey");
+                        btn.attr("disabled","disabled");
+                    }
+                });
+                var api = this.api();
+                var startIndex= api.context[0]._iDisplayStart;//获取到本页开始的条数
+                api.column(0).nodes().each(function(cell, i) {
+                    cell.innerHTML = startIndex + i + 1;
+                });
+            }
+        });
+    });
+    //条件查询重新加载数据
+    function query() {
+        tb.draw();
+    };
+    // show 添加服务专员页面
+    function showAddHeadHunting(){
+    	$('#phone1').val('');
+        $('#name1').val('');
+        $('#card').val('');
+        $('#code').val('');
+        $("#papersImg").val();
+        $("#name1").attr("readonly",false);
+        $("#card").attr("readonly",false);
+        $(".close-upimg").click();
+    	var index = layer.open({
+            type: 1,
+            title: '添加服务专员',
+            closeBtn : 0,
+            area: ['600px','600px'],
+            btn:['确定', '取消'],
+            btnAlign: 'c',
+            yes:function(){
+            	var flag = $("form").validationEngine("validate");
+                if(!flag){
+                    return;
+                }
+            	$.ajax({
+            		url:"/web/headhunting/addHeadhunting",
+            		type:"post",
+            		dataType:"json",
+            		data:$("#add_verify").serialize(),
+            		error:function(){
+            			layer.msg("服务器繁忙，请稍后再试");
+            		},
+            		success:function(data){
+            			if(data.code=='200'){
+            				layer.msg("添加成功");
+            				layer.close(index);
+            				query();
+            			}else{
+            				layer.msg(data.message);
+            			}
+            		}
+            	});
+            },
+            content: $('#Js_divisionBox')
+        });
+    }
+    // 导出数据
+    function exportData(){
+    	$("#e_phone").val($('#phone').val());
+        $("#e_name").val($('#name').val());
+        $("#e_jobNum").val($('#jobNum').val());
+        $("#e_level").val($('#level').val());
+    	$('#export_data').submit();
+    }
+    // 重置
+    function resetForm(){
+        clearData("queryForm");
+    }
+    var countk = 180;//按钮禁用60秒
+    var iCount;//定时器
+    function getSmsCode(e){
+        var phone = $("#phone1").val();
+        if(phone=='' || phone.length!=11){
+            layer.msg("请输入正确的手机号！");
+            return false;
+        }
+        $.ajax({
+            url:"/web/headhunting/getSmsCode",
+            type:"post",
+            dataType:"json",
+            data:$("#add_verify").serialize(),
+            error:function(){
+                layer.msg("服务器繁忙，请稍后再试");
+            },
+            success:function(data){
+                if(data.code=='200'){
+                    $(e).attr("disabled", true);
+                    iCount = setInterval(otherFun, 1000);
+                    layer.msg("发送成功");
+                }else{
+                    layer.msg(data.message);
+                }
+            }
+        });
+    }
+    function otherFun() {
+        countk = countk - 1;
+        $("#send").val("重新获取(" + countk + ")");
+        if (countk <= 0) {
+            $("#send").attr("disabled", false);
+            $("#send").val("获取验证码");
+            clearInterval(iCount);
+            countk = 180;
+        }
+    }
+
+    function clearData(id) {
+        $("#" + id)[0].reset();
+        var selected = $("#" + id).find("select");
+        if (selected.length > 0) {
+            for (var i = 0, length = selected.length; i< length; i++) {
+                var id = selected.eq(i).attr("id");
+                selected.eq(i).selectpicker('val','');
+            }
+        }
+    }
+
+    function audit(id,as){
+        $.ajax({
+            url:"/web/headhunting/updateHunterInfo",
+            type:"post",
+            dataType:"json",
+            data:{"id":id,"auditStatus":as},
+            error:function(){
+                layer.msg("服务器繁忙，请稍后再试");
+            },
+            success:function(data){
+                layer.msg(data.message);
+                query();
+            }
+        });
+    }
+
+    function checkIsCard(e){
+        var phone = $(e).val();
+        if(phone!=""){
+            $.ajax({
+                url:"/web/headhunting/getPhoneIsCard",
+                type:"post",
+                dataType:"json",
+                data:{"phone":phone},
+                error:function(){
+                    layer.msg("服务器繁忙，请稍后再试");
+                },
+                success:function(data){
+                    if(data.code=='200'){
+                        var member =data.data;
+                        if(member!=null){
+                            if(member.card!=null){
+                                $("#name1").val(member.name);
+                                $("#card").val(member.card);
+                                $("#name1").attr("readonly",true);
+                                $("#card").attr("readonly",true);
+                            }
+                        }else{
+                            $("#name1").val("");
+                            $("#card").val("");
+                            $("#name1").attr("readonly",false);
+                            $("#card").attr("readonly",false);
+                        }
+                    }
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>

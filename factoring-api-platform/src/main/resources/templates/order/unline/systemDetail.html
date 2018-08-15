@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单信息</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <style>
+        .ph_infoConList{
+            overflow: hidden;
+        }
+        .ph_infoConList li{
+            float:left;
+            width:300px;
+            height:280px;
+            background:#eee;
+            border:1px solid #666;
+            border-radius: 5px;
+            margin-right:20px;
+            padding: 10px;
+        }
+        .ph_infoHome > span{
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">订单管理</a>&nbsp;&gt;&nbsp;<a href="#">线下订单</a>&nbsp;&gt;&nbsp;<span>订单信息</span> </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit no_border">
+            <h2>订单详情</h2>
+        </div>
+        <ul class="ph_infoConList">
+            <li class=" ph_infoCon">
+                <p class="ph_infoHome">
+                    <span>店铺信息</span>
+                    <span>店铺账号：<span th:text="${unlineOrder.data.merchantName}"></span></span>
+                    <span>联系电话：<span th:text="${unlineOrder.data.receivePhone}"></span></span>
+                    <span>地址：<span th:text="${unlineOrder.data.takeGoodsAddress}"></span></span>
+                </p>
+            </li>
+            <li class=" ph_infoCon" >
+                <p class="ph_infoHome">
+                    <span>收货人信息</span>
+                    <span>会员账号：<span th:text="${unlineOrder.data.memberPhone}"></span></span>
+                </p>
+
+            </li>
+            <li class=" ph_infoCon" >
+                <p class="ph_infoHome">
+                    <span>订单时间</span>
+                    <span>创建时间：<span th:text="${#dates.format(unlineOrder.data.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></span>
+                    <span>支付时间：<span th:text="${#dates.format(unlineOrder.data.payTime, 'yyyy-MM-dd HH:mm:ss')}"></span></span>
+                    <span>支付方式：
+                        <span th:if="${unlineOrder.data.type == 1}">现金支付</span>
+                        <span th:if="${unlineOrder.data.type == 2}">积分支付</span>
+                        <span th:if="${unlineOrder.data.type == 3}">余额支付</span>
+                    </span>
+                </p>
+            </li>
+        </ul>
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList product" >
+                <thead>
+                <tr>
+                    <th width="50">序号</th>
+                    <th>商品名称</th>
+                    <th>商品规格</th>
+                    <th>单价</th>
+                    <th>积分价</th>
+                    <th>数量</th>
+                    <th>重量(kg)</th>
+                    <th>总价</th>
+                    <th>总积分价</th>
+                    <th>订单状态</th>
+                    <th>商品来源</th>
+                </tr>
+                </thead>
+                <tbody >
+                <tr th:each="prod,iterStat:${productlist}" >
+                    <!--   <td style="color: red;" th:text="${iterStat.count}"></td>-->
+                    <td th:text="${prod.id}"></td>
+                    <td th:text="${prod.productName}"></td>
+                    <td th:text="${prod.productSpecificationName}"></td>
+                    <!-- <td th:text="${#numbers.formatDecimal((prod.productSalePrice/10000.0000),1,2)}"></td>-->
+                    <td th:text="${prod.productSalePrice}"></td>
+                    <td th:text="${prod.scorePrice}"></td><!--积分价-->
+                    <td th:text="${prod.num}"></td>
+                    <td th:text="${prod.weight}"></td><!--重量(kg)-->
+                    <td th:text="${prod.totalPrice}"></td>
+                    <td th:text="${prod.totalScorePrice}"></td><!--积分总价-->
+                    <td th:if="${prod.status == 0}">待付款</td>
+                    <td th:if="${prod.status == 1}">已支付</td>
+                    <td th:if="${prod.status == 2}">待发货</td>
+                    <td th:if="${prod.status == 8}">已完成</td>
+                    <td th:if="${prod.status == 3 || prod.status == 9}">待收货</td>
+                    <td th:if="${prod.status == 4}">已评价</td>
+                    <td th:if="${prod.status == 5}">待评价</td>
+                    <td th:if="${prod.status == 6}">已撤销</td>
+                    <td th:if="${prod.status == 7}">已收货</td>
+                    <td th:if="${prod.productType == '0'}">专卖商品</td>
+                    <td th:if="${prod.productType == '1'}">本地商品</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--返回按钮-->
+        <div class="PopupBtn">
+            <input name="" type="button" value="返回" th:onclick="'toPageList();'">
+        </div>
+        <!--end 返回按钮-->
+    </div>
+    <!--end 主体内容-->
+</div>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript">
+
+    /*$(function (){
+
+        var userId = $("#userId").val();
+        $.ajax({
+            async: false,
+            url: "/web/orderUnline/findDeatilProductList",
+            data: {userId: userId},
+            type: "GET",
+            cache:false,
+            dataType: "json",
+            success: function (data) {
+                console.log(data.data);
+                if (data.data) {
+                    //MenuTree(data.data);
+
+                }
+                /!*layer.alert("当前用户无菜单权限", {
+                    icon: 2,
+                    title: '失败',
+                    closeBtn: 0,
+                    btnAlign: 'c'
+                });*!/
+            },
+            error: function (data) {
+                layer.alert("菜单加载异常", {
+                    icon: 2,
+                    title: '失败',
+                    closeBtn: 0,
+                    btnAlign: 'c'
+                });
+            }
+        });
+    });*/
+
+    /**
+     * 返回到列表页面
+     */
+    function toPageList() {
+        window.location.href="/web/orderUnline/toListPage";
+    }
+</script>
+</body>
+</html>

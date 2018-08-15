@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单信息</title>
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+    <style>
+        .ph_infoConList{
+            overflow: hidden;
+        }
+        .ph_infoConList li{
+            float:left;
+            width:300px;
+            height:350px;
+            background:#f9f9f9;
+            border:1px solid #ddd;
+            border-radius: 5px;
+            margin-right:20px;
+            padding: 10px;
+        }
+    </style>
+    <!--物流信息 CSS START-->
+    <style>
+        body{font-size: 12px;}
+        ul li{list-style: none;}
+        .track-rcol{width: 900px; border: 1px solid #eee;}
+        .track-list{margin: 20px; padding-left: 5px; position: relative;}
+        .track-list li{position: relative; padding: 9px 0 0 25px; line-height: 18px; border-left: 1px solid #d9d9d9; color: #999;}
+        .track-list li.first{color: red; padding-top: 0; border-left-color: #fff;}
+        .track-list li .node-icon{border-radius:50%;position: absolute; left: -6px; top: 50%; width: 11px; height: 11px; background: url(/static/img/wuliu.png)  -21px -72px no-repeat;}
+        .track-list li.first .node-icon{background-position:0 -72px;}
+        .track-list li .time{margin-right: 20px; position: relative; top: 4px; display: inline-block; vertical-align: middle;}
+        .track-list li .txt{max-width: 600px; position: relative; top: 4px; display: inline-block; vertical-align: middle;}
+        .track-list li.first .time{margin-right: 20px; }
+        .track-list li.first .txt{max-width: 600px; }
+        .track-img{display: flex;align-items: center;justify-content:space-between;width: 90%;margin: auto;}
+        .track-img dl{text-align: center;}
+        .track-img dl dt{width: 100%;}
+        .track-img dl dd{width: 100%;text-align: center;margin: 0;line-height: 30px; c olor: orangered;}
+        .track-img span{margin-top: -25px; color: orangered;font-weight: bold;}
+    </style>
+    <!--物流信息 CSS END-->
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">订单管理</a>&nbsp;&gt;&nbsp;<a href="#">线上订单</a>&nbsp;&gt;&nbsp;<span>订单信息</span> </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+
+        <!--物流信息 START-->
+            <div th:if="${onlineOrder.data.status == 3 || onlineOrder.data.status == 8 || onlineOrder.data.status == 9}">
+                <div th:if="${not #lists.isEmpty(LogisticsResult) }">
+                    <div th:if="${LogisticsResult.success == true }">
+                        <div th:if="${LogisticsResult.state == 2 || LogisticsResult.state == 3 || LogisticsResult.state == 4}">
+                            <div class="track-rcol">
+                                <h2>物流信息：<span th:text="${LogisticsResult.shipperName}">顺丰快递</span></h2>
+                                <h2>物流单号：<span th:text="${LogisticsResult.logisticCode}">物流单号</span></h2>
+                                <div class="track-list">
+                                    <div class="track-img" th:if="${LogisticsResult.state == 4}">
+                                        <dl>
+                                            <dt><img th:src="@{/static/img/lanjian.png}"></dt>
+                                            <dd>揽件</dd>
+                                        </dl>
+                                        <span>····························</span>
+                                        <dl>
+                                            <dt><img th:src="@{/static/img/yunshu.png}"></dt>
+                                            <dd>运输</dd>
+                                        </dl>
+                                        <span>····························</span>
+                                        <dl>
+                                            <dt><img th:src="@{/static/img/paisong.png}"></dt>
+                                            <dd>派送</dd>
+                                        </dl>
+                                        <span>····························</span>
+                                        <dl>
+                                            <dt><img th:src="@{/static/img/lanshou.png}"></dt>
+                                            <dd>已签收</dd>
+                                        </dl>
+                                    </div>
+
+                                    <div class="track-img" th:if="${LogisticsResult.state == 3}">
+                                        <dl>
+                                            <dt><img th:src="@{/static/img/lanjian.png}"></dt>
+                                            <dd>揽件</dd>
+                                        </dl>
+                                        <span>····························</span>
+                                        <dl>
+                                            <dt><img th:src="@{/static/img/yunshu.png}"></dt>
+                                            <dd>运输</dd>
+                                        </dl>
+                                        <span>····························</span>
+                                        <dl>
+                                            <dt><img th:src="@{/static/img/paisong.png}"></dt>
+                                            <dd>派送</dd>
+                                        </dl>
+                                        <span>····························</span>
+                                        <dl>
+                                            <dt><img th:src="@{/static/img/daiqianshou.png}"></dt>
+                                            <dd>待签收</dd>
+                                        </dl>
+                                    </div>
+
+                                    <div class="track-img" th:if="${LogisticsResult.state == 2}">
+                                        <dl>
+                                            <dt><img th:src="@{/static/img/lanjian.png}"></dt>
+                                            <dd>揽件</dd>
+                                        </dl>
+                                        <span>····························</span>
+                                        <dl>
+                                            <dt><img th:src="@{/static/img/yunshu.png}"></dt>
+                                            <dd>运输</dd>
+                                        </dl>
+                                        <span>····························</span>
+                                        <dl>
+                                            <dt><img th:src="@{/static/img/daipeisong.png}"></dt>
+                                            <dd>待派送</dd>
+                                        </dl>
+                                        <span>····························</span>
+                                        <dl>
+                                            <dt><img th:src="@{/static/img/daiqianshou.png}"></dt>
+                                            <dd>待签收</dd>
+                                        </dl>
+                                    </div>
+                                    <ul>
+                                        <div th:each="LogisticsResult,LogisticsResultStat : ${LogisticsResult.traces}">
+                                            <li th:class="${LogisticsResultStat.index == 0 ? 'first' : ''}" >
+                                                <i class="node-icon"></i>
+                                                <span class="time" th:text="${LogisticsResult.time}">2016-03-10 18:07:15</span>
+                                                <span class="txt" th:text="${LogisticsResult.context}">感谢您在京东购物，欢迎您再次光临！</span>
+                                            </li>
+                                        </div>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <!--物流信息 END-->
+
+
+        <!--标题-->
+        <div class="ph_subTit no_border">
+            <h2>订单详情</h2>
+            <input type="hidden" th:value="${onlineOrder.data.orderNo}" id="ids">
+            <input type = "hidden" th:value="${onlineOrder.data.status}" id="Astatus" />
+        </div>
+        <!--end 标题-->
+        <!--订单信息状态-->
+        <ul class="ph_infoConList">
+            <li class=" ph_infoCon">
+                <p class="ph_infoHome">
+                    <span>收货人信息</span><br>
+                    <span>收货人姓名：<span th:text="${onlineOrder.data.memberName}"></span></span>
+                    <span>联系电话：<span th:text="${onlineOrder.data.receivePhone}"></span></span>
+                    <span>收货地址：<span th:text="${onlineOrder.data.takeGoodsAddress}"></span></span>
+                </p>
+            </li>
+            <li class=" ph_infoCon" >
+                <p class="ph_infoHome">
+                        <span>订单备注：
+                        <span th:if="${onlineOrder.data.message == null || onlineOrder.data.message == ''}"></span>
+                        <span th:if="${onlineOrder.data.message != null && onlineOrder.data.message != ''}" th:text="${onlineOrder.data.message}"></span>
+                        </span><br>
+                        <span>发票抬头: <span th:text="${onlineOrder.data.invoiceName}"></span></span><br>
+                        <span>实付金额： <span th:text="${map.totalPrice} + ${onlineOrder.data.freightFee}"></span></span><br>
+                        <span>发票内容：
+                            <!--<span th:if="${onlineOrder.data.invoiceDeail != '' && onlineOrder.data.invoiceDeail != null }"  th:text="${onlineOrder.data.invoiceDeail}"></span>-->
+                            <!--<span th:if="${onlineOrder.data.invoiceDeail == ''  || onlineOrder.data.invoiceDeail == null }" >商品明细</span>-->
+                            <!--<span th:if="${onlineOrder.data.invoiceType == '' || onlineOrder.data.invoiceType == null}"></span>
+                            <span th:if="${onlineOrder.data.invoiceType == 0}">个人</span>
+                            <span th:if="${onlineOrder.data.invoiceType == 1}">单位</span>
+-->
+                                <span>商品明细</span>
+                        </span>
+                        <span th:if="${onlineOrder.data.mark != '' && onlineOrder.data.mark != null }">纳税人识别号： <span th:text="${onlineOrder.data.mark}"></span> </span><br>
+                        <span th:if="${onlineOrder.data.mark == '' ||onlineOrder.data.mark == null}">纳税人识别号： <span th:text="${onlineOrder.data.mark}"></span></span><br>
+                </p>
+
+            </li>
+            <li class=" ph_infoCon" >
+                <p class="ph_infoHome">
+                    <span>订单时间</span><br>
+                    <span>创建时间：<span th:text="${#dates.format(onlineOrder.data.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></span><br>
+                    <span>支付时间：<span th:text="${#dates.format(onlineOrder.data.payTime, 'yyyy-MM-dd HH:mm:ss')}"></span></span><br>
+                    <span>支付方式 ：
+                        <span th:if="${onlineOrder.data.type == 0}">快捷支付</span>
+                        <span th:if="${onlineOrder.data.type == 2}">积分支付</span>
+                        <span th:if="${onlineOrder.data.type == 3}">余额支付</span>
+                    </span>
+                </p>
+            </li>
+        </ul>
+
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList product" >
+                <thead>
+                <tr>
+                    <th style="width:60px">选择</th>
+                    <th>商品名称</th>
+                    <th>商品规格</th>
+                    <th>单价</th>
+                    <th>积分价</th>
+                    <th>数量</th>
+                    <th>重量(kg)</th>
+                    <th>总价</th>
+                    <th>总积分价</th>
+                    <th >发货时间</th>
+                    <th >收货时间</th>
+                    <th >撤销时间</th>
+                    <th>订单状态</th>
+                    <th>商品来源</th>
+                    <th>配送方式</th>
+                    <th>物流信息</th>
+                </tr>
+                </thead>
+                <tbody class="orderbody">
+                <tr th:each="prod,iterStat:${productlist}" >
+                    <!--<td th:class="${prod.id}" th:text="${iterStat.count}"></td>-->
+                    <td ><input type="checkbox" th:value="${prod.id}" name="orderSubNo" /></td>
+                    <td th:text="${prod.productName}"></td>
+                    <td th:text="${prod.productSpecificationName}"></td>
+                    <td th:text="${prod.productSalePrice}"></td>
+                    <td th:text="${prod.scorePrice}"></td><!--积分价-->
+                    <td th:text="${prod.num}"></td>
+                    <td th:text="${prod.weight}"></td><!--重量(kg)-->
+                    <td th:text="${prod.totalPrice}"></td>
+                    <td th:text="${prod.totalScorePrice}"></td> <!--总积分价-->
+
+                    <td th:if="${prod.sendTime != '' && prod.sendTime != null}" th:text="${#dates.format(prod.sendTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:if="${prod.sendTime == '' || prod.sendTime == null}"></td>
+
+                    <td th:if="${prod.receiveTime != '' && prod.receiveTime != null}" th:text="${#dates.format(prod.receiveTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:if="${prod.receiveTime == '' || prod.receiveTime == null}"></td>
+
+
+
+
+                    <td th:if="${prod.revokeTime != '' && prod.revokeTime != null}" th:text="${#dates.format(prod.revokeTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:if="${prod.revokeTime == '' || prod.revokeTime == null}"></td>
+
+
+
+                    <td th:if="${prod.status == 0}">待付款</td>
+                    <td th:if="${prod.status == 1}">已支付</td>
+                    <td th:if="${prod.status == 2}">待发货</td>
+                    <td th:if="${prod.status == 3 || prod.status == 9}">待收货</td>
+                    <td th:if="${prod.status == 4}">已评价</td>
+                    <td th:if="${prod.status == 5}">待评价</td>
+                    <td th:if="${prod.status == 6}">已撤销</td>
+                    <td th:if="${prod.status == 7}">已收货</td>
+                    <td th:if="${prod.status == 8}">已完成</td>
+                    <td th:if="${prod.status == '' || prod.status == null}"></td>
+                    <td th:if="${prod.productType == '0'}">平台商品</td>
+                    <td th:if="${prod.productType == '' || prod.productType == null}">N/A</td>
+                    <td th:if="${prod.productType == '1'}">店铺自有商品</td>
+                    <td th:if="${prod.deliveryTtype == 0}">物流快递</td>
+                    <td th:if="${prod.deliveryTtype == '' || prod.deliveryTtype == null}">N/A</td>
+                    <td th:if="${prod.deliveryTtype == 1}">上门取货</td>
+
+
+                    <td th:if="${prod.logisticsName == '' || prod.logisticsName == null}"></td>
+                    <td th:if="${prod.logisticsName != '' && prod.logisticsName != null}" th:text="${prod.logisticsName}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table class="ph_wareList product" style="margin-top: 1%">
+                <thead>
+                <tr>
+                    <th class="col-md-1">商品总金额：</th>
+                    <td class="col-md-10" align="left">
+                        <span style="float: left;">￥</span><span th:text="${map.totalPrice}" style="float: left;"></span>
+                    </td>
+                    <td style="border: none"></td>
+                </tr>
+                <tr>
+                    <th class="col-md-1">商品总积分：</th>
+                    <td class="col-md-10" align="left">
+                        <span style="float: left;">∫</span>
+                        <span th:text="${map.totalScorePrice}" style="float: left;"></span>
+                    </td>
+                    <td style="border: none"></td>
+                </tr>
+                <tr>
+                    <th class="col-md-1">运费：</th>
+                    <td class="col-md-10">
+                        <span style="float: left;">￥</span><span th:text="${onlineOrder.data.freightFee == null || onlineOrder.data.freightFee == ''} ? 0 : ${onlineOrder.data.freightFee}" style="float: left;"></span>
+                        <!--<button th:if="${onlineOrder.data.status == 0}" type="button" th:onclick="'javascript:updateFreghtFeePrice()'"
+                                class="btn btn-info btn-xs" style="float:left;margin-left: 10%">
+                            修改
+                        </button>-->
+                    </td>
+                    <td style="border: none"></td>
+                </tr>
+                <tr>
+                    <th class="col-md-1">实付金额：</th>
+                    <td class="col-md-10">
+                        <span style="float: left;">￥</span>
+                        <span th:text="${map.totalPrice} + ${onlineOrder.data.freightFee}" style="float: left;">
+
+                                </span>
+                    </td>
+                    <td style="border: none"></td>
+                </tr>
+                <tr>
+                    <th class="col-md-1">实付积分金额：</th>
+                    <td class="col-md-10">
+                        <span style="float: left;">∫</span>
+                        <span th:text="${map.totalScorePrice} + ${onlineOrder.data.freightFee} * 5" style="float: left;"></span>
+                    </td>
+                    <td style="border: none"></td>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="PopupBtn">
+           <!-- <input name="" type="button" value="发货" th:onclick="'toSend();'"  >
+            <input name="" type="button" value="撤销" th:onclick="'refundAppli();'" >-->
+            <input name="" type="button" th:onclick="'toPageList();'" value="返回">
+        </div>
+    </div>
+    <!--end 主体内容-->
+</div>
+
+<form id="validateForm">
+
+    <!--申请退款弹窗-->
+    <div class="PopupBox" id="Js_refundBox">
+        <!--内容-->
+        <div class="PopupCon">
+            <div class="ph_subPoCon ph_screen">
+                <table class="ph_tableBox">
+                    <tr>
+                        <!--<th>退款备注：</th>-->
+                        <td>
+                            <textarea class="ph_txtAreaBg validate[required]" name="" id="appliReason"></textarea>
+                        </td>
+                    </tr>
+                    <input type="hidden" id="orderId" value="">
+                </table>
+            </div>
+        </div>
+        <!--end 内容-->
+    </div>
+    <!--end 申请退款弹窗-->
+
+
+
+    <!--运费修改模态窗口 START-->
+    <div class="PopupBox" id="updateFreePriceModelWindow">
+        <!--内容-->
+        <div class="PopupCon">
+            <div class="ph_subPoCon ph_screen">
+                <table class="ph_tableBox" style="margin-top:5%">
+                    <tr>
+                        <td>
+                            <input style="width:50%;margin-left: 20%;" type="text"
+                                   class="validate[required,custom[integer]]"
+                                   id="freePrice"
+                                   data-errormessage-value-missing="请输入运费后提交"
+                                   data-errormessage-custom-error="请输入正确的运费格式"
+                                   data-errormessage="验证失败"
+                                   data-prompt-target = "freeError"
+                                   placeholder="请输入运费">
+                            <label id="freeError"></label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <!--end 内容-->
+    </div>
+    <!--运费修改模态窗口 END-->
+</form>
+
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<script type="text/javascript">
+
+    /*$(function (){
+
+     var userId = $("#userId").val();
+     $.ajax({
+     async: false,
+     url: "/web/orderUnline/findDeatilProductList",
+     data: {userId: userId},
+     type: "GET",
+     cache:false,
+     dataType: "json",
+     success: function (data) {
+     console.log(data.data);
+     if (data.data) {
+     //MenuTree(data.data);
+
+     }
+     /!*layer.alert("当前用户无菜单权限", {
+     icon: 2,
+     title: '失败',
+     closeBtn: 0,
+     btnAlign: 'c'
+     });*!/
+     },
+     error: function (data) {
+     layer.alert("菜单加载异常", {
+     icon: 2,
+     title: '失败',
+     closeBtn: 0,
+     btnAlign: 'c'
+     });
+     }
+     });
+     });*/
+
+    /**
+     * 返回到列表页面
+     */
+    function toPageList() {
+        window.location.href="/web/orderOnline/toListPage";
+    }
+
+    function clearData(id) {
+        $("#" + id)[0].reset();
+        var selected = $("#" + id).find("select");
+        if (selected.length > 0) {
+            for (var i = 0, length = selected.length; i< length; i++) {
+                selected.eq(i).selectpicker('val','');
+            }
+        }
+    }
+
+</script>
+
+<script>
+    function updateFreghtFeePrice() {
+       var  status =  $("#Astatus").val();
+        if(status == 0){
+
+
+        layer.open({
+            type: 1,
+            title: '修改运费',
+            closeBtn: 0,
+            area: ['500px', '200px'],
+            btn: ['确定', '取消'],
+            btnAlign: 'c',
+            content: $('#updateFreePriceModelWindow'),
+            yes: function (index, layero) {
+                var flag = $("#validateForm").validationEngine("validate");
+                if (!flag) {
+                    return false;
+                }
+                $.ajax({
+                    async: false,
+                    url: "/web/orderOnline/updateFreePrice",
+                    data: {id:$("#ids").val(), freightFee: $('#freePrice').val()},
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.success) {
+                            layer.close(index);
+                            layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0}, function () {
+                                location.reload(true);
+                            });
+
+                        } else {
+                            layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0}, function () {
+                                location.reload(true);
+                            });
+                        }
+
+
+                    }
+                });
+            }, btn2: function (index, layero) {
+                layer.close(index);
+            }
+        });
+     }
+    }
+</script>
+
+
+
+</body>
+</html>

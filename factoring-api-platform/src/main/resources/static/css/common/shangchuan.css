@@ -1,0 +1,27 @@
+
+.ke-toolbar span{
+    display:none;
+    /*background:#000;*/
+    position:relative;
+    left:1px;
+    top:0px;
+}
+.ke-inline-blockr{
+    display:none;
+    position:absolute;
+}
+ .ke-separator{
+     display:none;
+ }
+.ke-toolbar .ke-toolbar{
+    hight:0;
+}
+.ke-toolbar .ke-inline-block{
+    diplay:none;
+}
+.ke-toolbar .ke-separator{
+    display:none!important;
+}
+.ke-toolbar .ke-outline .ke-icon-image{
+    display:block;
+}

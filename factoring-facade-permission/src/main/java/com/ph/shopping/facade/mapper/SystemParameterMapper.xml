@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ph.shopping.facade.mapper.SystemParameterMapper">
+
+    <!--分页查询系统日志-->
+   <select id="selectSystemParameterList" resultType="com.ph.shopping.facade.system.vo.SystemParameterVO">
+   SELECT
+        id,
+        parameter_name as parameterName,
+        parameter_value as parameterValue,
+        remark,
+        is_update as isUpdate,
+        type,
+		upper_limit AS upperLimit,
+		lower_limit AS lowerLimit,
+		integrated_state AS integratedState
+    FROM
+        ph_system_parameter
+				WHERE type != 99 or type is  null
+    ORDER BY created_time DESC
+   </select>
+    
+    <!--条件查询系统参数-->
+    <select id="selectSystemParameterBySelective" resultType="com.ph.shopping.facade.system.vo.SystemParameterVO"
+        parameterType="com.ph.shopping.facade.system.entity.SystemParameter">
+    SELECT
+        id,
+        parameter_name as parameterName,
+        parameter_value as parameterValue,
+        remark,
+        upper_limit AS upperLimit,
+        lower_limit AS lowerLimit,
+        integrated_state AS integratedState
+    FROM
+      ph_system_parameter
+    <where>
+        <if test="id != null">
+            id = #{id}
+        </if>
+        <if test="parameterName != null and parameterName != ''">
+            parameter_name = #{parameterName}
+        </if>
+        <if test="remark != null and remark != ''">
+            remark = #{remark}
+        </if>
+        <if test="parameterValue != null and parameterValue != ''">
+            parameter_value = #{parameterValue}
+        </if>
+    </where>
+    </select>
+
+    <!--通过id查询系统参数-->
+    <select id="selectSystemParameterByIds" resultType="com.ph.shopping.facade.system.vo.SystemParameterVO">
+     SELECT
+        id,
+        parameterName,
+        parameterValue,
+        remark
+    FROM
+      ph_system_parameter
+    WHERE id IN <foreach collection="ids" open="(" separator="," close=")" item="item">
+        #{item}
+    </foreach>
+
+    </select>
+
+    <select id="getSystemParameterById" resultType="com.ph.shopping.facade.system.vo.SystemParameterVO">
+    SELECT
+        id,
+        parameter_name as parameterName,
+        parameter_value as parameterValue,
+        remark
+    FROM
+      ph_system_parameter
+    WHERE id = #{id}
+    </select>
+    <!-- 修改参数 -->
+    <update id="updateSystemParameterById">
+        UPDATE ph_system_parameter
+        SET parameter_value = #{parameter_value},
+        remark = #{remark}
+        WHERE
+        id = #{id}
+    </update>
+    <!-- 修改参数 -->
+    <update id="newUpdateSystemParameterById">
+        UPDATE ph_system_parameter
+        SET upper_limit = #{upperLimit},
+			lower_limit = #{lowerLimit},
+			remark = #{remark}
+        WHERE
+        id = #{id}
+    </update>
+    <!-- 修改状态-->
+    <update id="updateType" parameterType="Integer">
+        UPDATE ph_system_parameter
+        SET type = #{type}
+        WHERE
+        id = 9
+    </update>
+    <!-- 修改积分比例状态-->
+    <update id="updateIntegratedState" parameterType="Long">
+        UPDATE ph_system_parameter
+        SET integrated_state = #{integratedState}
+        WHERE
+        id = 9
+    </update>
+
+    <select id="getSumProfit" resultType="double">
+        select
+          SUM(parameter_value)
+        from
+          ph_system_parameter
+        where
+          id in(101,102,103,104,105,106,107,108,109,110) and id != #{id}
+    </select>
+
+</mapper>

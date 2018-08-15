@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>发票管理</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet"  th:href="@{/static/js/plugins/viewer/css/viewer.min.css}" />
+    <!--上传-->
+    <link rel="stylesheet"  th:href="@{/static/css/common/shangchuan.css}" />
+    <link rel="stylesheet"  th:href="@{/static/css/common/models.css}" />
+</head>
+<body>
+<div class="MainContent" style="height: 100%">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">发票管理</a>&nbsp;&gt;&nbsp;<span>申请开票</span>&nbsp;&gt;&nbsp;<span>发票详情</span> </div>
+    <!--<div><h4 style="color: #edde34">注：请于每月15号24点前申请开票，16日开始寄送</h4></div>-->
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit no_border">
+            <h3 style="color: #edde34">注：请于每月15号24点前申请开票，16日开始寄送</h3>
+        </div>
+        <!--商品列表-->
+        <div class="">
+            <table border="0px"  style="width:30%;background:none;font-size: 18px;margin-left: 30%;
+             border-collapse:separate; border-spacing:0px 15px;"  th:align="left" >
+                <thead>
+                <tr class="col-md-1">
+                    <th style="width: 35%">发票月份：</th>
+                    <td th:text="${invoiceDatil.month}"></td>
+                </tr>
+                <tr>
+                    <th style="width: 35%">订单总金额：</th>
+                    <td th:text="${invoiceDatil.totalPrice}+'元'"></td>
+                </tr>
+                <tr>
+                    <th style="width: 35%">总服务费：</th>
+                    <td th:if="${invoiceDatil.money != '' && invoiceDatil.money != null}" th:text="${invoiceDatil.money}+'元'"></td>
+                    <td th:if="${invoiceDatil.money == '' || invoiceDatil.money == null}">0.00元</td>
+                </tr>
+                <tr th:if="${invoiceDatil.payType==1}">
+                    <th style="width: 35%">付款方式</th>
+                    <td >线下订单</td>
+                </tr>
+                <tr>
+                    <th style="width: 35%">银行：</th>
+                    <td th:text="中国建设银行股份有限公司北京朝内南小街支行"></td>
+                </tr>
+                <tr>
+                    <th style="width: 35%">银行卡号：</th>
+                    <td th:text="11001175200052502159"></td>
+                </tr>
+                <tr>
+                    <th style="width: 35%">持卡人姓名：</th>
+                    <td th:text="北京易商通科技股份有限公司"></td>
+                </tr>
+                <tr>
+                    <th style="width: 35%">公司名称：</th>
+                    <td th:text="${invoiceDatil.companyName}"></td>
+                </tr>
+                <tr>
+                    <th style="width: 35%">纳税人识别号：</th>
+                    <td th:text="${invoiceDatil.mark}"></td>
+                </tr>
+                <tr>
+                    <th style="width: 35%">收票人地址：</th>
+                    <td th:text="${invoiceDatil.billingAddress}"></td>
+                </tr>
+                <tr>
+                    <th style="width: 35%">收票人姓名：</th>
+                    <td th:text="${invoiceDatil.billingUserName}"></td>
+                </tr>
+                <tr>
+                    <th style="width: 35%">联系电话：</th>
+                    <td th:text="${invoiceDatil.billingPhone}"></td>
+                </tr>
+                <tr>
+                    <th style="width: 35%">上传凭证：</th>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <!--<img id="img" th:src="${invoiceDatil.url}"/>-->
+                        <div class="content-box" style="width:140px;height: 140px;">
+                            <div class="img-box">
+                                <div class="img-box full">
+                                    <section class=" img-section">
+
+                                        <div class="z_photo upimg-div">
+                                            <section class="z_file left">
+                                                <img id="img" th:src="${invoiceDatil.url}" class="up-img">
+                                                <span><h6 style="color: #edde34">注：双击放大图片</h6></span>
+                                            </section>
+                                            <!--<span><h4 style="color: #edde34">注：双击发达图片</h4></span>-->
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <!--返回按钮-->
+                        <div class="PopupBtn">
+                            <input name="" type="button" value="返回" th:onclick="'toPageList();'">
+                        </div>
+                    </td>
+                </tr>
+                </thead>
+
+            </table>
+        </div>
+
+        <!--end 返回按钮-->
+    </div>
+    <!--end 主体内容-->
+</div>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/common/number.js}"></script>
+
+<!--图片上传-->
+<script type="text/javascript"  th:src="@{/static/js/common/imgUp.js}"></script>
+<!--图片点击放大-->
+<script  type="text/javascript"  th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+
+
+<script type="text/javascript">
+
+
+    /**
+     * 返回到列表页面
+     */
+    function toPageList() {
+        window.location.href = document.referrer;//返回上一页并刷新
+    }
+</script>
+</body>
+</html>

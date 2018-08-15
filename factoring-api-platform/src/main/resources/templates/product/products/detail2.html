@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>商品详情</title>
+    <link rel="stylesheet"  th:href="@{/static/css/common/models.css}" />
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet"  th:href="@{/static/js/plugins/viewer/css/viewer.min.css}" />
+    <!--富文本编辑器 版本4.1.11-->
+    <link rel="stylesheet" th:href="@{/static/js/plugins/kindeditor/themes/default/default.css}" />
+    <link rel="stylesheet" th:href="@{/static/js/plugins/layer/layer.css}" />
+    <style>
+        .mainFrom label{
+            width:190px;
+        }
+    </style>
+</head>
+<body>
+<div class="MainContent">
+    <div class="current">当前位置：<a href="#" alt="">商品管理 &gt;</a><span>商品详情</span></div>
+    <div class="MainCont ">
+        <div class="ph_subConTit">
+            <h2>基本信息</h2>
+        </div>
+        <form  id="productForm">
+            <input th:type="hidden" th:name="id" th:value="${product.id}"/>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="">商品名称</span>
+                </label>
+                <input readonly="readonly" type="text" class="left" placeholder="商品名称" th:value="${product.name}"  id="productName"  name="productName">
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="">商品英文名称</span>
+                </label>
+                <input readonly="readonly" type="text" class="left" placeholder="商品名称" th:value="${product.enName}"  id="productEnName"  name="productEnName">
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="">品牌名称</span>
+                </label>
+                <input readonly="readonly" type="text" class="left" placeholder="商品名称" th:value="${product.brandName}"  id="productBrandName"  name="productBrandName">
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="">品牌logo</span>
+                </label>
+                <div class="img-box">
+                    <div class="img-box full" style="margin-left: 130px">
+                        <section class=" img-section">
+                            <div class="z_photo upimg-div">
+                                <section class="up-section left" >
+                                    <img th:src="${product.brandAttachment}" class="up-img zoom-img " style="margin-left: 10px;">
+                                </section>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <!--<div class="mainFrom">-->
+                <!--<label class="left">-->
+                    <!--<span class="">普惠补贴</span>-->
+                <!--</label>-->
+                <!--<div style="line-height: 40px;float: left;margin-left: 20px;">-->
+                    <!--<input disabled="disabled" type="checkbox" name="phType" th:checked="${product.phType==0}">是-->
+                    <!--<input disabled="disabled" style="margin-left: 20px;" type="checkbox" name="phType" th:checked="${product.phType==1}">否-->
+                <!--</div>-->
+            <!--</div>-->
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="">商品分类</span>
+                </label>
+                <input readonly="readonly" type="text" class="left" placeholder="商品分类" th:value="${product.classifyName}"  id="barCode"  name="barCode"/>
+            </div>
+            <div class="ph_subConTit">
+                <h2>详细描述</h2>
+            </div>
+            <div class="content-box">
+                <textarea readonly="readonly" id="editor_id" name="content" style="width: 400px;height: 200px;" th:text="${product.description}"></textarea>
+            </div>
+            <div class="ph_subConTit">
+                <h2>商品相册</h2>
+            </div>
+            <div class="content-box">
+                <div class="img-box">
+                    <div class="img-box full">
+                        <section class=" img-section">
+                            <div class="z_photo upimg-div">
+                                <section class="up-section left" th:each="productImageSpecList:${productImageSpecList}">
+                                    <img th:src="${productImageSpecList.address}" class="up-img zoom-img ">
+                                </section>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            <div class="content-box">
+                <!--商品属性组开始-->
+                <div class="attribute-box">
+                    <!--规格展示表格-->
+                    <div class="ph_subConTit">
+                        <h2>商品规格</h2>
+                    </div>
+                    <!--表格-->
+                    <div class="ph_wareBox clearfix">
+                        <table class="ph_wareList">
+                            <thead>
+                            <tr>
+                                <th>规格</th>
+                                <th><span class="require">*</span>成本价（元）</th>
+                                <th><span class="require">*</span>零售价（元）</th>
+                                <th><span class="require">*</span>平台收入（元）</th>
+                                <th><span class="require">*</span>服务专员收入(元)</th>
+                                <!--<th><span class="require">*</span>门店收入（元）</th>-->
+                                <th><span class="require">*</span>进货价（元）</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="spec:${productSpecList}">
+                                <td th:text="${spec.content}"></td>
+                                <td th:text="${#numbers.formatDecimal((spec.price/10000.00),1,2)}"></td>
+                                <td th:text="${#numbers.formatDecimal((spec.salePrice/10000.00),1,2)}"></td>
+                                <td th:text="${#numbers.formatDecimal((spec.platfromIncome/10000.00),1,2)}"></td>
+                                <td>0.00</td>
+                                <!--<td th:text="${#numbers.formatDecimal((spec.storeIncome/10000.00),1,2)}"></td>-->
+                                <td th:text="${#numbers.formatDecimal((spec.buyingPrice/10000.00),1,2)}"></td>
+                            </tr>
+                            </tbody>
+                            <thead>
+                            <tr>
+                                <th><span class="require">*</span>积分进货价</th>
+                                <th><span class="require">*</span>重量(kg)</th>
+                                <th><span class="require"></span>长(m)</th>
+                                <th><span class="require"></span>宽(m)</th>
+                                <th><span class="require"></span>高(m)</th>
+                                <th><span class="require">*</span>条形码</th>
+                                <th width="188"><span class="require">*</span>库存</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="spec:${productSpecList}">
+                                <td th:if="${#lists.isEmpty(spec.scorePrice)}">0.00</td>
+                                <td th:if="${not #lists.isEmpty(spec.scorePrice)}" th:text="${#numbers.formatDecimal((spec.scorePrice / 10000.00),1,2)}"></td>
+                                <td th:if="${not #lists.isEmpty(spec.weight)}" th:text="${#numbers.formatDecimal((spec.weight),1,2)}"></td>
+                                <td th:if="${ #lists.isEmpty(spec.weight)}">0.00</td>
+                                <td th:if="${not #lists.isEmpty(spec.length)}" th:text="${#numbers.formatDecimal((spec.length),1,2)}"></td>
+                                <td th:if="${#lists.isEmpty(spec.length)}">0.00</td>
+                                <td th:if="${not #lists.isEmpty(spec.width)}" th:text="${#numbers.formatDecimal((spec.width),1,2)}"></td>
+                                <td th:if="${#lists.isEmpty(spec.width)}">0.00</td>
+                                <td th:if="${not #lists.isEmpty(spec.height)}" th:text="${#numbers.formatDecimal((spec.height),1,2)}"></td>
+                                <td th:if="${#lists.isEmpty(spec.height)}">0.00</td>
+                                <td th:text="${spec.barCode}"></td>
+                                <td th:text="${spec.num}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!--end 表格-->
+        <div class="PopupBtn btnLeft" style="margin-bottom: 20px;">
+            <input class="cancel save_cancel" name="" type="button" onclick="cancel()" value="返回">
+        </div>
+    </div>
+</div>
+
+</div>
+</body>
+<!--kindeditor富文本插件-->
+<script type="text/javascript"   th:src="@{/static/js/plugins/kindeditor/kindeditor-all-min.js}"></script>
+<script type="text/javascript"   th:src="@{/static/js/plugins/kindeditor/lang/zh-CN.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+
+<!--图片点击放大-->
+<script  type="text/javascript"  th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+
+<script type="text/javascript"  th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/common/imgUp.js}"></script>
+
+<script type="text/javascript">
+
+
+    var editor;
+    $(function(){
+        $('.zoom-img').viewer({
+            url: 'src',
+            navbar: false,
+            keyboard: true,
+            title: true
+        });
+
+        //；如果供应商直接点击添加商品
+        var supplierId="${supplierId}";
+        if(supplierId!=""){
+            $("#supplierId").val(supplierId);
+        }
+        KindEditor.ready(function(K) {
+            editor= K.create('#editor_id',{
+                uploadJson : '/uploadProductImage?module=editor',
+//        	   	    fileManagerJson : '${ctx}/uploadProductImage?module=editor',
+                allowFileManager :true,
+                allowImageUpload : true,
+                allowFlashUpload:false,
+                allowMediaUpload:false,
+                formatUploadUrl:false,
+                items:[
+                    'copy', 'paste'
+                ],
+            });
+        });
+
+    });
+
+    //取消
+    function cancel(){
+        window.history.go(-1);
+    }
+
+    //计算总数
+    function  compute(){
+        var count=0;
+        $("#allCount").html("");
+        $(".ph_wareList tbody tr").each(function(){
+            var oneCount=$(this).find("input[name='skuCount'][ref='skus']").val();
+            if(oneCount!=""){
+                count = Number(parseInt(count)) + Number(parseInt(oneCount));
+            }
+        });
+        $("#allCount").html(count);
+    }
+    function edit(id){
+        var numVal = $('#num').val();
+        layer.confirm('<input type="text" id="inputNum" value="'+numVal+'" placeholder="请输入大于零的整数" onkeyup="isNUmber(this)" onafterpaste="isNUmber(this)" maxlength="6">', { title:'提示'}, function(index){
+                    //do something
+
+                    layer.close(index);
+                    var num = $("#inputNum").val();
+                    $.ajax({
+                        type:"post",
+                        url:"/web/product/updateInventorydGYS",
+                        data:{
+                            "id":id,
+                            "num":num
+                        },
+                        dataType:"json",
+                        success:function(data){
+                            if(data.code){
+                                //layer.alert('操作成功', {icon: 1,btnAlign: 'c', closeBtn : 0});
+                                window.location.reload();
+                            }else{
+                                layer.alert(data.message, {icon: 2,btnAlign: 'c', closeBtn : 0});
+                                return false;
+                            }
+                        }
+                    });
+                },
+                function(index){
+                    layer.close(index);
+                    window.location.reload();
+                });
+        /*if(layer.confirm("确定要更新库存吗？"))
+         {
+         var num = $("#num").val();
+         $.ajax({
+         type:"post",
+         url:"/web/product/updateInventorydGYS",
+         data:{
+         "id":id,
+         "num":num
+         },
+         dataType:"json",
+         success:function(data){
+         if(data.code){
+         layer.alert('操作成功', {icon: 1,btnAlign: 'c', closeBtn : 0});
+         window.location.reload();
+         }else{
+         layer.alert(data.message, {icon: 2,btnAlign: 'c', closeBtn : 0});
+         return false;
+         }
+         }
+         });
+         }else {
+         window.location.reload();
+         }*/
+    }
+</script>
+</html>

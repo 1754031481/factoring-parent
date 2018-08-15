@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="ping_lun">
+	<p style="text-align: left" th:text="' 全部评论 '+${pageInfo.total}"> 全部评论 100</p>
+	<ul>
+		<li th:each="detail,sn:${pageInfo.list}">
+			<span class="info_left">
+				<span class="ping_left">
+					<img th:src="${detail.headImg==''}?@{/static/img/tou.png}:(${#strings.contains(detail.headImg,'https://ph-images.oss-cn-shenzhen.aliyuncs.com/')||#strings.contains(detail.headImg,'http://yst-images.img-cn-hangzhou.aliyuncs.com/')}?${detail.headImg}:'http://yst-images.img-cn-hangzhou.aliyuncs.com/'+${detail.headImg})"/>
+				</span>
+			</span>
+			<span class="info_right">
+				<span class="ping_left" th:text="${detail.nickname==''}?'未设置昵称':${detail.nickname}">嗷嗷</span>
+				<span class="ping_right" th:text="${detail.content}">回复Windir：看来大家都是懒人呀！</span>
+				<span class="ping_btn" >[[${detail.createdTime}]]
+					<button type="button" th:if="${detail.isDelete==0}" th:onclick="'deleteComment(2,'+${detail.id}+')'">隐藏</button>
+					<button type="button" th:if="${detail.isDelete==2}" th:onclick="'deleteComment(0,'+${detail.id}+')'">恢复</button>
+					<button type="button" th:onclick="'deleteComment(1,'+${detail.id}+')'">删除</button>
+				</span>
+			</span>
+		</li>
+	</ul>
+</div>
+
+<div style="display: flex;justify-content: flex-end;padding:0 0 40px 40px;color:#666;height: 40px;">
+	<p style="line-height:33px;width:200px;margin:0;padding:0;text-align: right;color:#666">共<span style="color:#d00" id="pages">10</span>页/<span style="color:#d00" id="total">100</span>条数据</p>
+	<div class="pagediv" style="clear:both;flex-grow: 1;width:auto;"></div>
+</div>
+
+<script th:inline="javascript">
+    $(function () {
+		$(".pagediv").createPage({
+			pageNum: parseInt("[[${pageInfo.pages==0}?1:${pageInfo.pages}]]"),//总页码
+			current: [[${pageInfo.pageNum}]],//当前页
+			shownum: 5,//分页条显示个数
+			showPageNum : false, //显示总页数
+			showToPage : true, //显示跳转页码
+			backfun: function(e) {
+				$("#comment").load("/web/consultation/getConsultationCommentList?consultationId=[[${consultationId}]]&pageNum="+e.current);
+				console.log(e);//回调
+			}
+		});
+		$("#pages").text("[[${pageInfo.pages==0}?1:${pageInfo.pages}]]");
+		$("#total").text("[[${pageInfo.total}]]");
+    })
+
+	//隐藏
+	function deleteComment(act,commentId) {
+		var str="";
+		if(act==1){
+			str="删除";
+		}else if (act==2){
+			str="隐藏";
+		}else if(act==0){
+			str="恢复";
+		}else{
+			layer.alert("操作类型错误", {icon: 2,title: '提示',closeBtn: 0,btnAlign: 'c'});
+			return false;
+		}
+		layer.confirm('是否'+str+'这条评论？', {
+			icon: 3,
+			btn: ['是', '否'], //按钮
+			btn1: function (index) {
+				$.ajax({
+					async: false,
+					url: "/web/consultation/deleteConsultationComment",
+					data: {act:act,commentId: commentId},
+					type: "POST",
+					dataType: "json",
+					success: function (data) {
+						if (data.code == 1) {
+							layer.alert(data.msg, {icon: 1,title: '提示',closeBtn: 0,btnAlign: 'c'});
+							$("#comment").load("/web/consultation/getConsultationCommentList?consultationId=[[${consultationId}]]&pageNum=[[${pageInfo.pageNum}]]");
+						} else {
+							layer.alert(data.msg, {icon: 2,title: '失败',closeBtn: 0,btnAlign: 'c'});
+						}
+					}
+				});
+				layer.close(index);
+			},
+
+		});
+	}
+</script>
+</body>
+</html>
+

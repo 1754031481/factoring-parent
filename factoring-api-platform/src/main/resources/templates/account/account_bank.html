@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta charset="UTF-8">
+<title>银行卡</title>
+<script type="text/javascript"
+			th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<link th:href="@{/static/css/common/models.css}" type="text/css"
+	rel="stylesheet" />
+</head>
+<body>
+	<div class="MainContent">
+		<!--面包屑-->
+		<div class="current">
+			当前位置：<a href="#">帐户管理</a>&nbsp;&gt;&nbsp;<span>银行卡</span>
+		</div>
+		<!--end 面包屑-->
+		<!--主体内容-->
+		<div class="MainCont">
+			<!--标题-->
+			<div class="ph_subTit no_border">
+				<h2>银行卡</h2>
+			</div>
+			<!--end 标题-->
+			<!--银行卡-->
+			<div>
+                <input id="check1" type="radio" name="type" value="0">个人银行卡&nbsp;&nbsp;&nbsp;&nbsp;
+                <input id="check2" type="radio" name="type" value="1">对公银行卡
+				<input id="status" type="text" th:value="${bindCardInfo.type}" hidden="hidden">
+            </div>
+			<div class="ph_methodBox ph_setUp">
+				<form id="bankForm">
+					<p class="ph_methPass" style="display: none;">
+						<input id="roleCode" name="roleCode" type="text" th:value="${roleCode}">
+						<input id="bankCodenameDataId" name="bankCodenameDataId" type="text" hidden="hidden">
+					</p>
+					<p class="ph_methPass" style="display: none;">
+						<input id="id" name="id" type="text" th:value="${bindCardInfo.id}">
+					</p>
+					<p class="ph_methPass">
+						<label for=""><span class="require">*</span>用户姓名：</label> <input
+							id="name" name="name" type="text"
+							th:value="${bindCardInfo.name}">
+					</p>
+					<p class="ph_methPass">
+						<label for=""><span class="require"></span>手机号：</label> <input
+							id="telPhone" name="telPhone" type="text" th:value="${telPhone}"
+							disabled="disabled">
+					</p>
+					<p class="ph_methPass">
+						<label for=""><span class="require">*</span>身份证号：</label> <input
+							id="card" name="card" type="text"
+							th:value="${bindCardInfo.card}">
+					</p>
+					<p class="ph_methPass">
+						<label for=""><span class="require">*</span>银行卡号：</label> <input
+							id="bankNo" name="bankNo" type="text" onblur="findBankName()"
+							th:value="${bindCardInfo.bankNo}">
+					</p>
+					<p class="ph_methPass">
+						<label for="">所属银行：</label> <input id="bank" name="bank" type="text" disabled="disabled" th:value="${bindCardInfo.bank}">
+					</p>
+					<p class="ph_methPass">
+						<label for=""> <span class="require">*</span>验证码：
+						</label> <input id="verificationCode" name="verificationCode" type="text">
+						<span class="provingImg">
+						<input class="provingTxt ph_noBor" id="smsId" type="button" value="获取验证码" onclick="getSmsCode()">
+						</span>
+					</p>
+					<p class="ph_methPass">
+						<label for=""><span class="require">* 剩余免费次数：</span></label> <input style='border-left:0px;border-top:0px;border-right:0px;border-bottom:1px;color: #c7254e ' id="bindnums" name="bindnums" type="text" readonly th:value="${bindnums}">
+					</p>
+				</form>
+			</div>
+
+            <div class="ph_methodBox ph_setUp">
+                <form id="bankForm1">
+                    <p class="ph_methPass" style="display: none;">
+                        <input id="roleCode1" name="roleCode" type="text" th:value="${roleCode}">
+                        <input id="bankCodenameDataId1" name="bankCodenameDataId" type="text" hidden="hidden">
+                    </p>
+                    <p class="ph_methPass" style="display: none;">
+                        <input id="id1" name="id" type="text" th:value="${bindCardInfo.id}">
+                    </p>
+                    <p class="ph_methPass">
+                        <label for=""><span class="require"></span>手机号：</label> <input
+                            id="telPhone1" name="telPhone" type="text" th:value="${telPhone}"
+                            disabled="disabled">
+                    </p>
+                    <p class="ph_methPass">
+                        <label for=""><span class="require">*</span>公司名称：</label> <input
+                            id="name1" name="name" type="text"
+                            th:value="${bindCardInfo.name}">
+                    </p>
+                    <p class="ph_methPass">
+                        <label for=""><span class="require">*</span>银行卡号：</label> <input
+                            id="bankNo1" name="bankNo" type="text" placeholder="请您手动输入银行卡"
+                            th:value="${bindCardInfo.bankNo}" maxlength="22" minlength="14">
+                    </p>
+                    <p class="ph_methPass">
+                        <label for="">所属银行：</label> <!--<input id="bank1" name="bank1" type="text" disabled="disabled" th:value="${bindCardInfo.bank}">-->
+                        <span th:if="${bindCardInfo.type==2}" style="margin:0px;padding:0px;">
+							<select class="bank" id="bank1" name="bank"  style="margin:0px;padding:0px;background-repeat: no-repeat;width:300px">
+								<option value="中国银行">中国银行</option>
+								<option value="中国工商银行">中国工商银行</option>
+								<option value="中国建设银行">中国建设银行</option>
+								<option value="中国农业银行">中国农业银行</option>
+								<option value="光大银行">光大银行</option>
+								<option value="中国民生银行">中国民生银行</option>
+								<option value="中国邮政储蓄银行">中国邮政储蓄银行</option>
+								<option value="中信银行">中信银行</option>
+								<option value="浦发银行">浦发银行</option>
+								<option value="交通银行">交通银行</option>
+								<option value="华夏银行">华夏银行</option>
+								<option value="招商银行">招商银行</option>
+								<option value="兴业银行">兴业银行</option>
+								<option value="平安银行">平安银行</option>
+							</select>
+						</span>
+
+                        <input type="text" name="bank" id="bank2" th:if="${bindCardInfo.type==1}" th:value="${bindCardInfo.bank}" disabled>
+                    </p>
+                    <p class="ph_methPass">
+                        <label for=""> <span class="require">*</span>验证码：
+                        </label> <input id="verificationCode1" name="verificationCode" type="text">
+                        <span class="provingImg">
+						<input class="provingTxt ph_noBor" id="smsId1" type="button" value="获取验证码" onclick="getSmsCode1()">
+						</span>
+                    </p>
+                    <p class="ph_methPass">
+                        <label for=""><span class="require">* 剩余免费次数：</span></label> <input style='border-left:0px;border-top:0px;border-right:0px;border-bottom:1px;color: #c7254e ' id="bindnums1" name="bindnums1" type="text" readonly th:value="${bindnums}">
+                    </p>
+                </form>
+            </div>
+
+			<!--end 银行卡-->
+			<!--返回按钮-->
+			<div class="PopupBtn btnLeft">
+				<shiro:hasPermission name="bindCard">
+					<input class="submit" id="saveCard" name="saveCard" type="button"
+						value="绑定" onclick="saveOrCard()">
+				</shiro:hasPermission>
+				<shiro:hasPermission name="unbindCard">
+					<input class="submit" id="disCard" name="disCard" type="button"
+						value="解绑" onclick="unbind()">
+				</shiro:hasPermission>
+			</div>
+			<!--end 返回按钮-->
+		</div>
+		<!--end 主体内容-->
+	</div>
+
+
+	<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+	<!--弹窗-->
+	<script type="text/javascript"
+		th:src="@{/static/js/plugins/layer/layer.js}"></script>
+	<script type="text/javascript" th:src="@{/static/js/common/util.js}"></script>
+	<script type="text/javascript" th:src="@{/static/js/common/readTime.js}"></script>
+	<script type="text/javascript" th:src="@{/static/js/account/account_bank.js}"></script>
+	<script>
+        if($("#status").val() == 0){
+            $("#check1").attr("checked","checked");
+            $("#check2").attr("disabled","disabled");
+            $("#bankForm").css("display","block");
+            $("#bankForm1").css("display","none");
+        }else if($("#status").val() == 1){
+            $("#check2").attr("checked","checked");
+            $("#check1").attr("disabled","disabled");
+            $("#bankForm").css("display","none");
+            $("#bankForm1").css("display","block");
+        }else if($("#status").val() ==  2){
+            $("#bankForm").css("display","block");
+            $("#bankForm1").css("display","none");
+            $("#check1").attr("checked","checked");
+        }
+        $("#check1").click(function () {
+            $("#bankForm").css("display","block");
+            $("#bankForm1").css("display","none");
+        });
+        $("#check2").click(function () {
+            $("#bankForm").css("display","none");
+            $("#bankForm1").css("display","block");
+        });
+
+	</script>
+</body>
+</html>

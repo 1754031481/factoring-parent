@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<body>
+<div class="bendi">
+    <div class="title" style="height:35px;">
+        <h3 class="l_title" style="left:0">本地品牌</h3>
+        <h3 class="r_title" style="left:500px">专卖品牌</h3>
+    </div>
+
+    <ul class="flex-container">
+
+        <li th:each="detail,sn:${pageInfo.list}" th:class="${detail.type==1?'left':'right'}">
+            <div class="itemImg">
+                <img th:src="${detail.logo_img}">
+            </div>
+            <p class="itemName" th:text="${detail.name}"></p>
+            <span class="delete" th:onclick="'deleteBrand('+${detail.id}+')'">×</span>
+        </li>
+    </ul>
+</div>
+<!--end 添加猎头标签-->
+<script type="text/javascript">
+    $(function () {
+        $(".pagediv").createPage({
+            pageNum: "[[${pageInfo.pages}]]",//总页码
+            current: "[[${pageInfo.pageNum}]]",//当前页
+            shownum: "[[${pageInfo.pageSize}]]",//每页显示个数
+            showPageNum : true, //显示总页数
+            showToPage : true, //显示跳转页码
+            backfun: function(e) {
+                $(".section").load("/web/headhunting/toHunterCheckBrandList?hunterId=[[${hunterId}]]&pageNum="+e.current);
+                console.log(e);//回调
+            }
+        });
+        var _width = $('.flex-container li').width();
+        var _height = $('.flex-container li').height();
+        var len = $('.flex-container .left').length;
+        var len_2 = $('.flex-container .right').length;
+        var count = len > len_2 ? len : len_2;
+        var b_height = Math.ceil(count / 3) * _height + Math.floor(count / 3) * 15;
+        $('.flex-container').height(b_height)
+        $('.flex-container .left').each(function (i, elem) {
+            var col_i = Math.floor(i / 3);
+            var row_i = i % 3;
+            var top = col_i * (_height + 15 );
+            var left = row_i * (_width + 15);
+            $(elem).css({'top': top, 'left': left})
+
+        })
+        $('.flex-container .right').each(function (i, elem) {
+            var col_i = Math.floor(i / 3);
+            var row_i = i % 3;
+            var top = col_i * (_height + 15 );
+            var right = 330 - row_i * (_width + 15 );
+            $(elem).css({'top': top, 'right': right})
+
+        })
+    })
+</script>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org" 
+		xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>普济一城商城后台系统</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--富文本  css文件-->
+    <!--<link rel="stylesheet" href="css/ueditor.css">-->
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <style>
+    	.span_clas{
+    		float: left;
+		    display: inline;
+		    line-height: 40px;
+		    padding-left: 10px;
+		    font-size: 12px;
+    	}
+    </style>
+</head>
+<body>
+<div class="MainContent">
+    <div class="ph_wareBox ph_infoWare">
+        <table class="ph_wareList">
+            <thead>
+            <tr>
+                <th width="50">序号</th>
+                <th>姓名</th>
+                <th>本月绩效额</th>
+                <th>完成状态</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="detail,sn:${reList}">
+                <td th:text="${sn.count}"></td>
+                <td th:text="${detail.name}"></td>
+                <td th:text="${#numbers.formatDecimal(detail.achievement/10000,1,2)}"></td>
+                <td th:if="${detail.state==0}" >未完成</td>
+                <td th:if="${detail.state==1}" >已完成</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="ph_wareBox ph_infoWare">
+        <table class="ph_wareList">
+            <tbody>
+            <tr>
+                <td>合计：</td>
+                <td th:text="'达标人数：'+${csCount}+'共'+${cCount}+'人'">达标人数：2共4人</td>
+                <td th:text="'达标率：'+${standardRate}+'%'">达标率：50%</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!--end 添加猎头标签-->
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript">
+</script>
+</body>
+</html>
+

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>订单结算</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <script TYPE="text/javascript" th:src="@{/static/js/plugins/My97DatePicker/WdatePicker.js}"></script>
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">奖券查询</a></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>奖券查询</h2>
+            <!--<div class="ph_snbBtn">-->
+                <!--<shiro:hasPermission name="orderOnlineExport">-->
+                    <!--<input name="" type="button" th:onclick="'exportExcel();'" value="导出">-->
+                <!--</shiro:hasPermission>-->
+            <!--</div>-->
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <form id="queryForm" th:action="@{/web/lottery/toLotteryList}" th:method="POST">
+            <div class="ph_screen">
+                <shiro:hasPermission name="orderOnlineQuery">
+                    <table class="ph_tableBox">
+                        <tr>
+                            <th>结算时间：</th>
+                            <td colspan="2">
+                                <p class="dayBox">
+                                    <input type="text" name="lotteryStartTime" onclick="WdatePicker()" th:if="${not #lists.isEmpty(prizePoolVO1)}" th:value="${prizePoolVO1.StartTime}">&nbsp;-&nbsp;
+                                    <input type="text" name="lotteryStartTime" onclick="WdatePicker()" th:if="${#lists.isEmpty(prizePoolVO1)}">&nbsp;-&nbsp;
+                                    <input type="text" name="lotteryEndTime" onclick="WdatePicker()" th:if="${not #lists.isEmpty(prizePoolVO1)}" th:value="${prizePoolVO1.EndTime}">
+                                    <input type="text" name="lotteryEndTime" onclick="WdatePicker()" th:if="${#lists.isEmpty(prizePoolVO1)}">
+                                </p>
+                            </td>
+                            <td>奖券数:<span th:if="${not #lists.isEmpty(prizePoolVO1) and not #lists.isEmpty(prizePoolVO1.lotteryNum)}" th:text="${#numbers.formatDecimal(prizePoolVO1.lotteryNum,1,2)}"></span>订单总金额:<span th:if="${not #lists.isEmpty(prizePoolVO1) and not #lists.isEmpty(prizePoolVO1.orderSumPrice)}" th:text="${#numbers.formatDecimal(prizePoolVO1.orderSumPrice,1,2)}"></span>奖池总金额:<span th:if="${not #lists.isEmpty(prizePoolVO1) and not #lists.isEmpty(prizePoolVO1.orderSumPrice)}" th:text="${#numbers.formatDecimal(prizePoolVO1.orderSumPrice * 0.15 * 0.7,1,2)}"></span></td>
+                            <td>
+                                <input name="" type="submit" value="查询">
+                                <input name="" type="button" th:onclick="'resetForm();'" value="生成">
+                            </td>
+                        </tr>
+                    </table>
+                </shiro:hasPermission>
+            </div>
+        </form>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="example" >
+                <tr>
+                    <td style="width: 100px">奖期</td>
+                    <td>开奖周期开始时间</td>
+                    <td>开奖周期结束时间</td>
+                    <td style="width: 100px">奖券数</td>
+                    <td  style="width: 100px">订单总金额</td>
+                    <td  style="width: 100px">奖池总金额</td>
+                    <td  style="width: 100px">开奖状态</td>
+                    <td>开奖时间</td>
+                    <td  style="width: 300px">操作</td>
+                </tr>
+                <tr   th:if="${not #lists.isEmpty(prizePoolVO1)}" th:each="prize:${prizePoolVO1.prizePoolVOS}">
+                    <td th:text="${prize.id}"></td>
+                    <td th:text="${#dates.format(prize.lotteryStartTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:text="${#dates.format(prize.lotteryEndTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:text="${#numbers.formatDecimal(prize.lotteryNum,1,2)}"></td>
+                    <td th:text="${#numbers.formatDecimal(prize.orderPrice / 10000,1,2)} "></td>
+                    <td th:text="${#numbers.formatDecimal(prize.orderPrice* 0.15 * 0.7 / 10000,1,2)} "></td>
+                    <td th:if="${prize.status == 0}">未开奖</td>
+                    <td th:if="${prize.status == 1}">已开奖</td>
+                    <td th:text="${#dates.format(prize.lotteryOpenTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:if="${prize.status == 0}">
+                        <input type="button" th:class="${prize.id}" value="开启" th:onclick="'javascript:openPrize(\''+${prize.id}+'\',\''+${prize.lotteryOpenTime}+'\')'">
+                        <a th:onclick="'javascript:viewPrize(\''+${prize.id}+'\')'">奖项预览</a>
+                        <input type="button" value="详情" th:onclick="'javascript:prizeDetails(\''+${prize.id}+'\')'">
+                    </td>
+                    <td th:if="${prize.status == 1}">
+                        <input type="button" value="开启" disabled="disabled"  class="btn btn-lg btn-primary">
+                        <a th:onclick="'javascript:prizeResult(\''+${prize.id}+'\')'">开奖结果</a>
+                        <input type="button" value="详情" th:onclick="'javascript:prizeDetails(\''+${prize.id}+'\')'">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+    <!--导出start-->
+    <div hidden>
+        <form action="/web/unlineSettlement/export"  id="orderExport" method="post">
+            <input type="hidden" name="startTime" value="" id="e_starTime"/>
+            <input type="hidden" name="endTime" value="" id="e_endTime"/>
+            <input type="hidden" name="orderNo" value="" id="e_orderNo"/>
+            <input type="hidden" name="hunterPhone" value="" id="e_hunterPhone"/>
+            <input type="hidden" name="status" value="" id="e_status"/>
+        </form>
+    </div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+
+function resetForm() {
+    var lotteryEndTime = $("[name='lotteryEndTime']").val();
+    var lotteryStartTime = $("[name='lotteryStartTime']").val();
+    if(dateCheck(lotteryStartTime)==false && dateCheck(lotteryEndTime)==false){
+        layer.msg("请填写正确的时间格式!");
+        return;
+    }
+    $.ajax({
+        url:"checkDate",
+        type:"post",
+        data:{lotteryEndTime:lotteryEndTime,lotteryStartTime:lotteryStartTime},
+        success:function (data) {
+            if(data.success){
+                lotteryStartTime = new Date(lotteryStartTime);
+                lotteryEndTime = new Date(lotteryEndTime);
+                    $.ajax({
+                        url:"generatePrize",
+                        type:"post",
+                        data:{EndTime:lotteryEndTime,StartTime:lotteryStartTime},
+                        success:function (data) {
+                            if(data.success){
+                                layer.msg("生成奖池成功!",{
+                                    time:500
+                                },function () {
+                                    submitFrom();
+                                });
+                            }else{
+                                layer.msg("生成奖池失败!");
+                            }
+                        }
+                    })
+            }else{
+                layer.msg("请选择上一次生成奖池的结束时间前一分钟之后作为本次的开始时间!")
+            }
+        }
+    })
+}
+function submitFrom() {
+    var form = document.getElementById('queryForm');
+    form.submit();
+}
+function dateCheck(value) {
+    var reg = /^[1-9]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s+(20|21|22|23|[0-1]\d):[0-5]\d:[0-5]\d$/;
+    var regExp = new RegExp(reg);
+    if(!regExp.test(value)){
+        return false;
+    }else{
+        return true;
+    }
+}
+function openPrize(id,lotteryOpenTime) {
+                if(id == null || id == ''){
+                    layer.msg("服务器错误!");
+                    return;
+                }
+                layer.prompt({
+                    title: '请输入开奖时间',
+                    value: "\"text\" placeholder=\"到期日期\" class=\"form-control laydate-icon date-input\" onclick=\"WdatePicker() \"",
+                }, function(value, index, elem) {
+                    layer.close(index);
+                    $.ajax({
+                        url:"checkOpenTime",
+                        data:{id:id,lotteryOpenTime:value},
+                        type:"post",
+                        success:function (data) {
+                            if (data.success){
+                                value = new Date(value);
+                                $.ajax({
+                                    url: "openPrize",
+                                    type: "post",
+                                    data: {id: id,openTime:value},
+                                    success: function (data) {
+                                        if (data.success) {
+                                            layer.msg("开启奖池成功!", {
+                                                time: 500
+                                            }, function () {
+                                                submitFrom();
+                                            });
+                                        } else {
+                                            layer.msg("开启奖池失败!");
+                                        }
+                                    }
+                                })
+                            }else{
+                                if(data.code == 1){
+                                    layer.msg("请确认上一个奖池已经设置开奖时间!");
+                                }else if(data.code == 0){
+                                    layer.msg("设置的开奖时间必须大于上一个奖池的开奖时间和此奖池的结束周期时间!")
+                                }else{
+                                    layer.msg("服务器错误!")
+                                }
+                            }
+                        }
+                    })
+                });
+}
+function viewPrize(id) {
+    if(id == null){
+        layer.msg("请选择奖池!");
+        return;
+    }
+    id = parseInt(id);
+   location.href="viewPrize?id="+id;
+
+}
+function prizeResult(id) {
+    if(id == null){
+        layer.msg("请选择奖池!");
+        return;
+    }
+    id = parseInt(id);
+    location.href="prizeResult?id="+id;
+
+}
+function prizeDetails(id) {
+    if(id == null){
+        layer.msg("请选择奖池!");
+        return;
+    }
+    id = parseInt(id);
+    location.href="toPrizeDetails?id="+id;
+
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+@charset "utf-8";
+
+.problem_main{
+    width: 1170px;
+    margin: 0 auto;
+    padding: 23px 130px 0 130px;
+}
+.problem_main .problem_title{
+    font-size: 28px;
+    color: #000;
+    height: 105px;
+    line-height: 105px;
+}
+.problem_box .problemtype{
+    font-size: 20px;
+    font-family: "Microsoft Yahei";
+    color: #00b0fb;
+    border-bottom: 2px solid #dadada;
+    height: 68px;
+    line-height: 68px;
+    position: relative;
+}
+
+
+.xiuchengshuo{
+    width: 1210px;
+    margin: 0 auto;
+}
+.problem_box .problemtype .underline{
+    position: absolute;
+    width: 78px;
+    height: 2px;
+    background: #00b0fb;
+    bottom: -2px;
+    left: 0;
+}
+.specific_probox{
+    padding-top: 44px;
+    padding-bottom: 33px;
+}
+.specific_probox .specific_problem .problemtxt{
+    float: left;
+}
+.specific_probox .specific_problem .problemarrow{
+    float: right;
+    display: inline-block;
+    width: 15px;
+    height: 52px;
+    background: url(../../img/arrow.png) no-repeat center;
+}
+.specific_probox .specific_problem dt{
+    overflow: hidden;
+    line-height: 52px;
+    font-size: 19px;
+    color: #212121;
+    cursor: pointer;
+}
+.specific_probox .specific_problem dd{
+    line-height: 30px;
+    font-size: 19px;
+    color: #747474;
+    display: none;
+    padding-left: 40px;
+}
+.specific_probox .specific_problem .checked .problemarrow{
+    background: url(../../img/arrowchecked.png) no-repeat center;
+}
+
+dd img{
+    display: block;
+    margin-bottom: 30px;
+}
+h2{
+    font-size: 26px;
+    margin-bottom: 40px;
+    margin-top: 30px;
+}
+p{
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+.red{
+    color: red;
+    font-size: 20px;
+}
+
+.jiacu{
+    font-weight: bold;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

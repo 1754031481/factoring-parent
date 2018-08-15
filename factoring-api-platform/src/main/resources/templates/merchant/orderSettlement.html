@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>订单详情页面</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">收银管理</a>&nbsp;&gt;&nbsp;<span>收银台</span>&nbsp;&gt;&nbsp;<span>支付</span></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <h2>
+            <span>订单号：</span>
+            <span  th:id="onLine" th:utext="${onLine}"/>  </span>
+        </h2>
+        <br/>
+        <div class="h2" style="overflow: hidden;font-size: 30px;font-weight:bold;">
+            <span style="float: left">付款方式：</span>
+            <div style="float: left;font-size: 25px;">
+                <div>
+                    <input id="ptype_1" type="radio" name="paytype" value="1">
+                    <label for="ptype_1">现金支付</label>
+                </div>
+                <div>
+                    <input id="ptype_2" type="radio" name="paytype" value="3">
+                    <label for="ptype_2">余额支付</label>
+                </div>
+                <!--<div th:if="${systemParameterType == 0}">-->
+                    <!--<input id="ptype_3" type="radio" name="paytype" value="2">-->
+                    <!--<label for="ptype_3">积分支付</label>-->
+                <!--</div>-->
+            </div>
+        </div>
+        <h2>
+            <span>用户应付金额：</span>
+            <span   th:id="memberPrice" th:utext="0"/> </span>
+        </h2>
+        <br/>
+        <h2>
+            <span>应扣金额：</span>
+            <span   th:id="merchantPrice" th:utext="0"/> </span>
+        </h2>
+        <br/>
+        <h2>
+            <span>店铺余额：</span>
+            <span  th:utext="${merchantBalanceShow}"/> </span>
+        </h2>
+        <br/>
+        <input type="hidden"  th:value="${productTotalPrice}"  id="productTotalPrice">
+        <input type="hidden"  th:value="${scoreTotalPrice}"  id="scoreTotalPrice">
+        <input type="text"  id="paymentCode" style="position: fixed;left: -2000px" >
+        <input type="button" onclick="confirmPay()" value="确认付款">
+
+    </div>
+    <!--end 主体内容-->
+    <script type="text/javascript" th:src="@{/static/uploadfy/jquery.uploadify.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+    <!--bootstrap-select-->
+    <script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+    <!--分页-->
+    <script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/spm/spmExtends.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        //选择支付方式
+        $("input[name='paytype']").change(function() {
+            var value = $("input[name='paytype']:checked").val();
+            if(value == 1){
+                $("#memberPrice").html($("#productTotalPrice").val());
+                $("#merchantPrice").html($("#productTotalPrice").val())
+            } else if( value ==  3 ){
+                $("#memberPrice").html($("#productTotalPrice").val());
+                $("#merchantPrice").html(0);
+            }else {
+                $("#memberPrice").html($("#scoreTotalPrice").val());
+                $("#merchantPrice").html(0);
+            }
+        });
+        /*确认付款*/
+        var confirmPay = function () {
+            var payType = $("input[name='paytype']:checked").val();
+            if( !payType ){
+                layer.confirm('请选择支付方式',{
+                    title: "提示",
+                    icon: 3,
+                    btnAlign: 'c',
+                    closeBtn : 0
+                });
+                return false;
+            }
+            if( payType == 1 ){
+                toPay();
+            }
+            else{
+                layer.open({
+                    title: "提示",
+                    content:"请扫描普济一城支付码",
+                    icon: 3,
+                    btn: ['确认'],
+                    btnAlign: 'c',
+                    closeBtn : 0,
+                    btn1:function(index, layero) {
+                        layer.close(index);
+                        $("#paymentCode").focus();
+                    }
+                })
+
+            }
+        };
+        //支付
+        function toPay() {
+            var confirmData = {};
+            confirmData.orderNo = $('#onLine').html();
+            confirmData.payType = $("input[name='paytype']:checked").val();
+            confirmData.paymentCode = $('#paymentCode').val();
+            var payType = $("input[name='paytype']:checked").val();
+            $(".MainWrap").show();
+            $.ajax({
+                url: "/web/Cashier/confirmPayment",
+                type: "post",
+                data:confirmData,
+                success: function (result) {
+                    if(result.code ==300){
+                        layer.confirm('付款失败，请稍后重试',{
+                            title: "提示",
+                            icon: 3,
+                            btnAlign: 'c',
+                            closeBtn : 0
+                        });
+                        $(".MainWrap").hide();
+                        $("#paymentCode").val("");
+                        return false;
+                    }if(result.code ==0){
+                        layer.confirm(result.message,{
+                            title: "提示",
+                            icon: 3,
+                            btnAlign: 'c',
+                            closeBtn : 0
+                        });
+                        $(".MainWrap").hide();
+                        $("#paymentCode").val("");
+                        return false;
+                    }else if(result.code ==200){
+                        window.location.href = "/web/Cashier/toDeails?"+"orderNo="+confirmData.orderNo+"&payType="+payType;
+                    }
+                }
+            });
+        }
+        //扫码
+        $("#paymentCode").change(function(){
+//            console.log("扫码支付")
+            toPay();
+        });
+    </script>
+</div>
+
+<!--等待-->
+<!--主体内容-->
+<style>
+    .MainWrap{
+        display: none;
+        position: fixed;
+        top:0;
+        bottom:0;
+        width:100%;
+    }
+</style>
+<div class="MainWrap">
+    <div class="MainCont">
+        <div  style="width: 500px; margin: 300px auto">
+            <p style="    font-size: 20px; margin-left: 30%;">支付中请耐心等待...</p>
+            <div class="progress progress-striped active">
+                <div class="progress-bar progress-bar-info" role="progressbar"
+                     aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                     style="width: 100%;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

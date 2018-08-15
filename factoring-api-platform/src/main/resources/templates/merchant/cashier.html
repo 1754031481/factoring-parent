@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>收银管理</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <style>
+        .proTotalBox {
+            display: none;
+            text-align: right;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .ph_wareBox .PopupBtn {
+            display: none;
+            text-align: right;
+        }
+
+    </style>
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">收银管理</a>&nbsp;&gt;&nbsp;<span>收银台</span></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>收银台</h2>
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <div class="ph_screen">
+            <!-- <shiro:hasPermission name="merchantQuery">-->
+            <table class="ph_tableBox">
+                <tr>
+                    <th>会员账号：</th>
+                    <td colspan="2"><input name="phone" id="phone" type="text" style="width:150px;"
+                                           onblur="findName(phone)"></td>
+                </tr>
+                <tr>
+                    <th>姓名：</th>
+                    <td colspan="2"><input name="name" id="name" type="text" style="width:150px;" readonly="true">
+                        <input id="memberId" type="hidden">
+                    </td>
+
+                </tr>
+                <!--<tr>
+                    <th>服务专员编码：</th>&lt;!&ndash;此处显示服务专员编码和姓名&ndash;&gt;
+                    <td colspan="2"><input name="hunterName" id="hunterName" type="text" style="width:150px;">
+                        <select name="hunterName"  id="hunterNameSelect" style="width:150px;height:30px" >
+                        </select>
+                    </td>
+                </tr>-->
+                <tr>
+                    <th>商品条形码：</th>
+                    <td colspan="2"><input name="barCode" id="barCode" type="text" style="width:200px;"
+                                           onkeyup="value=value.replace(/[\u4E00-\u9FA5]|/g,'')"
+                                           ng-pattern="/[^a-zA-Z]/">
+                        <input type="hidden" id="hunterId">
+                    </td>
+                </tr>
+            </table>
+            <!--</shiro:hasPermission>-->
+        </div>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+
+        <!--<div class="ph_wareBox" id="div"></div>-->
+
+        <div class="ph_wareBox">
+            <table id="treeTable" class="ph_wareList">
+                <thead>
+                <tr>
+                    <th>商品序号</th>
+                    <th>商品名称</th>
+                    <th>品牌名称</th>
+                    <th>商品条形码</th>
+                    <th>规格</th>
+                    <th>单价</th>
+                    <!--<th>积分价</th>-->
+                    <th>数量</th>
+                    <th>重量(kg)</th>
+                    <th>总价</th>
+                    <!--<th>总积分价</th>-->
+                    <th>操作</th>
+                </tr>
+                </thead>
+            </table>
+            <p class="proTotalBox">商品总价：<span class="proTotalPrice"></span><input type="hidden" class="socreTotalPrice">
+            </p>
+            <div class="PopupBtn btnLeft">
+                <input class="submit" name="" type="button" onclick="openLogin();" value="确认下单">
+            </div>
+        </div>
+
+        <div id=alertOkId
+             style="display:none; POSITION:absolute; left:50%; top:50%; width:460px; height:260px; margin-left:-300px; margin-top:-200px; border:1px solid #888; background-color:#F8F8FF; text-align:center">
+            <h3>请再次确认会员信息是否正确</h3><br>
+
+            <h3>
+                <span>会员账号：</span>
+                <span class="useNumber"></span>
+            </h3>
+            <br>
+            <h3>
+                <span>姓名：</span>
+                <span class="useName"></span>
+            </h3>
+            <br>
+            <br>
+            <br>
+            <input type="button" onclick="closeLogin()" value="返回">
+            <input type="button" onclick="infoOk()" value="信息确认无误">
+
+
+        </div>
+
+        <!-- <div class="ph_wareBox">
+             <table id="merchantList" class="ph_wareList">
+             </table>
+         </div>-->
+        <!--end 商品列表-->
+        <div class="errorWrap">
+            <span class="errorMsg"></span>
+        </div>
+    </div>
+    <!--end 主体内容-->
+    <script type="text/javascript" th:src="@{/static/uploadfy/jquery.uploadify.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+    <!--bootstrap-select-->
+    <script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+    <!--分页-->
+    <script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/spm/spmExtends.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/number.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        window.onload = function () {
+            var barcode = document.querySelector("#barCode");
+            barcode.focus();
+        }
+        /* 查询会员姓名*/
+        var findName = function (phone) {
+            var phone = $(phone).val()
+            $.ajax({
+                url: "/web/Cashier/findMemberName",
+                type: "post",
+                data: {"phone": phone},
+                success: function (result) {
+                    var code = result.code;
+                    if (code == 1) {
+                        $("#name").val(result.message);
+                    } else {
+                        $("#name").val(result.data.name);
+                        $("#memberId").val(result.data.id);
+                    }
+                },
+            });
+        };
+        /* 商品编码*/
+        var barCodeAry = {};
+        /* 回车触发事件 */
+        $('#barCode').keyup(function (event) {
+            if (event.keyCode == 13) {
+                var barCode = $('#barCode').val()
+                $.ajax({
+                    url: "/web/Cashier/findProductDetail",
+                    type: "post",
+                    data: {"barCode": barCode},
+                    success: function (data) {
+                        if (data.code == 30300) {
+                            layer.confirm('该商品不存在或者已下架,请重新输入商品编码', {
+                                title: "提示",
+                                icon: 3,
+                                btnAlign: 'c',
+                                closeBtn: 0
+                            });
+                        } else {
+                            //构造显示页面
+                            // var tab = "<table width='300' border='1' cellpadding='0' cellspacing='0'><tr align='center'><td>商品名称</td><td>商品条形码</td><td>规格</td></tr>";
+                            var tab = "";
+                            $.each(data.data, function (i, item) {
+                                //增加品牌名称（brandName）和所属服务专员（nickname）字段
+                                tab += "<tr class='treeTableList' align='center'>" +
+                                        "<input type='hidden' class='price'  value='" + item.price + "'/>" +
+                                        "<input type='hidden' class='scorePrice' value='" + item.scorePrice + "'/>" +
+                                        "<input type='hidden' class='productSpecificationId' value='" + item.productSpecificationId + "'>" +
+                                        "<input type='hidden' class='totalScorePrice' value='" + toDecimal(item.scorePrice) + "'/>" +
+                                        "<td class='itemId'>" + item.id + "</td>" +
+                                        "<td class='itemName'>" + item.name + "</td>" +
+                                        "<td class='brandName'>" + item.brandName + "</td>" +
+                                        "<td class='bar_code'>" + item.barCode + "</td>" +
+                                        "<td class='content'>" + item.content + "</td>" +
+                                        "<td class='salePrice'>" + item.salePrice + "</td>" +
+//                                        "<td class='scorePrice'>" + item.scorePrice +"</td>" +
+                                        "<td><input type='text' id='num' onkeyup='summer(this)'  onafterpaste='summer(this)' value='1' ></td>" +
+                                        "<td class='weight'>" + item.weight + "</td>" +
+                                        "<td class='totalPrice'>" + item.salePrice + "</td>" +
+//                                        "<td class='totalScorePrice'>" + toDecimal(item.scorePrice) +"</td>" +
+                                        "<td><a href='javascript:void(0)' class='delTableItem' onclick='delTableItem(this)' data-code='" + item.bar_code + "'>删除</a></td>" +
+                                        "</tr>";
+                            })
+                            $("#treeTable").append(tab);
+                            $('.proTotalBox').show();
+                            $('.PopupBtn').show();
+                            $('.proTotalPrice').html($('.totalPrice').html())
+                            tab = "";
+                            calculate();
+                        }
+
+                    }
+                });
+                $('#barCode').val("");
+            }
+        });
+        function summer(self) {
+            self.value = self.value.replace(/[^\d]|(^0)/g, '');
+        }
+        /* 弹出错误信息 */
+        function errorMSG(str) {
+            $('.errorWrap').show();
+            $('.errorMsg').html(str);
+            setTimeout(function () {
+                $('.errorWrap').hide();
+            }, 3000)
+        }
+        /*确认下单弹出框*/
+        function openLogin() {
+            if ($('#phone').val() != '' && $('#name').val() != '' && $('#name').val() != "当前用户不存在") {
+
+                layer.open({
+                    title: "请再次确认会员信息是否正确",
+                    content: "<h4>会员账号：" + $('#phone').val() + "</h4><h4>姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名：" + $('#name').val() + "</h4>",
+                    icon: 3,
+                    btn: ['返回', '信息确认无误'],
+                    btnAlign: 'c',
+                    closeBtn: 0,
+                    btn1: function (index, layero) {
+                        layer.close(index);
+                    },
+                    btn2: function (index, layero) {
+                        var totalPrice = $(".proTotalPrice").html(); //商品总价
+                        var scoreTotalPrice = $(".socreTotalPrice").val(); //商品积分总价
+                        var memberId = $('#memberId').val();
+                        var dataList = [];
+                        var aaa = $('#productSpecificationId').val();
+                        $('.treeTableList').each(function (i, elem) {
+                            var dataObj = {};
+                            dataObj.price = $(elem).find('.price').val();
+                            dataObj.scorePrice = $(elem).find('.scorePrice').val();
+                            dataObj.productSpecificationId = $(elem).find('.productSpecificationId').val();
+                            dataObj.totalScorePrice = $(elem).find('.totalScorePrice').val();//积分总价
+                            dataObj.productId = $(elem).find('.itemId').html();
+                            dataObj.productName = $(elem).find('.itemName').html();
+                            dataObj.barCode = $(elem).find('.bar_code').html();
+                            dataObj.productSalePrice = $(elem).find('.salePrice').html();
+                            dataObj.content = $(elem).find('.content').html();
+                            dataObj.totalPrice = $(elem).find('.totalPrice').html();//商品合计
+                            dataObj.num = $(elem).find('#num').val();
+                            dataList.push(dataObj);
+                        })
+                        //dataStr是json字符串  dataList是数组
+                        var dataStr = JSON.stringify(dataList);
+                        $.ajax({
+                            type: "post",
+                            data: {
+                                "dataStr": dataStr,
+                                "productTotalPrice": totalPrice,
+                                "scoreTotalPrice": scoreTotalPrice,
+                                "memberId": memberId
+                            },
+                            url: "/web/Cashier/addUnLineOrder",
+                            success: function (result) {
+                                var stringRes = JSON.stringify(result.data);
+                                stringResData = stringRes.replace("{", "").replace("}", "").replace(/\"/g, "").replace(/:/g, "=").replace(/,/g, "&");
+                                if (result.code == 300) {
+                                    layer.confirm(result.message, {
+                                        title: "提示",
+                                        icon: 3,
+                                        btnAlign: 'c',
+                                        closeBtn: 0
+                                    });
+                                    return false;
+                                } else if (result.code == 30331) {
+                                    layer.confirm(result.message, {
+                                        title: "提示",
+                                        icon: 3,
+                                        btnAlign: 'c',
+                                        closeBtn: 0
+                                    });
+                                    return false;
+                                } else if (result.code == 30332) {
+                                    layer.confirm(result.message, {
+                                        title: "提示",
+                                        icon: 3,
+                                        btnAlign: 'c',
+                                        closeBtn: 0
+                                    });
+                                    return false;
+                                } else if (result.code == 0) {
+                                    layer.confirm(result.message, {
+                                        title: "提示",
+                                        icon: 3,
+                                        btnAlign: 'c',
+                                        closeBtn: 0
+                                    });
+                                    return false;
+                                } else {
+                                    window.location.href = "/web/Cashier/toSettlement?" + stringResData;
+                                }
+                            }
+                        })
+                    }
+                });
+
+            } else {
+                layer.confirm('信息填写有误或信息不全，请重新填写', {
+                    title: "提示",
+                    icon: 3,
+                    btnAlign: 'c',
+                    closeBtn: 0
+                });
+                return false;
+                return;
+            }
+        }
+        /*删除当前行数据*/
+        function delTableItem(self) {
+            var delCode = $(self).attr('data-code');
+            $(self).parent().parent().remove();
+            delete barCodeAry[delCode];
+            calculate();
+        }
+        /* 改变数量计算合计 */
+        function calculate() {
+            var proTotalPrice = 0;
+            var socreTotalPrice = 0;
+            $('.totalPrice').each(function (i, elem) {
+                proTotalPrice += parseFloat($(elem).html()) * 100;
+            })
+            $('.totalScorePrice').each(function (i, elem) {
+                socreTotalPrice += parseFloat($(elem).html()) * 100;
+            })
+            $('.proTotalPrice').html(proTotalPrice / 100);
+            $('.socreTotalPrice').val(socreTotalPrice / 100);
+        }
+
+        $('#treeTable').on('blur', '#num', function () {
+            var salePrice = parseFloat($(this).parent().siblings('.salePrice').html()) * 100;
+            var scorePrice = parseFloat($(this).parent().siblings('.scorePrice').val()) * 100;
+            var saleNum = parseInt($(this).val()) * 100;
+            $(this).parent().siblings('.totalPrice').html((salePrice * saleNum) / 10000);
+            $(this).parent().siblings('.totalScorePrice').val(toDecimal((scorePrice * saleNum) / 10000));
+            calculate();
+        });
+        $("#hunterNameSelect").click(function () {
+            if ($("#hunterNameSelect").val() == -1) {
+                $("#hunterName").val("");
+            }
+        })
+    </script>
+</div>
+</body>
+</html>

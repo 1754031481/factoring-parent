@@ -1,0 +1,24 @@
+@charset "utf-8";
+/* CSS Document */
+html{text-overflow:hidden;white-space: no-wrap;}
+html,body{width:100%;height:100%;}
+a,u{ color:#000; text-decoration:none;}
+ol,ul,li{ list-style:none; }
+i,em{ font-style:normal;}
+b,strong{ font-weight:normal;}
+/*outline: none  去除图片移动端自带边框*/
+a img{ border:none;outline: none;}
+input{outline: none; border: none;}
+/*移动端点击蓝屏现象 -webkit-tap-highlight-color:rgba(0,0,0,0)*/
+html,body,div,p,h1,h2,h3,h4,h5,h6,ul,ol,li,form,option,dl,dt,dd,input{margin: 0; padding: 0;cursor: pointer;-webkit-tap-highlight-color:rgba(0,0,0,0);font-weight:normal;}
+.clearfix:after{ display:block; content:""; clear:both;}
+.clearfix{ zoom:1; }
+.back{cursor:pointer;}
+/*ios去除点击边框*/
+/*a:focus,
+input:focus,
+p:focus,
+div:focus{
+-webkit-tap-highlight-color:rgba(0,0,0,0);
+-webkit-user-modify:read-write-plaintext-only; 
+}*/

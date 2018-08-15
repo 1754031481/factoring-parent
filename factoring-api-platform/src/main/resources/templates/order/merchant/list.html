@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>商户业务管理</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">发票管理</a></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>发票管理</h2>
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <form id="queryForm">
+            <div class="ph_screen">
+
+                <table class="ph_tableBox">
+                    <tr>
+                        <th>发票时间：</th>
+                        <td colspan="2">
+                            <p class="dayBox"><input class="start_rise date start" name="startTime" type="text"
+                                                     id="startTime">&nbsp;-&nbsp;
+                                <input class="start_rise date end" name="endTime" type="text" id="endTime"></p>
+                        </td>
+                        <td>
+                            <shiro:hasPermission name="invoiceMerchantQuery">
+                                <input name="" type="button" th:onclick="'query();'" value="查询">
+                                <input name="" type="button" th:onclick="'resetForm();'" value="重置">
+                            </shiro:hasPermission>
+                            <shiro:hasPermission name="invoiceMerchantApply">
+                                <input name="" type="button" th:onclick="'apply();'" value="申请开发票">
+                            </shiro:hasPermission>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+        </form>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox" style="overflow-x:auto; ">
+            <table class="ph_wareList" id="example">
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+
+<!--导出start-->
+<div hidden>
+    <form action="/web/orderOnline/export" id="orderExport" method="post">
+        <input type="hidden" name="startTime" value="" id="e_starTime"/>
+        <input type="hidden" name="endTime" value="" id="e_endTime"/>
+        <input type="hidden" name="orderNo" value="" id="e_orderNo"/>
+        <input type="hidden" name="shippingType" value="" id="e_shippingType"/>
+        <input type="hidden" name="status" value="" id="e_status"/>
+        <input type="hidden" name="isMerchant" value="1" id="isMerchant"/>
+    </form>
+</div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/spm/spmExtends.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    var tb;
+    //分页
+    tb = $('#example').DataTable({
+        "lengthChange": false,
+        "ordering": false,
+        "searching": false,
+
+        "bServerSide": true,
+        "sPaginationType": "full_numbers",
+        "bJQueryUI": true,
+        "sDom": '<"">t<"F"ip>',
+        "sAjaxSource": "/merchant/invoice/list", //ajax调用接口
+        "aoColumnDefs": [{sDefaultContent: '', aTargets: ['_all']}],
+        "aoColumns": [
+            /* { "sTitle" : "ID", 	 "mData": "id" ,"class":"sClass","sWidth" : "50px"},*/
+            {
+                "sWidth": "50px",
+                "sTitle": "序号",
+                "mData": "id",
+                "class": "sClass",
+                "mRender": function (data, type, full, meta) {
+                    return meta.row + 1 + meta.settings._iDisplayStart;
+                }
+            },
+            {"sTitle": "申请开票时间", "mData": "createdTime", "sWidth": "160px"},
+            {"sTitle": "发票月份", "mData": "month", "sWidth": "160px"},
+            {"sTitle": "服务名称", "mData": "name","sWidth": "160px"},
+            //{"sTitle": "服务费/元", "mData": "money"},
+            {
+                "sTitle": "服务费/元", "mData": "money","sWidth": "160px", "mRender": function (data, type, full) {
+                var text;
+                if (full.money == 0) {
+                    text = "0.00";
+                }  else {
+                    text = full.money.toFixed(2);
+                }
+                return text;
+            }
+            },
+            {
+                "sTitle": "发票类型", "mData": "type","sWidth": "160px", "mRender": function (data, type, full) {
+                var text;
+                if (full.type == 1) {
+                    text = "增值税发票";
+                }  else {
+                    text = "普通发票";
+                }
+                return text;
+            }
+            },
+            {
+                "sTitle": "税率", "mData": "cess","sWidth": "160px", "mRender": function (data, type, full) {
+                var text =  (parseInt(600) / parseInt(10000) * parseInt(100))+"%"
+                return text;
+            }
+            },
+            {"sTitle": "纳税人识别号", "mData": "mark","sWidth": "160px"},
+            {
+                "sTitle": "开票状态", "mData": "status","sWidth": "160px", "mRender": function (data, type, full) {
+                var text;
+                if (full.status == 0 || full.status == null || full.status == '') {
+                    text = "申请中";
+                } else if (full.status == 1) {
+                    text = "已通过";
+                } else {
+                    text = "未通过";
+                }
+                return text;
+            }
+            },
+            {"sTitle": "公司名称", "mData": "companyName","sWidth": "160px"},
+            {"sTitle": "收票人地址", "mData": "billingAddress","sWidth": "160px"},
+            {"sTitle": "收票人姓名", "mData": "billingUserName","sWidth": "160px"},
+            {"sTitle": "联系电话", "mData": "billingPhone","sWidth": "160px"},
+            {
+                "sTitle": "操作", "mData": "id","sWidth": "100px", "class": "ph_tableShow", "mRender": function (data, type, full) {
+                var text = ''
+
+                if ([[${session.orderOnlineDetail}]]) {
+                    text += '<a class="Js_btn" href="javascript:void(0);" onclick="toDetail(\'' + full.id + '\',\'' + full.status + '\');">查看</a>';
+                }
+                return text;
+            }
+            }
+        ],
+        "oLanguage": {
+            "sProcessing": "数据加载中······",
+            "sLengthMenu": "显示 _MENU_ 条记录",
+            "sZeroRecords": "没有您要搜索的内容！",
+            "sEmptyTable": "列表中无数据存在！",
+            "sInfo": "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+            "sInfoEmpty": "显示 0 到 0 条记录",
+            "sInfoFiltered": "数据列表中共  _MAX_ 条记录",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        },
+        "fnServerData": function (sSource, aoData, fnCallback, oSettings) {
+            oSettings.jqXHR = $.ajax({
+                "dataType": 'json',
+                "type": "GET",
+                "async": 'false',
+                "url": sSource,
+                "data": {
+                    'pageNum': (aoData[3].value / aoData[4].value) + 1,
+                    'pageSize': aoData[4].value,
+                    'merchantTelPhone': $.trim($("#merchantTelPhone").val()),
+                    'startTime': $.trim($('#startTime').val()),
+                    'endTime': $.trim($('#endTime').val())
+                },
+                "success": fnCallback
+            });
+        },
+        "fnDrawCallback": function () {
+            var api = this.api();
+            var startIndex = api.context[0]._iDisplayStart;//获取到本页开始的条数
+            api.column(0).nodes().each(function (cell, i) {
+                cell.innerHTML = startIndex + i + 1;
+            });
+        }
+    });
+
+
+    //条件查询重新加载数据
+    function query() {
+        tb.draw();
+    }
+    /**
+     * 重置内容
+     */
+    //重置查询条件--star
+    function resetForm() {
+        clearData("queryForm");
+    }
+    function clearData(id) {
+        $("#" + id)[0].reset();
+        var selected = $("#" + id).find("select");
+        if (selected.length > 0) {
+            for (var i = 0, length = selected.length; i < length; i++) {
+                selected.eq(i).selectpicker('val', '');
+            }
+        }
+    }
+    //重置查询条件-end
+
+    /**
+     * 发票详情
+     * @param subOrderId
+     */
+    function toDetail(subOrderId, status) {
+        HtmlHelper.generateAutoSubmitForm({
+            url: "/merchant/invoice/detail",
+            data: {
+                id: subOrderId,
+                stauts: status
+            }
+        });
+    }
+
+
+    /**
+     * 申请开发票
+     * @param subOrderId
+     */
+    function apply() {
+        $.ajax({
+            url:"/merchant/invoice/apply",
+            type:"POST",
+            data:{},
+            dataType:"json",
+            async:false,
+            success :function(result){
+                if(result.code == 1){
+                    location.href="/merchant/invoice/toApply"
+                }
+                else if(result.code == 0){
+                    layer.alert(
+                        "该用户已经申请不可重复申请",
+                        {icon:2,btnAlign:'c',closeBtn:0},
+                        function(){
+                            location.reload();
+                        })
+                }
+
+            },
+            error : function(result){
+                layer.alert("数据异常【"+result.message+"】",{icon:2,btnAlign:'c',closeBtn:0},function(){
+                    location.reload();
+                });
+            }
+        })
+    }
+
+
+
+</script>
+</body>
+</html>

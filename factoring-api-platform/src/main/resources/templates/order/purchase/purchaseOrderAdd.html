@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>提交订单</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}">
+    <style>
+        #addressDiv span {
+            line-height: 40px;
+            font-size: 16px;
+            color: #555555;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">订单管理</a>&nbsp;&gt;&nbsp;<a href="#">进货订单</a>&nbsp;&gt;&nbsp;<span>提交订单</span>
+    </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <form id="orderForm">
+        <input type="hidden" id="shopIds" name="shopIds" value="">
+        <div class="MainCont">
+
+
+            <div class="order">
+                <!--标题-->
+                <div class="ph_subTit ph_subMarTop no_border">
+                    <h2>确认订单信息</h2>
+                </div>
+                <!--end 标题-->
+                <!--商品列表-->
+                <div class="ph_wareBox ph_infoWare">
+                    <table class="ph_wareList product">
+                        <thead>
+                        <tr>
+                            <th width="50"><input type="checkbox" checked="checked" id="checkAll">全选</th>
+                            <th>商品名称</th>
+                            <th>商品图片</th>
+                            <th>积分进货价</th>
+                            <th>数量</th>
+                            <th>小计</th>
+                            <th width="110">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="product:${merchantShopCartList}">
+                            <td><input class="mycheck" checked="checked" type="checkbox" name="shopId"
+                                       th:value="${product.id}"></td>
+                            <td class="productName" th:title="${product.productName}+'['+${product.specName}+']'"
+                                th:text="${product.productName}+'['+${product.specName}+']'"></td>
+                            <td class="productImg"><img class="show-img zoom-img" th:src="${product.productImg}"></td>
+                            <td class="price"
+                                th:text="${#numbers.formatDecimal((product.scorePrice/10000.0000),1,2)}"></td>
+                            <td>
+                                <a class='paginate_button current_ph ' href='javascript:;'
+                                   th:onclick="'count(this,0,'+${product.id}+')'">+</a>
+                                <input class="buyNum" style='width:55px;' maxlength='4'
+                                       onkeyup='this.value=this.value.replace(/\D/g,"")'
+                                       th:onchange="'count(this,2,'+${product.id}+')'"
+                                       type='text' th:value='${product.buyNum}'>
+                                <a class='paginate_button current_ph ' href='javascript:;'
+                                   th:onclick="'count(this,1,'+${product.id}+')'">-</a></td>
+
+                            <td class="subTotal"
+                                th:text="${#numbers.formatDecimal((product.subTotal/10000.0000),1,2)}"></td>
+                            <td><a class="lookBtn ph_lookBtn"
+                                   th:onclick="'deleteCart(\''+ ${product.id} + '\');'">删除</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end 商品列表-->
+                <!--标题-->
+                <div class="ph_subTit">
+                    <h2>确认收货地址</h2>
+                    <div class="ph_snbBtn"><input class="Js_addLinkman" th:onclick="'addAddress();'" name=""
+                                                  type="button"
+                                                  value="新增收货地址"></div>
+                </div>
+                <!--end 标题-->
+                <!--收货地址-->
+                <div id="addressDiv" class="ph_methodBox ph_collect">
+                    <p th:each="address:${addressList}">
+                        <input name="addressId" type="radio" th:value="${address.id}"
+                               th:checked="${address.isDefault == 1} ? 'true' : 'false'">
+                        <span th:text="${address.contacts}"></span>&nbsp;&nbsp;
+                        <span th:text="${address.address}"></span>&nbsp;&nbsp;
+                        <span th:text="${address.telPhone}"></span>
+                        <span th:if="${address.isDefault==1}">[默认地址]</span>
+                        <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:;"
+                                                                                 th:onclick="'updateAddress(this,'+${address.id}+')'">修改</a> | <a
+                                href="javascript:;" th:onclick="'deleteAddress(this,'+${address.id}+')'">删除</a></span>
+                    </p>
+                </div>
+                <!--end 收货地址-->
+                <!--标题-->
+                <div class="ph_subTit">
+                    <h2>添加订单备注</h2>
+                </div>
+                <!--end 标题-->
+                <!--订单备注-->
+                <div class="ph_wareBox ph_infoWare">
+                    <textarea name="message" id="message" rows="10" cols="100"></textarea>
+                </div>
+                <!--end 订单备注-->
+            </div>
+            <div class="ph_wareBox ph_infoWare">
+                <p class="ph_infoTotal">合计：<span class="require" id="orderTotalCost">0.00</span></p>
+            </div>
+            <!--按钮-->
+            <div class="PopupBtn">
+                <input class="submit" name="" type="button" th:onclick="'orderSubmit();'" value="提交">
+                <input class="cancel" name="" type="button" th:onclick="'returnList();'" value="返回">
+            </div>
+            <!--end 按钮-->
+        </div>
+    </form>
+    <!--end 主体内容-->
+</div>
+<!--添加联系人弹窗-->
+<div class="PopupBox" id="addLinkmanBox">
+    <!--内容-->
+    <div class="PopupCon">
+        <div class="ph_subPoCon ph_screen">
+            <form class="form-inline" id="addWareForm">
+                <input id="wareHouseId" name="wareHouseId" type="hidden">
+                <table class="ph_tableBox">
+                    <tr>
+                        <th><span class="require">*</span>联系人：</th>
+                        <td><input id="contacts" name="contacts" type="text" class="validate[required,custom[special]]">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>手机号：</th>
+                        <td><input id="telPhone" name="telPhone" type="text" class="validate[required,custom[phone]]">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>区域：</th>
+                        <td>
+                            <div class="ph_distpicker" id="distpicker">
+                                <input id="positionId" name="positionId" hidden="hidden">
+                                <select class="validate[required] ph_dist" id="provinceId" name="provinceId"
+                                        onchange="Area.getCityies('provinceId', 'cityId','countyId');">
+                                    <option value="">请选择</option>
+                                </select>
+                                <input id="provinceName" name="provinceName" hidden="hidden">
+                                <select class="validate[required] ph_dist" id="cityId" name="cityId"
+                                        onchange="Area.getCounties('cityId', 'countyId');">
+                                    <option value="">请选择</option>
+                                </select>
+                                <input id="cityName" name="cityName" hidden="hidden">
+                                <select class="validate[required] ph_dist" id="countyId" name="countyId">
+                                    <option value="">请选择</option>
+                                </select>
+                                <input id="countyName" name="countyName" hidden="hidden">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>详细地址：</th>
+                        <td><input id="detailAddress" name="detailAddress" type="text"
+                                   class="validate[required,custom[special]]"></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--end 内容-->
+</div>
+<!--end 添加联系人弹窗-->
+<!--编辑商品弹窗-->
+<div class="PopupBox" id="ph_lookBox">
+    <!--内容-->
+    <div class="PopupCon">
+        <div class="lookCon ph_wareBox">
+            <table class="ph_wareList" id="sku">
+                <thead>
+                <tr>
+                    <th width="50"><input class="check-all" name="" type="checkbox"></th>
+                    <th>规格</th>
+                    <th>单价（元）</th>
+                    <th width="120">数量</th>
+                    <th>商品金额（元）</th>
+                    <th>物流费用（元）</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <p class="ph_lookTxt">
+            商品总量：<span class="require" id="totalNum">0</span>&nbsp;&nbsp;
+            商品总额：<span class="require" id="totalProduct">0.00</span>元&nbsp;&nbsp;
+            物流总费：<span class="require" id="totalFreight">0.00</span>元&nbsp;&nbsp;
+            总金额：<span class="require" id="totalCost">0.00</span>元
+        </p>
+    </div>
+    <!--end 内容-->
+</div>
+
+<!--end 编辑商品弹窗-->
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--地址三级联动-->
+<script type="text/javascript" th:src="@{/static/js/common/area.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+
+<script type="text/javascript" th:src="@{/static/js/common/number.js}"></script>
+<!--图片点击放大-->
+<script type="text/javascript" th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/imgUp.js}"></script>
+
+<script type="text/javascript">
+
+    //将提交的表单数据转换成json数据格式
+    (function ($) {
+        $.fn.serializeJson = function () {
+            var serializeObj = {};
+            var array = this.serializeArray();
+            var str = this.serialize();
+            $(array).each(function () {
+                if (serializeObj[this.name]) {
+                    if ($.isArray(serializeObj[this.name])) {
+                        serializeObj[this.name].push(this.value);
+                    } else {
+                        serializeObj[this.name] = [serializeObj[this.name], this.value];
+                    }
+                } else {
+                    serializeObj[this.name] = this.value;
+                }
+            });
+            return serializeObj;
+        };
+    })(jQuery);
+
+
+    $(function () {
+        $("#addWareForm").validationEngine({
+            addPromptClass: 'formError-text',
+            showArrow: false,
+            promptPosition: 'bottomLeft'
+        });
+        //点击图片放大初始化
+        $('.zoom-img').viewer({
+            url: 'src',
+            navbar: false,
+            keyboard: true,
+            title: true
+        });
+        //-------------多选点击事件-----------------
+        $(".mycheck").each(function () {
+            $(this).bind("click", function () {
+                recal();
+            });
+        });
+        $("#checkAll").bind("click", function () {
+            $('.mycheck').prop('checked', $(this).is(":checked"));
+            recal();
+        });
+        recal();
+    });
+
+    //新增地址
+    function addAddress() {
+        var length = $("#addressDiv").find("p").length;
+        if (length > 20) {
+            layer.alert('最多可以添加20个收货地址', {icon: 2, closeBtn: 0});
+        }
+        layer.open({
+            type: 1,
+            title: '添加联系地址',
+            closeBtn: 0,
+            area: ['600px', '380px'],
+            btn: ['确定', '取消'],
+            btnAlign: 'c',
+            content: $('#addLinkmanBox'),
+            yes: function (index, layero) {
+                var flag = $("#addWareForm").validationEngine("validate");
+                if (!flag) {
+                    return false;
+                }
+                setValue();
+                var params = $("#addWareForm").serializeJson();
+                $.ajax({
+                    url: '/web/warehouseaddress/add',
+                    type: 'post',
+                    data: params,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.success) {
+                            appendAddress(data.data);
+                            layer.close(index);
+                            clearData("addWareForm");
+                            layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0});
+                        } else {
+                            layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                        }
+                    }
+                })
+            }
+
+        });
+    }
+
+    //新增地址
+    function updateAddress(e, id) {
+        $("#wareHouseId").val(id);
+        layer.open({
+            type: 1,
+            title: '修改收货地址',
+            closeBtn: 0,
+            area: ['600px', '380px'],
+            btn: ['确定', '取消'],
+            btnAlign: 'c',
+            content: $('#addLinkmanBox'),
+            yes: function (index, layero) {
+                var flag = $("#addWareForm").validationEngine("validate");
+                if (!flag) {
+                    return false;
+                }
+                setValue();
+                var params = $("#addWareForm").serializeJson();
+                $.ajax({
+                    url: '/web/warehouseaddress/add',
+                    type: 'post',
+                    data: params,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.success) {
+                            $(e).parent().parent().remove();
+                            appendAddress(data.data);
+                            layer.close(index);
+                            clearData("addWareForm");
+                            layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0});
+                        } else {
+                            layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                        }
+                    }
+                })
+            }
+
+        });
+    }
+    //添加成功 追加新的地址
+    function appendAddress(data) {
+        var html = "<p>";
+        html += "<input name='addressId' type='radio' value='" + data.id + "' " + ((data.isDefault == 1) ? "checked='checked'" : "") + "/>";
+        html += "<span>" + data.contacts + "</span>&nbsp;&nbsp;";
+        html += "<span>" + data.address + "</span>&nbsp;&nbsp;";
+        html += "<span>" + data.telPhone + " </span>";
+        if (data.isDefault == 1) {
+            html += "<span>[默认地址]</span>";
+        }
+        html += "<span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:;' onclick='updateAddress(this," + data.id + ")'>修改</a> | <a href='javascript:;' onclick='deleteAddress(this," + data.id + ")'>删除</a></span>";
+        html += "</p>";
+        $("#addressDiv").append(html);
+    }
+
+    //添加成功 追加新的地址
+    function deleteAddress(e, id) {
+        //询问框
+        layer.confirm('您确认要删除吗？', {
+            btn: ['确认', '取消'] //按钮
+        }, function () {
+            $.ajax({
+                async: false,
+                url: "/web/warehouseaddress/delete",
+                data: {addressId: id},
+                type: "POST",
+                dataType: "json",
+                success: function (data) {
+                    if (data.success) {
+                        $(e).parent().parent().remove();
+                        layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0});
+                    } else {
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                    }
+                },
+                error: function (data) {
+                    layer.alert("系统繁忙，请重试！", {icon: 2, btnAlign: 'c', closeBtn: 0});
+                }
+            });
+        });
+    }
+
+    function setValue() {
+        //设置区域id
+        Area.setPositionId("countyId", "positionId");
+        var provinceId = $("#provinceId").val();
+        var provinceName = $("#provinceId").find("option:selected").text();
+        $("#provinceName").val(provinceName);
+        var cityId = $("#cityId").val();
+        var cityName = $("#cityId").find("option:selected").text();
+        $("#cityName").val(cityName);
+        var countyId = $("#countyId").val();
+        var countyName = $("#countyId").find("option:selected").text();
+        $("#countyName").val(countyName);
+    }
+
+    function clearData(id) {
+        $("#" + id)[0].reset();
+    }
+
+    function addDisable(cls) {
+        $("." + cls).attr("disabled", "disabled");
+    }
+
+    function removeDisable(cls) {
+        $("." + cls).removeAttr('disabled');
+    }
+
+    //提交订单校验
+    function validateSubmit() {
+        var addressLabel = $("input[name='addressId']:checked");
+        if (addressLabel.length <= 0) {
+            layer.alert("请选择收货地址", {icon: 2, btnAlign: 'c', closeBtn: 0});
+            return false;
+        }
+        var specLabel = $("input[name='shopId']:checked");
+        if (specLabel.length <= 0) {
+            layer.alert("请选择商品", {icon: 2, btnAlign: 'c', closeBtn: 0});
+            return false;
+        }
+        var message = $("#message").val();
+        if (message.length > 70) {
+            layer.alert("订单备注不能大于70字", {icon: 2, btnAlign: 'c', closeBtn: 0});
+            return false;
+        }
+        return true;
+    }
+
+    //订单提交
+    function orderSubmit() {
+        addDisable("submit");
+        //提交订单校验
+        var flag = validateSubmit();
+        if (!flag) {
+            removeDisable("submit");
+            return;
+        }
+//        $.each($("input[name='shopId']:checked"),function(){
+//            $("#shopIds").val($("#shopIds").val()+this.value+",");
+//        })
+//        $("#shopIds").val($("#shopIds").val().substring(0,$("#shopIds").val().length-1));
+//        alert($("#shopIds").val());
+        $.ajax({
+            async: false,
+            url: "/web/order/purchase/addPurchaseOrder",
+            data: $("#orderForm").serialize(),
+            type: "POST",
+            dataType: "json",
+            success: function (data) {
+                removeDisable("submit");
+                if (data.success) {
+                    layer.confirm(data.message, {
+                        icon: 1,
+                        btnAlign: 'c',
+                        closeBtn: 0,
+                        btn: ['确定'],
+                        btn1: function () {
+                            //跳转到预支付页面
+//                    window.location.reload();
+                            sessionStorage.setItem("dataUrl", "/web/order/purchase/toPurchaseOrderPay?orderNos=" + data.data);
+                            HtmlHelper.generateAutoSubmitForm({
+                                url: "/web/order/purchase/toPurchaseOrderPay",
+                                method: "POST",
+                                data: {
+                                    orderNos: data.data
+                                }
+                            });
+                        }
+                    });
+
+                } else {
+                    layer.alert(data.message == null ? "请勿重复提交" : data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                }
+            },
+            error: function (data) {
+                removeDisable("submit");
+                layer.alert("系统繁忙，请重试！", {icon: 2, btnAlign: 'c', closeBtn: 0});
+            }
+        });
+    }
+
+    function returnList() {
+        window.location.href = '/web/product/toSupplierProductPage';
+    }
+    function deleteCart(id) {
+        $.ajax({
+            url: '/web/product/deleteMerchantShopCart',
+            data: {id: id},
+            dataType: "json",
+            type: "post",
+            success: function (data) {
+                layer.msg(data.message);
+                if (data.code == '200') {
+                    window.location.reload();
+                }
+            },
+            error: function (data) {
+                layer.alert('与服务器连接中断', {icon: 2, btnAlign: 'c', closeBtn: 0});
+            }
+        });
+    }
+    function count(e, type, id) {
+        var num = 0;
+        if (type == 0) {//加
+            var count = parseInt($(e).next().val());
+            if (count >= 9999) {
+                layer.alert('最大9999', {icon: 2, btnAlign: 'c', closeBtn: 0});
+                return false;
+            }
+            $(e).next().val(count + 1);
+            num = parseInt($(e).next().val());
+        } else if (type == 1) {//减
+            var count = parseInt($(e).prev().val());
+            if (count <= 1) {
+                layer.alert('不能再减了', {icon: 2, btnAlign: 'c', closeBtn: 0});
+                return false;
+            }
+            $(e).prev().val(count - 1);
+            num = parseInt($(e).prev().val());
+        } else {//修改
+            if ($(e).val() == "") {
+                layer.alert('不能为空', {icon: 2, btnAlign: 'c', closeBtn: 0});
+                $(e).val(1);
+                return false;
+            }
+            var count = parseInt($(e).val());
+            if (count <= 0) {
+                layer.alert('必须大于0', {icon: 2, btnAlign: 'c', closeBtn: 0});
+                $(e).val(1);
+                return false;
+            }
+            num = parseInt($(e).val());
+        }
+//        alert(num+"======================="+id);
+        $.ajax({
+            url: '/web/product/updateMerchantShopCart',
+            data: {shopId: id, buyNum: num},
+            dataType: "json",
+            type: "post",
+            async: false,
+            success: function (data) {
+                if (data.code != '200') {
+                    layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                }
+            },
+            error: function (data) {
+                layer.alert('与服务器连接中断', {icon: 2, btnAlign: 'c', closeBtn: 0});
+                return false;
+            }
+        });
+        recal();
+    }
+    function recal() {
+        var totalProdFee = 0;
+        var priceArr = new Array();
+        var countArr = new Array();
+        var smallT = $(".subTotal");
+        //单价
+        var priceContainer = $(".price"); //获取所有节点的dom数组
+        var len = priceContainer.length; //数组长度
+        for (var index = 0; index < len; index++) {
+            var $container = $(priceContainer[index]); //循环遍历每一个dom节点
+            var id = parseFloat($container.html().trim());//获取属性值
+            priceArr.push(id);
+        }
+        //数量
+        var countContainer = $(".buyNum"); //获取所有节点的dom数组
+        var len = countContainer.length; //数组长度
+        for (var index = 0; index < len; index++) {
+            var $container = $(countContainer[index]); //循环遍历每一个dom节点
+            var id = parseInt($container.val().trim());//获取属性值
+            countArr.push(id);
+        }
+        var prodContainer = $("[class = mycheck]:checkbox"); //获取所有节点的dom数组
+        var totalCount = 0;
+        for (var index = 0; index < len; index++) {
+            $(smallT[index]).html(
+                    (priceArr[index] * countArr[index] * 1.0).toFixed(2));
+            var $prod = $(prodContainer[index]);
+            if ($prod.is(':checked')) {
+                totalCount++;
+                totalProdFee = totalProdFee
+                        + (priceArr[index] * countArr[index] * 1.0);
+            }
+        }
+        totalProdFee = totalProdFee.toFixed(2);
+        $("#orderTotalCost").html(totalProdFee);
+    }
+</script>
+</body>
+</html>

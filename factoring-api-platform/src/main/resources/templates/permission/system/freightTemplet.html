@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>运费模板</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+</head>
+<body>
+<div class="MainContent">
+      <!--面包屑-->
+    <div class="current">当前位置：<a href="#">系统管理</a>&nbsp;&gt;&nbsp;<span>运费模板</span> </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+           <h2>运费模板</h2>
+            <div class="ph_snbBtn">
+                <shiro:hasPermission name="freightAdd">
+                    <input class="Js_addLogistic" name="addFreight" id="addFreight" onclick="window.location.href='/web/freight/addOrUpdate'" type="button" value="添加运费模板">
+                </shiro:hasPermission>
+                <shiro:hasPermission name="freightDelete">
+                    <input class="Js_addLogistic" name="deleteFreight" id="deleteFreight" onclick="deleteLogistics()" type="button" value="删除运费模板">
+                </shiro:hasPermission>
+			</div>
+        </div>
+        <!--end 标题-->
+        <!--商品列表-->
+        <div class="ph_wareBox ph_tabScroll">
+            <table class="ph_wareList" id="table">
+            </table>
+        </div>
+        <!--end 商品列表-->
+        <!--分页-->
+        <!--end 分页-->
+
+        <input id="hiddenMinProductPrice" name="hiddenMinProductPrice" type="hidden"/>
+    </div>
+    <!--end 主体内容-->
+</div>
+<!--遮罩层-->
+<div class="maskBox"></div>
+<!--end 遮罩层-->
+<!--添加物流公司弹窗-->
+<div class="PopupBox"  id="addLinkmanBox">
+    <!--关闭按钮-->
+    <a href="javascript: void(0);" class="close"></a>
+    <!--end 关闭按钮-->
+    <!--内容-->
+    <!--<div class="PopupCon">
+        <div class="ph_subPoCon ph_screen">
+        <form class="form-inline" id="addLogisticForm">
+	         <table class="ph_tableBox">
+	         		<input id="logisticsId" name="id" hidden="hidden"/>
+	                &lt;!&ndash;<tr>
+	                    <th><span class="require">*</span>企业名称：</th>
+	                    <td><input name="logisticsName" type="text" id="logisticsName"></td>
+	                </tr>
+	                <tr>
+	                    <th><span class="require">*</span>联系电话：</th>
+	                    <td><input name="telphone" type="text"  id="tel"></td>
+	                </tr>
+	                <tr>
+	                    <th>网址：</th>
+	                    <td><input name="dnfAddress" type="text" id="dnfAddress"></td>
+	                </tr>&ndash;&gt;
+	          </table>
+	        </div>
+        </form>
+    </div>-->
+    <!--end 内容-->
+</div>
+<!--end 添加物流公司弹窗-->
+
+
+
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript"   th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+
+
+<script type="text/javascript" th:src="@{/static/js/common/util.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+
+
+    var  tb;
+    $(function() {
+        var Popupe = new PopupBase();
+        Popupe.show('.Js_deliver', '.maskBox,.deliverBox');
+        Popupe.show('.Js_refund', '.maskBox,.Js_refundBox');
+        Popupe.show('.Js_btn', '.maskBox,.DeterBox');
+        Popupe.show('.Js_refunddeta', '.maskBox,.Js_refundDetaBox');
+        Popupe.showHide('.subQuemit','.refundBox','.SucBox');
+        Popupe.hide('.close', '.maskBox,.DeterBox,.SucBox,.deliverBox,.Js_refundBox,.Js_refundDetaBox');
+
+        //分页
+        tb=$("#table").DataTable({
+            "bServerSide": true,
+            "sPaginationType": "full_numbers",
+            "bJQueryUI": true,
+            "sDom": '<"">t<"F"ip>',
+            "sAjaxSource": "/web/freight/getFreightList", //ajax调用接口
+            "aoColumnDefs": [{sDefaultContent: '',aTargets: [ '_all' ]}],
+            "aoColumns": [
+            	{ "sWidth":"50px","sTitle" : "序号","mData": "id","sClass":"sClass" },
+            	{ "sWidth":"150px","sTitle" : "商品总金额(元)","mData": "productPrice","sClass":"sClass", "mRender": function (data, type, full) {
+                    var text;
+                    if (full.maxProductPrice!=null){
+                        text=full.minProductPrice+"-"+full.maxProductPrice;
+
+                    }else{
+                        text="≥"+full.minProductPrice;
+                        $("#hiddenMinProductPrice").val("1");
+                        var a=$("#hiddenMinProductPrice").val();
+                        if (a!=1){
+                            $("#addFreight").show();
+                            $("#deleteFreight").hide();
+                        }else{
+                            $("#addFreight").hide();
+                            $("#deleteFreight").show();
+                        }
+                    }
+                    return text;
+                } },
+            	{ "sWidth":"150px","sTitle" : "首重(kg)","mData": "weight","sClass":"sClass", "mRender": function (data, type, full) {
+                    var text;
+                    text=full.weight+"kg内"
+                    return text;
+                }  },
+                { "sWidth":"120px","sTitle" : "运费(元)","mData": "price","sClass":"sClass" },
+                { "sWidth":"120px","sTitle" : "续重(kg)","mData": "addWeight","sClass":"sClass" },
+                { "sWidth":"120px","sTitle" : "加价","mData": "addPrice","sClass":"sClass" },
+                { "sWidth":"200px","sTitle" : "修改加时间","mData": "updateTime","sClass":"sClass" },
+                
+                {
+                    "sWidth": "110px",
+                    "sTitle": "操作",
+                    "mData": "id",
+                    "sClass": "ph_tableShow",
+                    "mRender": function (data, type, full) {
+                        var text = '<div class="ph_operateBox"><input class="ph_operate" name="" type="button" value="操作选项">';
+                        text = text + '<ul class="ph_operateList hide" role="menu">';
+                        //if (full.maxProductPrice!=null) {
+                            if ([[${session.freightUpdate}]]) {
+                                text += '<li><a href=/web/freight/update/' + full.id + '>编辑</a></li>';
+                            }
+                        /*}else{
+                            text += '<li><a href=/web/freight/update/' + full.id + '>编辑</a></li>';
+
+                        }*/
+                        /*if ([[${session.freightDelete}]]) {
+                            text += '<li ><a href="#" onclick="deleteLogistics(\'' + full.id + '\');">删除</a> </li>';
+                        }*/
+                        text = text + '</ul></div>';
+                        return text;
+                    }
+                }
+            ],
+            "oLanguage" : {
+                "sProcessing" : "数据加载中······",
+                "sLengthMenu" : "显示 _MENU_ 条记录",
+                "sZeroRecords" : "没有您要搜索的内容！",
+                "sEmptyTable" : "列表中无数据存在！",
+                "sInfo" : "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+                "sInfoEmpty" : "显示 0 到 0 条记录",
+                "sInfoFiltered" : "数据列表中共  _MAX_ 条记录",
+                "oPaginate" : {
+                    "sFirst" : "首页",
+                    "sPrevious" : "上一页",
+                    "sNext" : "下一页",
+                    "sLast" : "末页"
+                }
+            },
+            "fnServerData" : function ( sSource, aoData, fnCallback, oSettings ) {
+                oSettings.jqXHR = $.ajax( {
+                    "dataType" 	: 'json',
+                    "type" 		: "GET",
+                    "async"     : 'false',
+                    "url" 		: sSource,
+                    "data" 		: {
+                        'pageNum': (aoData[3].value/aoData[4].value)+1,
+                        'pageSize' :  aoData[4].value
+                    },
+                    "success"	: fnCallback
+                } );
+            },
+            "fnDrawCallback" : function(){
+            	var api = this.api();
+          	　　var startIndex= api.context[0]._iDisplayStart;//获取到本页开始的条数
+          	　　api.column(0).nodes().each(function(cell, i) {
+          	　　　　cell.innerHTML = startIndex + i + 1;
+          	　　});
+            }
+        });
+
+    });
+
+  //编辑
+    function editFreight(id) {
+    	var jsonData = {
+    		wareHouseId : id
+    	};
+    	$.ajax({
+    		url : '/web/freight/addOrUpdate',
+    		type : 'get',
+    		data : {
+    			"id" : id
+    		},
+    		dataType : 'json',
+
+    	});
+    }
+  
+    //条件查询重新加载数据
+    function query() {
+        tb.draw();
+    };
+
+  //删除
+    function deleteLogistics() {
+        layer.confirm('是否删除？', {
+            icon: 3,
+            btn: ['是', '否'], //按钮
+            btn1: function (index) {
+                $.ajax({
+                    async: false,
+                    url: "/web/freight/deleteFreight",
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code == "200") {
+                            tb.draw(true);
+                            layer.alert("删除成功！", {
+                                icon: 1,
+                                title: '提示',
+                                closeBtn: 0,
+                                btnAlign: 'c',
+                                yes: function () {
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            layer.alert(data.message, {
+                                icon: 2,
+                                title: '失败',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        }
+                    }
+                });
+                layer.close(index);
+            }
+        });
+    }
+    
+
+    
+
+</script>
+</body>
+</html>

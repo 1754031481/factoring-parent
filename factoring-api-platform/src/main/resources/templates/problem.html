@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>店铺后台使用手册</title>
+    <link rel="stylesheet" th:href="@{/static/css/problem/base.css}">
+    <link rel="stylesheet" th:href="@{/static/css/problem/problem.css}">
+    <script th:src="@{/static/js/problem/dynamic.js}"></script>
+</head>
+<body>
+    <div class="problem_main">
+        <h2 class="problem_title">店铺后台使用手册</h2>
+        <ul class="problem_box">
+            <li>
+                <dl>
+                    <dt class="problemtype">
+                        一、收银员须知篇
+                        <span class="underline"></span>
+                    </dt>
+                    <dd class="specific_probox">
+                        <dl class="specific_problem">
+                            <dt>
+                                <span class="problemtxt">1 、如何操作收银台功能？</span>
+                                <span class="problemarrow"></span>
+                            </dt>
+                            <dd>
+                                <p>（1）	点击“收银管理”— 点击“收银台”；</p>
+                                <p>（2）	输入会员账号，用户姓名会自动显示，选择该会员所绑定的服务专员编码，如未绑定，则可询问会员的意向选择一个服务专员或者不填，输入会员购买的本店铺商品的商品条形码（可手动输入也可直接扫码），输入完毕直接点击回车键（Enter键），则会显示商品的购买信息 ；</p>
+                                <img th:src="@{/static/img/1.png}">
+                                <p>（3）	点击“下单”，确认会员信息，点击“信息确认无误”，跳转到付款页面，点击“确认付款”后扣除店铺余额，下单成功后跳转打印小票页面；</p>
+                                <img th:src="@{/static/img/2.png}" alt="">
+                                <img th:src="@{/static/img/3.png}" alt="">
+                                <p>（4）	在打印小票页面点击“打印小票“按钮；</p>
+                                <img th:src="@{/static/img/4.png}" alt="">
+                                <p>（5）	跳转打印小票预览界面，点击“打印”，即可打印购物小票；</p>
+                                <img th:src="@{/static/img/5.png}" alt="">
+                                <p>（6）	点击“订单管理”— 选择“线下订单”可查看到本次线下购买的订单记录，点击该条订单的“操作选项”可查看到该订单的订单详情。</p>
+                                <img th:src="@{/static/img/6.png}" alt="">
+                            </dd>
+                        </dl>
+                    </dd>
+                </dl>
+            </li>
+            <li>
+                <dl>
+                    <dt class="problemtype">
+                        二、库管须知篇
+                        <span class="underline"></span>
+                    </dt>
+                    <dd class="specific_probox">
+                        <dl class="specific_problem">
+                            <dt>
+                                <span class="problemtxt">1、如何添加商品品牌以及本地商品？</span>
+                                <span class="problemarrow"></span>
+                            </dt>
+                            <dd>
+                                <p>添加商品品牌：</p>
+                                <p>（1）点击“品牌管理”— 点击“品牌列表”；</p>
+                                <img th:src="@{/static/img/7.png}" alt="">
+                                <p>（2）输入品牌名称（必填）、品牌英文名称（非必填）、上传品牌Logo（非必填）；</p>
+                                <img th:src="@{/static/img/8.png}" alt="">
+                                <p>（3）点击蓝色按钮“保存”即可成功添加商品品牌。</p>
+                                <p>添加本地商品：</p>
+                                <p>（1）点击“商品管理”— 选择“本地品牌商品”— 点击按钮“添加商品”；</p>
+                                <img th:src="@{/static/img/9.png}" alt="">
+                                <p>（2）输入商品中文名称（必填）、商品英文名称（非必填），选择品牌（必选），上传品牌Logo（非必填），填写或上传详情描述（非必填），上传商品图片（必填），选择商品分类（必选）；</p>
+                                <img th:src="@{/static/img/10.png}" alt="">
+                                <p>（3）输入规格名称（即用商品的体积、容量、形状等来反映商品的外形，例如‘箱、盒、尺寸、颜色‘等）、规格值（与规格名称相对应，例如尺寸对应的“大、小……”；颜色对应的“红、黄、蓝…..”等）如有多规格可点击“添加规格项”继续进行输入，点击按钮“生成”；</p>
+                                <img th:src="@{/static/img/11.png}" alt="">
+                                <p>（4）输入商品的成本价、零售价，输入完毕，点击空白处，平台、服务专员、门店、普惠平台分润金额将自动呈现，手动输入商品条形码或者直接扫码录入，输入商品库存，选择“参加”或者“不参加”普惠补贴；</p>
+                                <img th:src="@{/static/img/12.png}" alt="">
+                                <p>（5）点击“保存”，等待我们工作人员的审核；</p>
+                                <p>（6）审核通过后即可点击该商品的对应的“操作选项”— 选择“上架”即可。</p>
+                                <img th:src="@{/static/img/13.png}" alt="">
+                                <p class="red">注： 默认的平台分润金额为销售金额的6%，服务专员分润金额为7%，服务经理的推广奖为3%（若无，归平台所有），普惠平台分润金额为13%</p>
+                            </dd>
+                        </dl>
+                        <dl class="specific_problem">
+                            <dt>
+                                <span class="problemtxt">2、如何添加专卖商品？（平台上进货系列）</span>
+                                <span class="problemarrow"></span>
+                            </dt>
+                            <dd>
+                                <p>（1）点击“进货管理”— 选择“供应商商品”查看供应商商品列表；</p>
+                                <p>（2）选择想要进货的商品（必须是已上架状态），点击该商品相应的列表中的“操作选项”，选择“商品详情”进行查看或者选择“进货”— 点击“加入购物车”；</p>
+                                <img th:src="@{/static/img/14.png}" alt="">
+                                <img th:src="@{/static/img/15.png}" alt="">
+                                <p>（3）返回供应商商品界面 — 点击“去购物车结算商品”，勾选您要进货的商品并点击‘+’或‘-’选择商品数量 — 点击“新增收货地址”，进行相关信息填写 — 点击“确定”；</p>
+                                <img th:src="@{/static/img/16.png}" alt="">
+                                <p>（4）添加订单备注（非必填），点击“提交”进入支付页面；</p>
+                                <img th:src="@{/static/img/17.png}" alt="">
+                                <img th:src="@{/static/img/18.png}" alt="">
+                                <p>（5）支付方式可选择“余额支付”或者“花呗支付”，点击“立即支付”即可生成待收货订单，等待供应商发货即可，可点击“进货订单”查看订单详情及状态。</p>
+                                <img th:src="@{/static/img/19.png}" alt="">
+                                <img th:src="@{/static/img/20.png}" alt="">
+<pre class="red">
+注：关于花呗支付（即首批店铺可享受透支额度进货的支付方式）
+    天易花呗可透支额度为30万元；
+    每月1号生成待还款订单，5号为最后还款日，可提前还款；
+    逾期未还款的惩罚措施：冻结店铺；
+    关于结算
+    线上订单结算时间为T+7天（即会员线上购买商品点击确认收货后7天进行结算）
+    线上订单结算时间为T+1天（即会员线下购买商品后的第二天进行结算）
+    天易花呗与余额支付的进货订单结算日期为确认收货的次月10日；
+    未点击确认收货的话收货后10天将会自动确认收货
+</pre>
+                            </dd>
+                        </dl>
+                        <dl class="specific_problem">
+                            <dt>
+                                <span class="problemtxt">3、如何添加物流公司？</span>
+                                <span class="problemarrow"></span>
+                            </dt>
+                            <dd>
+                                <p>（1）点击“系统管理”— 选择“物流公司”— 点击“添加企业”；</p>
+                               <img th:src="@{/static/img/21.png}" alt="">
+                               <p>（2）输入该企业名称、联系电话、网址（非必填）；</p>
+                               <img th:src="@{/static/img/22.png}" alt="">
+                               <p>（3）点击“确定”，即可成功添加该物流公司。</p>
+                            </dd>
+                        </dl>
+                        
+                        <dl class="specific_problem">
+                            <dt>
+                                <span class="problemtxt">4、如何查看会员线上订单以及发货？</span>
+                                <span class="problemarrow"></span>
+                            </dt>
+                            <dd>
+                               <p>（1）点击“订单管理”— 选择“线上订单”进入订单列表界面；</p>
+                               <p>（2）选择要发货的订单，点击该条订单对应的“操作选项”— 点击“订单详情”进入该订单详情界面；</p>
+                               <img th:src="@{/static/img/23.png}" alt="">
+                               <p>（3）核对收货信息以及商品数量价格，对要发货的商品进行勾选，点击“发货”；</p>
+                               <img th:src="@{/static/img/24.png}" alt="">
+                               <p>（4）选择物流公司，输入物流编号，点击“发货”，即完成发货操作。</p>
+                               <img th:src="@{/static/img/25.png}" alt="">
+<pre class="red">
+注：关于线上订单结算
+    会员点击确认收货后7天货款结算
+    会员收货后未点击确认收货，那么10天将会自动确认收货
+</pre>
+                            </dd>
+                        </dl>
+                    </dd>
+                </dl>
+            </li>
+            <li>
+                <dl>
+                    <dt class="problemtype">
+                        三、店长须知篇
+                        <span class="underline"></span>
+                    </dt>
+                    <dd class="specific_probox">
+                        <dl class="specific_problem">
+                            <dt>
+                                <span class="problemtxt">1、如何重置登录密码和支付密码？（修改密码系列）</span>
+                                <span class="problemarrow"></span>
+                            </dt>
+                            <dd>
+                                <p>（1）点击“账户管理”—“安全信息”—“登录密码”/“支付密码”‘；</p>
+                    <p>（2）输入您想要更换的登录/支付密码，再输入一遍进行确认，点击蓝色字体“获取验证码”，在前面的输入框输入您手机上收到的验证码；</p>
+                    <p>（3）点击“保存”即可重置密码成功。</p>
+                    <img th:src="@{/static/img/26.png}" alt="">
+                            </dd>
+                        </dl>
+                        <dl class="specific_problem">
+                            <dt>
+                                <span class="problemtxt">2、如何绑定银行卡？</span>
+                                <span class="problemarrow"></span>
+                            </dt>
+                            <dd>
+                                <p>（1）点击“账户管理”— 选择“银行卡”；</p>
+                                <p>（2）输入您的姓名，身份证号，银行卡号，点击蓝色字体“获取验证码”，在前面的输入框输入您手机上收到的验证码；</p>
+                                <p>（3）点击“绑定”，即可成功绑定银行卡。</p>
+                                <img th:src="@{/static/img/27.png}" alt="">
+                                <p class="red">注：银行卡可免费绑定3次，超过银行卡免费绑定次数后每次绑定需支付1元</p>
+                            </dd>
+                        </dl>
+                        <dl class="specific_problem">
+                            <dt>
+                                <span class="problemtxt">3、如何查看店铺余额以及金额变动明细，如何进行充值提现？</span>
+                                <span class="problemarrow"></span>
+                            </dt>
+                            <dd>
+                                <p>查看店铺余额以及金额变动明细：</p>
+                                <p>（1）点击“账户管理”— 选择“店铺余额”；</p>
+                                <p>（2）即可查看当前店铺余额以及店铺金额变动明细。</p>
+                                <img th:src="@{/static/img/28.png}" alt="">
+                                <h2 class="jiacu">进行充值：</h2>
+                                <p>（1）在当前店铺余额界面，点击蓝色按钮“充值”；</p>
+                                <img th:src="@{/static/img/29.png}" alt="">
+                                <p>（2）输入您要充值的余额，点击“银联支付”，选择点击银行卡所属银行的标志；</p>
+                                <img th:src="@{/static/img/30.png}" alt="">
+                                <p>（3）点击“开始支付”，跳转网上银行支付页面，支付成功可立即到账。</p>
+                                <h2 class="jiacu">关于提现：</h2>
+                                <p>（1）在当前店铺余额界面，点击蓝色按钮“提现”；</p>
+                                <p>（2）确认您的账户名，银行卡号，输入您要提现的金额；</p>
+                                <img th:src="@{/static/img/31.png}" alt="">
+                                <p>（3）点击蓝色按钮“提现申请”，等待审核即可。</p>
+<pre class="red">
+注：提现时间为周一到周五的10:00-16:30；
+    提现到账时间为T+1天；
+    提现单笔限额5万，单日限额10万；
+    提现手续费5元/笔
+
+</pre>
+                            </dd>
+                        </dl>
+                        
+                        <dl class="specific_problem">
+                            <dt>
+                                <span class="problemtxt">4、如何添加店铺后台的使用用户，并且分配操作权限？</span>
+                                <span class="problemarrow"></span>
+                            </dt>
+                            <dd>
+                                <p>（1）点击“店铺权限管理”— 点击“用户列表”；</p>
+                               <img th:src="@{/static/img/32.png}" alt="">
+                               <p>（2）点击蓝色按钮“添加用户”，输入联系人以及联系方式，点击“保存”，即可添加用户成功；</p>
+                               <img th:src="@{/static/img/33.png}" alt="">
+                               <p>（3）在用户列表界面，选择添加的用户，点击相应的“操作选项”— 选择“分配角色”；</p>
+                               <img th:src="@{/static/img/34.png}" alt="">
+                               <p>（4）勾选要给该用户分配的角色名称，点击“保存”，即可成功给该用户分配到该角色（目前可分配的角色为店长、库管、收银员三个角色）。</p>
+                               <img th:src="@{/static/img/35.png}" alt="">
+                            </dd>
+                        </dl>
+                        
+                        <dl class="specific_problem">
+                            <dt>
+                                <span class="problemtxt">5、如何添加服务专员以及为其添加考核品牌，查看服务专员的业绩？</span>
+                                <span class="problemarrow"></span>
+                            </dt>
+                            <dd>
+                                <p>（1）点击“服务专员管理”— 选择“服务专员列表”— 点击“添加服务专员”；</p>
+                               <img th:src="@{/static/img/36.png}" alt="">
+                               <p>（2）输入该用户的手机号、姓名、身份证号、选择推荐服务专员账号（若无人推荐则可不填），上传服务专员证书正面照片(示例图如下)；</p>
+                               <img th:src="@{/static/img/37.png}" alt="">
+                               <img th:src="@{/static/img/41.jpg}" alt="">
+                               <p>（3）点击“确认”，等待我们后台管理工作人员的审核即可（一个工作日内）；</p>
+                               <p>（4）审核通过后可进入服务专员考核界面，点击该服务专员相对应“操作选项”— 点击“服务专员考核”，输入要分配给该服务专员的考核品牌名称，即可成功为该服务专员添加考核品牌；</p>
+                               <img th:src="@{/static/img/38.png}" alt="">
+                               <img th:src="@{/static/img/39.png}" alt="">
+                               <p>（5）在服务专员考核界面即可查看服务专员最近三个月的业绩以及对应推荐的服务专员的考核指标的完成比例。</p>
+                            </dd>
+                        </dl>
+                        
+                        <dl class="specific_problem">
+                            <dt>
+                                <span class="problemtxt">6、如何修改店铺信息？</span>
+                                <span class="problemarrow"></span>
+                            </dt>
+                            <dd>
+                                <p>（1）	点击“店铺信息”— 继续点击“店铺信息”；</p>
+                               <p>（2）	选择要修改的相关信息进行修改（例如店铺名称、店铺照片等）；</p>
+                               <img th:src="@{/static/img/40.png}" alt="">
+                               <p>（3）点击“修改”，即可成功修改店铺信息。</p>
+                            </dd>
+                        </dl>
+                    </dd>
+                </dl>
+            </li>
+        </ul>
+    </div>
+    <script>
+        $(function(){
+            $('.specific_problem dt').toggle(function(){
+                $(this).addClass('checked');
+                $(this).siblings('dd').stop().slideDown();
+            },function(){
+                $(this).removeClass('checked');
+                $(this).siblings('dd').stop().slideUp();
+            });
+        });
+    </script>
+</body>
+</html>
+

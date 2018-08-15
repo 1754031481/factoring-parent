@@ -1,0 +1,134 @@
+.mainwrap{
+	min-width:800px;
+}
+.section{
+	padding:20px;
+}
+.chaxun {
+	height: 30px;
+	line-height: 30px;
+	color: #fff;
+	border: none;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	font-size: 14px;
+	font-family: 'Microsoft YaHei';
+	min-width: 90px;
+	padding: 0 5px;
+	background-color: #10c8ef;
+	cursor: pointer;
+}
+.product_item a{
+	display: block;
+	width:100%;
+	height:200px;
+	position:relative;
+}
+.product_item a .bac{
+	position:absolute;
+	display:block;
+	width:100%;
+	height:100%;
+	top:0;
+	left:0;
+	z-index:2;
+}
+.product_item a .edit{
+	position:absolute;
+	display:block;
+	width:50px;
+	height:50px;
+	bottom:0;
+	right:50px;
+	z-index:3;
+}
+.product_item a .dele{
+	position:absolute;
+	display:block;
+	width:50px;
+	height:50px;
+	bottom:0;
+	right:0px;
+	z-index:3;
+}
+.prism-player{
+	display: block;
+	width:100%!important;
+	height: 100%!important;
+}
+.searchBox{
+	width: 880px;
+}
+.searchBox form{
+	margin-bottom: 10px;
+}
+.product_list{
+	min-width: 880px;
+	display: flex;
+    /*
+	justify-content: space-between;
+    */
+	flex-wrap: wrap;
+	margin:20px 0;
+}
+.product_item{
+	width:30%;
+	margin-bottom: 20px;
+	margin-left: 30px;
+
+}
+.productWrap{
+	position: relative;
+	width:100%;
+	/*height:200px;*/
+	/*border:1px solid #ddd;*/
+}
+.play_icon{
+	position: absolute;
+	width:70px;
+	height:70px;
+	top:50%;
+	left:50%;
+	transform: translate(-50%,-50%);
+	z-index: 3;
+}
+.product_info{
+	/*background: #eee;*/
+    padding: 10px;
+    font-size: 14px;
+    border:1px solid #ddd;
+    border-top:none;
+	overflow: hidden;
+}
+.product_info>div > p{
+	color:#666;
+	float: right;
+}
+.pro_name{
+	margin:6px 0;
+	overflow: hidden;
+	text-overflow:ellipsis;
+	white-space: nowrap;
+	float: left;
+}
+.live_handle > button{
+	width:100px;
+	height:32px;
+	background: #10c8ef;
+	border-radius: 5px;
+	border:1px solid transparent;
+}
+.handle{
+	margin-top: 5px;
+}
+.handle > span{
+	/*border:1px solid #aaa;*/
+	/*border-radius: 4px;*/
+	padding:2px 0;
+	font-size: 14px;
+}
+.handle > span.active{
+	color:#00b983;
+	border-color: #00b983;
+}

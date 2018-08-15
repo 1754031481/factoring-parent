@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>奖项设置</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">系统管理</a>&nbsp;&gt;&nbsp;<span>奖项设置</span></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>奖项设置</h2>
+            <div class="ph_snbBtn">
+                <shiro:hasPermission name="logisticsAdd">
+                    <input class="Js_addLogistic" name="" type="button" value="添加奖项">
+                </shiro:hasPermission>
+            </div>
+        </div>
+        <!--end 标题-->
+        <!--参数列表-->
+        <div class="ph_wareBox">
+            <input type="hidden" name="num" th:value="${nowScale}">
+            <table class="ph_wareList" id="table">
+                <tr>
+                    <th>奖项</th>
+                    <th>金额(元)</th>
+                    <th>奖金比例</th>
+                    <th>操作</th>
+                </tr>
+                <tr th:each="LotteryAdminVO : ${pageInfo}">
+                    <th th:text="${LotteryAdminVO.name}" th:name="${LotteryAdminVO.name}">N/A</th>
+                    <th th:text="${LotteryAdminVO.price}">N/A</th>
+                    <th th:text="${LotteryAdminVO.scale}">N/A</th>
+                    <th>
+                        <span style="color: #1E9FFF"
+                              th:onclick="'javascript:updateAwards(\'' + ${LotteryAdminVO.id} + '\')'">编辑</span>
+                        <span style="color: #1E9FFF"
+                              th:onclick="'javascript:deleteAwards(\''+${LotteryAdminVO.id}+'\')'">删除</span>
+                    </th>
+                </tr>
+            </table>
+        </div>
+        <!--end 参数列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+
+<!--添加物流公司弹窗-->
+<div class="PopupBox" id="addLinkmanBox">
+    <!--关闭按钮-->
+    <a href="javascript: void(0);" class="close"></a>
+    <!--end 关闭按钮-->
+    <!--内容-->
+    <div class="PopupCon">
+        <div class="ph_subPoCon ph_screen">
+            <form class="form-inline" id="addLogisticForm">
+                <table class="ph_tableBox">
+                    <input id="id" name="id" hidden="hidden"/>
+                    <tr>
+                        <th><span class="require">*</span>奖项：</th>
+                        <td>
+                        <select name="name" id="one" style="width: 248px;"></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>金额：</th>
+                        <td><input name="price" type="text" id="price"></td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>奖金比例：</th>
+                        <td><input name="scale" type="text" id="scale"></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--end 内容-->
+</div>
+<!--end 添加物流公司弹窗-->
+
+<!--end 参数设置弹窗-->
+
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+
+
+<script type="text/javascript" th:src="@{/static/js/common/util.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    var tb;
+    $(function () {
+        var Popupe = new PopupBase();
+        Popupe.show('.Js_deliver', '.maskBox,.deliverBox');
+        Popupe.show('.Js_refund', '.maskBox,.Js_refundBox');
+        Popupe.show('.Js_btn', '.maskBox,.DeterBox');
+        Popupe.show('.Js_refunddeta', '.maskBox,.Js_refundDetaBox');
+        Popupe.showHide('.subQuemit', '.refundBox', '.SucBox');
+        Popupe.hide('.close', '.maskBox,.DeterBox,.SucBox,.deliverBox,.Js_refundBox,.Js_refundDetaBox');
+
+
+        //添加奖项
+        $('.ph_snbBtn').on('click', '.Js_addLogistic', function () {
+            clearData();
+            $("[name='name']").empty();
+            $.ajax({
+                url: '/web/awards/getAwardsList',
+                type: 'post',
+                dataType: 'json',
+                success: function (json) {
+                    var content = "";
+                    for (var i in json) {
+                        var name = $("[name='" + json[i].name + "']").html();
+                        if (json[i].name == name) {
+                            content += "<option disabled value='" + json[i].name + "'>" + json[i].name + "</option>";
+                        } else {
+                            content += "<option value='" + json[i].name + "'>" + json[i].name + "</option>";
+                        }
+                    }
+                    $("[name='name']").append(content);
+                }
+
+            });
+            layer.open({
+                type: 1,
+                closeBtn: 0,
+                area: ['442px', '392px'],
+                btn: ['确定', '取消'],
+                yes: function (index, layero) {
+                    var bool = validateParam();
+                    if (bool) {
+                        var params = $("#addLogisticForm").serializeJson();
+                        $.ajax({
+                            url: '/web/awards/addAwards',
+                            type: 'post',
+                            data: params,
+                            dataType: 'json',
+                            success: function (json) {
+                                if (json.code == 1) {
+                                    Dialog.alertInfo(json.message);
+                                    layer.close(index);
+                                    location.reload();
+                                } else {
+                                    Dialog.alertWarn(json.message);
+                                }
+                            }
+                        })
+                    }
+                },
+                btnAlign: 'c',
+                content: $('#addLinkmanBox')
+            });
+        });
+
+    });
+
+    function clearData() {
+        $("#addLogisticForm")[0].reset();
+    }
+
+    //验证
+    function validateParam(obj) {
+        // var name =$("#one").val();
+        // var name = $("[name='one']").val();
+       var check =  /^[\-\+]?((([0-9]{1,3})([,][0-9]{3})*)|([0-9]+))?([\.]([0-9]+))?$/;
+       var name = $("#one option:selected").val()
+        var num = $("[name='num']").val();
+        num = parseFloat(num);
+        num = num.toFixed(2);
+        if (!name) {
+            Dialog.alertWarn('奖项不得为空!');
+            return false;
+        }
+
+        var price = $("#price").val();
+        if (!price) {
+            Dialog.alertWarn('金额不得为空!');
+            return false;
+        }
+        var scale = $("#scale").val();
+        if (!scale) {
+            Dialog.alertWarn('比例不得为空!');
+            return false;
+        }
+        if(!check.test(scale)){
+            Dialog.alertWarn('比例输入格式不正确!');
+            return false;
+        }
+        if (obj != null) {
+            if (1.0 - num + parseFloat(obj) < scale) {
+                Dialog.alertWarn('比例总和不得大于1!');
+                return false;
+            }
+            return true;
+        }
+        if (1.0 - num < scale) {
+            Dialog.alertWarn('比例总和不得大于1!');
+            return false;
+        }
+        return true;
+    }
+
+    //条件查询重新加载数据
+    function query() {
+        tb.draw();
+    };
+
+    //删除
+    function deleteAwards(id) {
+        layer.confirm('是否删除？', {
+            icon: 3,
+            btn: ['是', '否'], //按钮
+            btn1: function (index) {
+                $.ajax({
+                    async: false,
+                    url: "/web/awards/deleteAwards",
+                    data: {id: id},
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code == "1") {
+                            layer.alert("删除成功！", {
+                                icon: 1,
+                                title: '提示',
+                                closeBtn: 0,
+                                btnAlign: 'c',
+                                yes: function () {
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            layer.alert(data.message, {
+                                icon: 2,
+                                title: '失败',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        }
+                    }
+                });
+                layer.close(index);
+            }
+        });
+    }
+
+    //编辑物流公司
+    function updateAwards(id) {
+        var jsonData = {
+            wareHouseId: id
+        };
+        $("[name='name']").empty();
+        $.ajax({
+            url: '/web/awards/getAwardsList',
+            async:false,
+            type: 'post',
+            dataType: 'json',
+            success: function (json) {
+                var content = "";
+                for (var i in json) {
+                    var name = $("[name='" + json[i].name + "']").html();
+                    if (json[i].name == name) {
+                        content += "<option disabled value='" + json[i].name + "'>" + json[i].name + "</option>";
+                    } else {
+                        content += "<option value='" + json[i].name + "'>" + json[i].name + "</option>";
+                    }
+                }
+                $("[name='name']").append(content);
+            }
+
+        });
+        var successStatus = "操作成功!";
+        var failStatus = "操作失败!";
+        $.ajax({
+            url: '/web/awards/findAwardsById',
+            type: 'get',
+            data: {
+                "id": id
+            },
+            dataType: 'json',
+            success: function (json) {
+                if (json.code == 1) {
+                    var da = json.data;
+                    $("#id").val(da.id);
+                    $("#one").find("option[value='"+da.name+"']").attr("selected",true);
+                    $("#price").val(da.price);
+                    $("#scale").val(da.scale);
+                    layer.open({
+                        type: 1,
+                        title: '修改奖项',
+                        closeBtn: 0,
+                        area: ['442px', '392px'],
+                        btn: ['确定', '取消'],
+                        yes: function (index, layero) {
+                            var bool = validateParam(da.scale);
+                            if (bool) {
+                                var params = $("#addLogisticForm").serializeJson();
+                                params.name =  $("#one option:selected").val()
+                                $.ajax({
+                                    url: '/web/awards/updateAwards',
+                                    type: 'post',
+                                    data: params,
+                                    dataType: 'json',
+                                    success: function (json) {
+                                        console.log(json.code);
+                                        if (json.code == 1) {
+                                            layer.alert(successStatus, {
+                                                icon: 1,
+                                                title: '提示',
+                                                closeBtn: 0,
+                                                btnAlign: 'c',
+                                                yes: function () {
+                                                    location.reload();
+                                                }
+                                            });
+                                        } else {
+                                            layer.alert(failStatus, {
+                                                icon: 2,
+                                                title: '提示',
+                                                closeBtn: 0,
+                                                btnAlign: 'c'
+                                            });
+                                        }
+                                    }
+                                })
+                            }
+                        },
+                        btnAlign: 'c',
+                        content: $('#addLinkmanBox'),
+                    });
+                } else {
+                    alert("错误!");
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

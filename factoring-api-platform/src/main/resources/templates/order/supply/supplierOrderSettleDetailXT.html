@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单结算详情</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">订单管理</a>&nbsp;&gt;&nbsp;<a href="#">订单结算</a>&nbsp;&gt;&nbsp;<span>订单结算详情</span> </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit no_border">
+            <h2>订单结算详情</h2>
+        </div>
+        <!--end 标题-->
+        <!--商品信息-->
+        <div class="ph_wareBox ph_infoWare">
+            <table class="ph_wareList">
+                <thead>
+                    <tr>
+                        <th width="50">序号</th>
+                        <th>商品名称</th>
+                        <th>商品规格</th>
+                        <th>单价（元）</th>
+                        <th>数量</th>
+                        <th>总价（元）</th>
+                        <th>结算状态</th>
+                        <th >实际结算金额（元）</th>
+                        <th >结算时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="detail,sn:${supplierOrderDetail}">
+                        <td th:text="${sn.count}"></td>
+                        <td th:text="${detail.productName}" th:title="${detail.productName}"></td>
+                        <td th:text="${detail.productSpecificationName}"></td>
+                        <td th:text="${#numbers.formatDecimal((detail.productPrice/10000.0000),1,2)}"></td>
+                        <td th:text="${detail.num}"></td>
+                        <td th:text="${#numbers.formatDecimal((detail.totalPrice/10000.0000),1,2)}"></td>
+                        <td th:if="${detail.fenRunStatus==null}" >未结算</td>
+                        <td th:if="${detail.fenRunStatus==0}" >未结算</td>
+                        <td th:if="${detail.fenRunStatus==1}" >已结算</td>
+                        <td th:text="${#numbers.formatDecimal((detail.industryFenAddsupplierFen/10000.0000),1,2)}"></td>
+                        <td th:text="${#dates.format(detail.settleTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--end 商品信息-->
+        <!--返回按钮-->
+        <div class="PopupBtn">
+            <input name="" type="button" th:onclick="'returnList();'" value="返回">
+        </div>
+        <!--end 返回按钮-->
+    </div>
+    <!--end 主体内容-->
+</div>
+
+<!--遮罩层-->
+<div class="maskBox"></div>
+<!--end 遮罩层-->
+
+
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/common/number.js}"></script>
+<script type="text/javascript">
+
+    /**
+     * 查看规格属性
+     * @param product
+     */
+
+    function returnList() {
+        window.location.href = "/web/order/supplyxt/toSettleListPage";
+    }
+
+</script>
+</body>
+</html>

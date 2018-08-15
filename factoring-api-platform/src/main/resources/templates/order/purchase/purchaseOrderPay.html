@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单支付</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">订单管理</a>&nbsp;&gt;&nbsp;<a href="#">进货订单</a>&nbsp;&gt;&nbsp;<span>订单支付</span>
+    </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit no_border">
+            <h2>付款总额</h2>
+        </div>
+        <!--end 标题-->
+        <!--商品列表-->
+        <div class="ph_wareBox ph_infoWare">
+            <table class="ph_wareList product">
+                <thead>
+                <tr>
+                    <th width="50">序号</th>
+                    <th width="200">订单号</th>
+                    <th width="200" style="display: none">订单id</th>
+                    <th width="200">订单金额</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order,sn:${orderList}">
+                    <td th:text="${sn.count}"></td>
+                    <td th:text="${order.orderNo}"></td>
+                    <td th:text="${order.id}" style="display: none" class="oid"></td>
+                    <td th:text="${#numbers.formatDecimal((order.totalScorePrice/10000.0000),1,2)}+'积分'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--付款金额-->
+        <div class="ph_wareBox ph_infoWare">
+            <p class="ph_infoTotal">订单总价：<span class="require" id="orderTotalCost"
+                                               th:text="${#numbers.formatDecimal((payTotalPrice/10000.0000),1,2)}">0.00</span>积分
+            </p>
+            <p class="require">温馨提示：请尽快付款，以便订单及时处理</p>
+        </div>
+
+
+        <!--end 付款金额-->
+        <!--标题-->
+        <div class="ph_subTit no_border">
+            <h2>支付方式</h2>
+        </div>
+        <!--end 标题-->
+        <form action="" id="validateForm">
+            <div class="ph_methodBox">
+                <p><input class="Js_radio" name="radio" type="radio" value="3" checked>积分支付 <span>可用积分：¥<span
+                        th:text="${#numbers.formatDecimal((balance/10000.0000),1,2)}">100000.00</span></span></p>
+                <!--   <p><input class="Js_radio" name="radio" type="radio" value="1">花呗支付</p> -->
+                <input type="hidden" id="balance" th:value="${#numbers.formatDecimal((balance/10000.0000),1,2)}">
+                <!--<p class="ph_methPass">
+                    <label for="password">支付密码：</label>
+                    <input name="" type="password" id="password" class="validate[required]">
+                    <span class="provingImg">
+                        <a th:href="'/web/safemanage/tosafemanagepage'">设置密码</a>
+                    </span>
+                </p>-->
+            </div>
+        </form>
+        <!--按钮-->
+        <div class="PopupBtn btnLeft">
+            <input class="submit" name="" type="button" th:onclick="'checkPayPwd();'" value="立即支付">
+            <input class="cancel" name="" type="button" th:onclick="'cancelPay();'" value="取消">
+        </div>
+        <!--end 按钮-->
+    </div>
+    <!--end 主体内容-->
+    <form th:action="${pay}" method="POST" id="thirdPayForm" target="_blank">
+        <!--订单号-->
+        <input type="hidden" name="orderNum" id="orderNo" th:value="${orderNo}">
+        <input type="hidden" name="amount" th:value="${totalCost}">
+        <input type="hidden" name="description" th:value="${description}">
+    </form>
+
+</div>
+<!--输入密码弹窗样式-->
+<style>
+    .pwd_wrap {
+        width: 301px;
+        margin: 30px auto 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .password {
+        width: 20px;
+        height: 0;
+        position: fixed;
+        top: 0;
+        left: -2000px;
+        z-index: -1;
+    }
+
+    #for_pwd {
+        width: 301px;
+        height: 50px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+    }
+
+    .pay_pwd {
+        border-left: 1px solid #ddd;
+    }
+
+    .pay_pwd li {
+        border-top: 1px solid #ddd;
+        width: 50px;
+        height: 50px;
+        text-align: center;
+        line-height: 50px;
+        font-size: 20px;
+        float: left;
+        box-sizing: border-box;
+        border-bottom: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+    }
+
+    .pay_pwd li.active:after {
+        content: "";
+        display: block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #000;
+        margin: 20px;
+    }
+
+    .animation:after {
+        content: '';
+        display: block;
+        margin-top: 15px;
+        margin-left: 25px;
+        width: 1px;
+        height: 20px;
+        animation: blink 1s infinite steps(1, start)
+    }
+
+    @keyframes blink {
+        0% {
+            background-color: rgba(0, 0, 0, 0);
+        }
+        50% {
+            background-color: black;
+        }
+        100% {
+            background-color: rgba(0, 0, 0, 0);
+        }
+    }
+</style>
+<!--输入密码弹窗-->
+<div class="PopupBox" id="addPayPwd">
+    <!--内容-->
+    <div class="PopupCon">
+        <div class="ph_subPoCon ph_screen">
+
+            <div class="pwd_wrap" id="pwd_wrap">
+                <input type="text" maxlength="6" name="payPwd" autocomplete="off" onpaste="return false" id="payPwd"
+                       class="password">
+                <label id="for_pwd" for="payPwd"></label>
+                <ul class="clearfix pay_pwd" id="pay_pwd">
+                    <li class="pay_pwd"></li>
+                    <li class="pay_pwd"></li>
+                    <li class="pay_pwd"></li>
+                    <li class="pay_pwd"></li>
+                    <li class="pay_pwd"></li>
+                    <li class="pay_pwd"></li>
+                </ul>
+            </div>
+            <!--<input id="payPwd" name="payPwd" type="text" >-->
+            <p style="text-align: right;width:301px;margin:8px auto;">
+                <a href="/web/safemanage/tosafemanagepage?from=forget2">忘记支付密码？</a>
+            </p>
+
+        </div>
+    </div>
+    <!--end 内容-->
+</div>
+<!--end 添加联系人弹窗-->
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/jquery.md5.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--加密-->
+<script type="text/javascript" th:src="@{/static/js/spm/md5.js}"></script>
+<!-- 密码输入框 -->
+<script type="text/javascript" th:src="@{/static/js/inputpwd.js}"></script>
+<script type="text/javascript">
+    $(function () {
+        $('.ph_methodBox .Js_radio').on('click', function () {
+            var radioNm = $(this).val();
+            if (radioNm == '0') {
+                $(this).parents('.ph_methodBox').find('.ph_methPass').removeClass('hide');
+            } else {
+                $(this).parents('.ph_methodBox').find('.ph_methPass').addClass('hide');
+            }
+        });
+        $("#validateForm").validationEngine({
+            addPromptClass: 'formError-text',
+            showArrow: false,
+            promptPosition: 'bottomLeft:20 0'
+
+        });
+    });
+
+    function cancelPay() {
+        window.location.href = "/web/product/toSupplierProductPage";
+    }
+
+    function submitPay() {
+        var oidArray = [];
+        $('.oid').each(function (i, elem) {
+            oidArray.push(elem.innerHTML)
+        })
+        var oidStr = oidArray.join(',')
+        var checkedValue = $('input[name="radio"]:checked').val();
+
+        if (checkedValue == null) {
+            layer.alert("请选择支付方式", {icon: 2, btnAlign: 'c', closeBtn: 0});
+            return false;
+        }
+        if (checkedValue == 0) {
+            var cost = parseFloat($('#cost').text());
+            var balance = parseFloat($("#balance").val());
+            if ((balance - cost) < 0) {
+                layer.msg("账户余额不足", {icon: 2, btnAlign: 'c', closeBtn: 0});
+                return false;
+            }
+            //余额支付
+            var flag = $("#validateForm").validationEngine("validate");
+            if (!flag) {
+                return false;
+            }
+            var payPwd = $("#payPwd").val();
+            var pwd = md5(payPwd);
+            //余额支付
+            $.ajax({
+                async: false,
+                url: "/web/order/purchase/payByBalance",
+                data: {
+                    orderNo: $('#orderNo').val(),
+                    ids: oidStr,
+                    password: pwd,
+                    type: 2
+                },
+                type: "POST",
+                dataType: "json",
+                success: function (data) {
+                    if (data.success) {
+                        layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0}, function () {
+                            location.href = "/web/product/toSupplierProductPage";
+                        });
+
+                    } else {
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                    }
+                }
+            });
+        } else if (checkedValue == 1) {
+            //花呗支付
+            var flag = $("#validateForm").validationEngine("validate");
+            if (!flag) {
+                return false;
+            }
+            //余额支付
+            $.ajax({
+                async: false,
+                url: "/web/order/purchase/payByBalance",
+                data: {
+                    orderNo: $('#orderNo').val(),
+                    ids: oidStr,
+                    password: $.md5($('#password').val()),
+                    type: 1
+                },
+                type: "POST",
+                dataType: "json",
+                success: function (data) {
+                    if (data.success) {
+                        layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0}, function () {
+                            location.href = "/web/product/toSupplierProductPage";
+                        });
+
+                    } else {
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                    }
+                }
+            });
+        } else if (checkedValue == 3) {
+            var cost = parseFloat($('#cost').text());
+            var balance = parseFloat($("#balance").val());
+            if ((balance - cost) < 0) {
+                layer.msg("账户积分不足", {icon: 2, btnAlign: 'c', closeBtn: 0});
+                return false;
+            }
+            //积分支付
+            var flag = $("#validateForm").validationEngine("validate");
+            if (!flag) {
+                return false;
+            }
+            var payPwd = $("#payPwd").val();
+            var pwd = md5(payPwd);
+            //积分支付
+            $.ajax({
+                async: false,
+                url: "/web/order/purchase/payByBalance",
+                data: {
+                    orderNo: $('#orderNo').val(),
+                    ids: oidStr,
+                    password: pwd,
+                    type: 3
+                },
+                type: "POST",
+                dataType: "json",
+                success: function (data) {
+                    if (data.success) {
+                        layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0}, function () {
+                            location.href = "/web/product/toSupplierProductPage";
+                        });
+
+                    } else {
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                    }
+                }
+            });
+
+        }
+    }
+
+
+    function checkPayPwd() {
+        var checkedValue = $('input[name="radio"]:checked').val();
+        if (checkedValue == null) {
+            layer.alert("请选择支付方式", {icon: 2, btnAlign: 'c', closeBtn: 0});
+            return false;
+        }
+        if (checkedValue == 0) {
+            $.ajax({
+                async: false,
+                url: "/web/order/purchase/checkPayPwd",
+                type: "POST",
+                dataType: "json",
+                success: function (data) {
+                    if (data.code == 0) {
+                        layer.alert(data.message, {icon:1, btnAlign: 'c', closeBtn: 0});
+                    } else if (data.code == 2) {
+                        layer.confirm(data.message, {
+                            btn: ['确认', '取消'] //按钮
+                        }, function () {
+                            location.href = "/web/safemanage/tosafemanagepage?from=forget2";
+                        });
+                    } else {
+                        comPayPwd();
+                    }
+                }
+            });
+        } else if (checkedValue == 3) {
+            $.ajax({
+                async: false,
+                url: "/web/order/purchase/checkPayPwd",
+                type: "POST",
+                dataType: "json",
+                success: function (data) {
+                    if (data.code == 0) {
+                        layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0});
+                    } else if (data.code == 2) {
+                        layer.confirm(data.message, {
+                            btn: ['确认', '取消'] //按钮
+                        }, function () {
+                            location.href = "/web/safemanage/tosafemanagepage?from=forget2";
+                        });
+                    } else {
+                        comPayPwd();
+                    }
+                }
+            });
+        }
+    }
+
+    function comPayPwd() {
+        $("#payPwd").val("");
+        $("#pay_pwd .active").removeClass("active");
+        pwd_length = 0;
+        layer.open({
+            type: 1,
+            title: '请输入支付密码完成支付',
+            closeBtn: 0,
+            area: ['400px', '250px'],
+            btn: ['立即支付', '取消'],
+            btnAlign: 'c',
+            content: $('#addPayPwd'),
+            yes: function (index, layero) {
+                var payPwd = $("#payPwd").val();
+                var pwd = md5(payPwd);
+                $.ajax({
+                    url: '/web/order/purchase/comparePayPwd',
+                    type: 'post',
+                    data: {pwd: pwd},
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.code == 1) {
+                            layer.close(index);
+                            submitPay();
+                        } else {
+                            $("#payPwd").val("");
+                            $("#pay_pwd .active").removeClass("active");
+                            pwd_length = 0;
+                            layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                        }
+                    }
+                })
+            }
+        });
+    }
+</script>
+</body>
+</html>

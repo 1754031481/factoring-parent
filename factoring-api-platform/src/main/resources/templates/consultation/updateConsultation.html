@@ -1,0 +1,457 @@
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>普济一城商城后台系统</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--富文本  css文件-->
+    <!--<link rel="stylesheet" href="css/ueditor.css">-->
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/consultation/mobile_editor.css}">
+</head>
+<body>
+<div class="MainContent">
+    <div class="current">当前位置：
+        <a href="#" alt="">资讯管理 &gt;</a>
+        <a href="#" alt="">资讯列表 &gt;</a>
+        <span th:text="${consultation==null}?'发布资讯':'编辑资讯'"></span></div>
+    <div class="MainCont ">
+        <div class="ph_subConTit">
+            <h2 th:text="${consultation==null}?'发布资讯':'编辑资讯'"></h2>
+        </div>
+        <form id="form">
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">资讯标题:</span>
+                </label>
+                <input id="title" name="title" type="text" th:value="${consultation==null || consultation.title==null || consultation.title==''}?'':${consultation.title}" maxlength="30" />
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">资讯分类:</span>
+                </label>
+                <div id="agent_level_div"></div>
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="">显示设置:</span>
+                </label>
+                <span th:class="${consultation==null || consultation.isShow==null || consultation.isShow==0}?'ff_right':'ff_left'" th:onclick="'changeShow(this)'" style="width: 3.3%;margin: 8px 15px;" id="isShow"><i class='fl_left'></i></span>
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">封面主题:</span>
+                </label>
+                <input type="radio" name="modelType" value="0" th:checked="${consultation==null || consultation.modelType==0}?true:false"/>无图<input type="radio" name="modelType" value="1" th:checked="${consultation!=null && consultation.modelType==1}?true:false" />单图<input type="radio" name="modelType" value="2" th:checked="${consultation!=null && consultation.modelType==2}?true:false"/>三图
+                <div class="content-box">
+                    <div class="img-box addIndustry"  id="img-box" style="display: none">
+                        <span class="imgup-notice" style="margin-left: 15px;color: red;">请上传您的封面主题，图片大小不超过5M.</span>
+                        <div class="img-box full">
+                            <section class=" img-section" style="display: inline-block;" id="img-section1">
+                                <div class="z_photo upimg-div" data-file-type=1>
+                                    <section class="z_file left">
+                                        <img th:src="@{/static/images/add.png}" class="add-img">
+                                        <input type="file" name="file1" id="file1" class="file" value=""
+                                               accept="image/jpg,image/jpeg,image/png,image/bmp" multiple/>
+                                    </section>
+                                </div>
+                            </section>
+                            <section class=" img-section" style="display: inline-block;" id="img-section2">
+                                <div class="z_photo upimg-div" data-file-type=1>
+                                    <section class="z_file left">
+                                        <img th:src="@{/static/images/add.png}" class="add-img">
+                                        <input type="file" name="file2" id="file2" class="file" value=""
+                                               accept="image/jpg,image/jpeg,image/png,image/bmp" multiple/>
+                                    </section>
+                                </div>
+                            </section>
+                            <section class=" img-section" style="display: inline-block;" id="img-section3">
+                                <div class="z_photo upimg-div" data-file-type=1>
+                                    <section class="z_file left">
+                                        <img th:src="@{/static/images/add.png}" class="add-img">
+                                        <input type="file" name="file3" id="file3" class="file" value=""
+                                               accept="image/jpg,image/jpeg,image/png,image/bmp" multiple/>
+                                    </section>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">正文:</span>
+                </label>
+                <div control_type="mobile_desc" control_id="descForMobile"
+                     id="descForMobile" style="display: block;width: 800px;margin-left: 128px;">
+                    <div class="tab-pannel mobileEditor clearfix">
+                        <div class="mszie-tips" ><span
+                                    class="size-tip J_SizeTip">图片大小不能超过5M <i>|</i> 文字不能超过5000字</span><span
+                                    class="preview-mobile-detail"><span class="mtips-icon J_Mtip">在手机上预览真实效果</span></span></div>
+                        <div class="mdetail-left">
+                            <div class="pannel">
+                                <div class="content-edit">
+                                    <div class="control-panel">
+                                    </div>
+                                    <div class="edit-area J_EditArea" style="display: none;">
+                                        <div class="edit-text text-content">
+                                            <p class="text-tip" >单个文本框字数不得超过<b>5000</b></p>
+                                            <div class="text-textarea">
+                                                <textarea id="text-edit"></textarea>
+                                            </div>
+                                            <div class="button">
+                                                <input type="button" value="确认" class="text-submit">
+                                                <input type="button" value="取消" class="text-cancel">
+                                            </div>
+                                            <a href="#" class="text-close">关闭</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <textarea class="J_MobileDetail" name="_fma.pu._0.w" style="display:none;"></textarea><input
+                                        type="hidden" id="nav_wirelessDescription" data-feed="err_nav_wirelessDescription">
+                                <div id="err_nav_wirelessDescription" style="display:none"></div>
+                            </div>
+                            <div class="add-btn J_AddBtn">
+                                <div class="jia"><i class="glyphicon glyphicon-plus"></i>添加</div>
+                                <ul class="btn-wrap none">
+                                    <li class="product" title="点击添加商品">
+                                        <div class="btn-text"><i class="glyphicon glyphicon-list"></i>
+                                            <p>商品</p></div>
+                                    </li>
+                                    <li class="image" title="点击添加图片">
+                                        <div class="btn-text"><i class="glyphicon glyphicon-picture"></i>
+                                            <p>图片</p></div>
+                                    </li>
+                                    <li class="text" title="点击添加文字">
+                                        <div class="btn-text"><i class="glyphicon glyphicon-text-color"></i>
+                                            <p>文字</p></div>
+                                    </li>
+                                    <!--<li class="audio" title="点击添加音频">
+                                        <div class="btn-text"><i class="glyphicon glyphicon-music"></i>
+                                            <p>音频</p></div>
+                                    </li>
+                                    <li class="video" title="点击添加视频">
+                                        <div class="btn-text"><i class="glyphicon glyphicon-facetime-video"></i>
+                                            <p>视频</p></div>
+                                    </li>-->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="PopupBtn btnLeft" style="margin-bottom: 20px;margin-top: 50px;text-align: center;">
+                <input id="mobileFile" name="mobileFile" style="display: none" type="file" accept="image/*" />
+                <input id="audioFile" name="audioFile" style="display: none" type="file" accept="audio/mpeg" />
+                <input id="videoFile" name="videoFile" style="display: none" type="file" accept="video/*" />
+                <input id="consultationId" name="consultationId" type="hidden" th:value="${consultation == null}?0:${consultation.id}" />
+                <input id="saveOrUpdate" class="submit addSupplier_save" type="button" value="提交">
+                <input onclick="window.location.href='/web/consultation/toConsultationListPage?toBack=1';" class="submit addSupplier_cancel" name="" type="button" value="返回">
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<!--图片上传插件-->
+<script type="text/javascript" th:src="@{/static/js/common/imgUp.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<!--属性输入框的增加和删除-->
+<script type="text/javascript" th:src="@{/static/js/common/attrbox.js}"></script><!--图片点击放大-->
+<script type="text/javascript" th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+<!--区域-->
+<script type="text/javascript" th:src="@{/static/js/common/cascade.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/cascade.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/mobile_editor.js}"></script>
+
+<!-- 验证 -->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<script th:inline="javascript">
+    var consultationClassifyId = "[[${consultation==null}?0:${consultation.consultationClassifyId}]]";
+    var consultationDetailList = [[${consultationDetailList}]];
+    var consultationId = "[[${consultation==null}?0:${consultation.id}]]";
+    var modelType = "[[${consultation==null}?0:${consultation.modelType}]]";
+    cascade({
+        url: "/web/consultation/getClassfiyList",
+        totalSelect: 1,
+        DivId: "agent_level_div",
+        selectNames: ["id"],
+        requestNames: ["descriptionName"],
+        bindCols: ["id"],
+        bindData: ["id"],
+        frozenSelect: true,
+        backFun: function () {
+            if(consultationClassifyId!="0"){
+                var selected = $("#agent_level_div");
+                selected.attr("data-area-position-id-selected",consultationClassifyId);
+                selected.find("select").eq(0).selectpicker('val', consultationClassifyId);
+            }
+        }
+    });
+
+    $(function () {
+        if(consultationId!="0"){
+            //编辑回填
+            if(modelType=="0"){
+                $("#img-box").hide();
+                $("#img-section1").hide();
+                $("#img-section2").hide();
+                $("#img-section3").hide();
+            }else if(modelType=="1"){
+                $("#img-box").show();
+                $("#img-section1").show();
+                $("#img-section2").hide();
+                $("#img-section3").hide();
+            }else{
+                $("#img-box").show();
+                $("#img-section1").show();
+                $("#img-section2").show();
+                $("#img-section3").show();
+            }
+            var coverNum = 1;
+            $.each(consultationDetailList,function (i,detail) {
+                var type=detail.type;
+                var cover=detail.cover;
+                var url =detail.attachmentAddress+"";
+                url=url.indexOf('https://ph-images.oss-cn-shenzhen.aliyuncs.com/')>=0?url:"http://yst-images.img-cn-hangzhou.aliyuncs.com/" + url;
+                if(cover==1){
+                    //封面
+                    var section =
+                            '<section class="up-section left">' +
+                            '<span class="up-span"></span>' +
+                            '<img class="close-upimg" src="/static/images/img-del.png">' +
+                            '<img class="up-img zoom-img" data-img-upload-src="' + url + '" src="' + url + '">' +
+                            '</section>';
+                    var divDataFileType = $("#img-section"+coverNum+" .upimg-div");
+                    var lastChildren = divDataFileType.children(":last");
+                    lastChildren.before(section);
+                    lastChildren.hide();
+                    coverNum++;
+                }else{
+                    //详情
+                    if(type==0){
+                        addModule(type,detail.content);
+                    }else if(type==2){
+                        addModule(type,detail.productId+","+detail.imageurl);
+                    }else if(type==3){
+                        detail.address=url;
+                        detail.size = detail.memory;
+                        addModule(type,detail);
+                    }else {
+                        addModule(type,url);
+                    }
+                }
+            });
+        }
+
+        //上传图片
+        $(".file").each(function (i, file) {
+            $(file).takungaeImgup({
+                maxImage: $(file).attr("data-file-maxImage"),
+                needNameInput: false,
+                formData: {
+                    'module': 'consultation'
+                },
+                success: function () {
+//                    generateImg();
+                }
+            });
+        });
+
+        //删除重新生成图片
+        $(".img-section").on("click", function () {
+            generateImg();
+        });
+
+        $(document).on("click","input[name='modelType']", function () {
+            var value = this.value;
+            if(value==0){
+                $("#img-box").hide();
+                $("#img-section1").hide();
+                $("#img-section2").hide();
+                $("#img-section3").hide();
+            }else if(value==1){
+                $("#img-box").show();
+                $("#img-section1").show();
+                $("#img-section2").hide();
+                $("#img-section3").hide();
+            }else{
+                $("#img-box").show();
+                $("#img-section1").show();
+                $("#img-section2").show();
+                $("#img-section3").show();
+            }
+        });
+
+        //保存或者修改
+        $(document).on("click","#saveOrUpdate", function () {
+            var json =checkData();
+            if (!json){
+                return false;
+            }
+            layer.confirm('您确定要提交吗？', {
+                icon: 3,
+                btn: ['确定', '取消'], //按钮
+                btn1: function (index) {
+                    $.ajax({
+                        async: false,
+                        url: "/web/consultation/saveConsultation",
+                        data: {json:json},
+                        type: "POST",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.code == 1) {
+                                layer.alert(data.msg, {icon: 1,title: '提示',closeBtn: 0,btnAlign: 'c'});
+                                setTimeout(function () {
+                                    window.location.href = "/web/consultation/toConsultationListPage?toBack=1";
+                                }, 2000)
+                            } else {
+                                layer.alert(data.msg, {icon: 2,title: '失败',closeBtn: 0,btnAlign: 'c'});
+                            }
+                        }
+                    });
+                    layer.close(index);
+                }
+            });
+        });
+    });
+
+    function generateImg() {
+        var zoomImage = $(".zoom-img");
+        $("input.zoom-img-input").remove();
+        zoomImage.each(function (i, img) {
+            var form = $("#form"),
+                type = $(img).recursiveParentNode("div").attr("data-file-type"),
+                src = $(img).attr("data-img-upload-src"),
+                inputUrl = "<input class='zoom-img-input' type='hidden' name='supplierImageDTOList[" + i + "].url' value=" + src + ">",
+                inputType = "<input data-validate-img-type=" + type + " class='zoom-img-input' type='hidden' name='supplierImageDTOList[" + i + "].type' value=" + type + ">";
+            $(inputUrl).appendTo(form);
+            $(inputType).appendTo(form);
+        })
+    }
+    function clearNoNum(obj) {
+		 obj.value = obj.value.replace(/[^\u4E00-\u9FA5a-zA-Z]/g, "");//清除“汉字”和“英文”以外的字符
+
+	}
+    function changeShow(e){
+        var clazz=$(e).attr("class");
+        if(clazz=="ff_right"){
+            $(e).attr("class","ff_left");
+        }else{
+            $(e).attr("class","ff_right");
+        }
+    }
+    function checkData() {
+        var consultationId = $("#consultationId");
+        var title = $("#title");
+        if(!title.val()){
+            layer.alert("请输入资讯标题", {icon: 2,title: '提示',closeBtn: 0,btnAlign: 'c'});
+            return "";
+        }
+        if(title.val().length>30){
+            layer.alert("资讯标题长度1-30字", {icon: 2,title: '提示',closeBtn: 0,btnAlign: 'c'});
+            return "";
+        }
+        var classifyId = $("#agent_level_div").attr("data-area-position-id-selected");
+        if(!classifyId){
+            layer.alert("请选择资讯分类", {icon: 2,title: '提示',closeBtn: 0,btnAlign: 'c'});
+            return "";
+        }
+        var isShow = $("#isShow");
+        if(isShow.hasClass("ff_right")){
+            isShow=0;
+        }else{
+            isShow=1;
+        }
+        var modelType = $("input[name='modelType']:checked");
+        var json =JSON.parse("{}");
+        json.consultationId = consultationId.val();
+        json.title = title.val();
+        json.classifyId = classifyId;
+        json.isShow = isShow;
+        json.modelType = modelType.val();
+        json.covers=[];
+        if(!modelType.val()){
+            layer.alert("请选择封面主题", {icon: 2,title: '提示',closeBtn: 0,btnAlign: 'c'});
+            return "";
+        }else if(modelType.val()==1){
+            var upImg1 = $("#img-section1").find(".up-section");
+            if(upImg1.length<=0){
+                layer.alert("请添加第一张封面图", {icon: 2,title: '提示',closeBtn: 0,btnAlign: 'c'});
+                return "";
+            }
+            var imgUrl1=upImg1.find(".up-img.zoom-img").attr("data-img-upload-src");
+            json.covers.push(imgUrl1);
+        }else if(modelType.val()==2){
+            var upImg1 = $("#img-section1").find(".up-section");
+            if(upImg1.length<=0){
+                layer.alert("请添加第一张封面图", {icon: 2,title: '提示',closeBtn: 0,btnAlign: 'c'});
+                return "";
+            }
+            var imgUrl1=upImg1.find(".up-img.zoom-img").attr("data-img-upload-src");
+            json.covers.push(imgUrl1);
+            var upImg2 = $("#img-section2").find(".up-section");
+            if(upImg2.length<=0){
+                layer.alert("请添加第二张封面图", {icon: 2,title: '提示',closeBtn: 0,btnAlign: 'c'});
+                return "";
+            }
+            var imgUrl2=upImg2.find(".up-img.zoom-img").attr("data-img-upload-src");
+            json.covers.push(imgUrl2);
+            var upImg3 = $("#img-section3").find(".up-section");
+            if(upImg3.length<=0){
+                layer.alert("请添加第三张封面图", {icon: 2,title: '提示',closeBtn: 0,btnAlign: 'c'});
+                return "";
+            }
+            var imgUrl3=upImg3.find(".up-img.zoom-img").attr("data-img-upload-src");
+            json.covers.push(imgUrl3);
+        }
+        var module_text = $(".module.m-text");
+        if(module_text.length<=0){
+            layer.alert("正文中至少包含一段文字", {icon: 2,title: '提示',closeBtn: 0,btnAlign: 'c'});
+            return "";
+        }
+        var module = $(".module");
+        json.module=[];
+        $.each(module,function(index){
+            var _this = $(this);
+            var type=0;
+            json.module[index]={};
+            if(_this.hasClass("m-text")){
+                json.module[index].sort=_this.attr("id");
+                json.module[index].type="0";
+                json.module[index].detail=_this.find(".text-html").text();
+            }else if(_this.hasClass("m-image")){
+                json.module[index].sort=_this.attr("id");
+                json.module[index].type="1";
+                json.module[index].detail=_this.find("img").attr("src");
+            }else if(_this.hasClass("m-product")){
+                json.module[index].sort=_this.attr("id");
+                json.module[index].type="2";
+                json.module[index].detail=_this.find("img").attr("alt");
+            }else if(_this.hasClass("m-voice")){
+                json.module[index].sort=_this.attr("id");
+                json.module[index].type="3";
+                json.module[index].detail=_this.find(".audio-title").text();
+            }else{
+                json.module[index].sort=_this.attr("id");
+                json.module[index].type="4";
+                json.module[index].detail=_this.find("video").attr("src");
+            }
+        });
+        return JSON.stringify(json);
+    }
+</script>
+</body>
+</html>
+

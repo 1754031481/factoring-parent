@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>库存申请记录详情</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <link rel="stylesheet" th:href="@{/static/js/page/pager.css}"/>
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <script TYPE="text/javascript" th:src="@{/static/js/plugins/My97DatePicker/WdatePicker.js}"></script>
+</head>
+<body>
+<div class="MainContent">
+    <div class="current">当前位置：<a href="#">商品管理>商品列表</a></div>
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>库存列表</h2>
+            <div class="ph_snbBtn">
+                <form id="c_upload" accept="multipart/form-data" method="post">
+                    <input class="addExcel" type="button" value="导入">
+                    <input type="file" id="file_input" name="file" class="file_input" style="display: none">
+                    <!--<input type="submit" id="file_up" style="display: none">-->
+                </form>
+            </div>
+        </div>
+        <!--end 标题-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="example" width="100% ">
+                <thead>
+                <tr role="row">
+                    <th>商品名称</th>
+                    <th>规格</th>
+                    <th>旧库存</th>
+                    <th>盘点库存</th>
+                    <th>差值</th>
+                    <th>导入时间</th>
+                    <th>备注</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <div style="text-align: right;">
+                <ul class="pagination" id="page1"></ul>
+                <div class="pageJump">
+                    <!--<span>跳转到</span>
+                    <input type="text"/>
+                    <span>页</span>
+                    <button type="button" class="button">确定</button>-->
+                    <span>当前显示 <i id="start">0</i> 到 <i id="end">0</i> 条数据</span>
+                    <span>共 <span id="total">0</span> 条数据</span>
+                </div>
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <input type="button" th:onclick="'addExcelaa();'" value="提交" style="margin-right:20px;">
+            <input type="button" th:onclick="'cancel();'" value="取消">
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/page/pager.js}"></script>
+
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    var tb;
+    function query() {
+        tb.draw();
+    }
+    $('.ph_snbBtn').on('click', '.addExcel', function () {
+        var fileForm = document.getElementById("c_upload"); //获取表单对象
+        fileForm.reset();// 重置表单
+        $("#file_input").click();
+    });
+    $("#file_input").change(function () {
+        var form = document.getElementById('c_upload'),
+                formData = new FormData(form);
+        // for IE, Opera, Safari, Chrome
+
+        $.ajax({
+            url: "/web/product/addDate",
+            type: "post",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (typeof res == "string") {
+                    res = JSON.parse(res)
+                }
+                if (res.code == 200) {
+                    var dataXls = res.data;
+                    sessionStorage.setItem("dataXls", JSON.stringify(dataXls));
+                    renderTable(1, 10)
+                    var end = 10;
+                    if (end > res.data.length) {
+                        end = res.data.length;
+                    }
+                    $("#start").html(1);
+                    $("#end").html(end);
+                    /* 分页 */
+                    $("#total").html(res.data.length)
+                    console.log(res.data.length)
+                    var len = res.data.length;
+                    if (len == 0) {
+                        layer.alert("数据无更改", {icon:1, closeBtn : 0});
+                    } else {
+                        layer.alert(res.message, {icon:1, closeBtn : 0});
+                        Page({
+                            num: Math.ceil(res.data.length / 10),
+                            elem: $('#page1'),
+                            callback: function (n) {
+                                end = n * 10
+                                if (end > res.data.length) {
+                                    end = res.data.length;
+                                }
+                                $("#start").html(((n - 1) * 10) + 1);
+                                $("#end").html(end);
+                                renderTable(n, 10)
+                            }
+                        });
+                    }
+                } else {
+                    layer.alert(res.message, {icon: 2,btnAlign: 'c', closeBtn : 0});
+                }
+            },
+            error: function (err) {
+                alert("网络连接失败,稍后重试", err);
+            }
+
+        })
+        /*时间格式化*/
+        function timestampToTime(timestamp) {
+            var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+            Y = date.getFullYear() + '-';
+            M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+            D = date.getDate() + ' ';
+            h = date.getHours() + ':';
+            m = date.getMinutes() + ':';
+            s = date.getSeconds();
+            return Y + M + D + h + m + s;
+        }
+
+        /*  渲染表格 */
+        function renderTable(page, size) {
+            var start = (page - 1) * size, end = page * size;
+            var dataStr = sessionStorage.getItem("dataXls");
+            var dataArr = JSON.parse(dataStr);
+            if (dataArr.length < end) {
+                end = dataArr.length;
+            }
+            var conStr = "";
+            for (var i = start; i < end; i++) {
+                var data = dataArr[i];
+                conStr += '<tr>' +
+                        '<td>' + data.productName + '</td>' +
+                        '<td>' + data.productSpecificationName + '</td>' +
+                        '<td>' + data.oldRepertory + '</td>' +
+                        '<td>' + data.checkRepertory + '</td>' +
+                        '<td>' + data.difValue + '</td>' +
+                        '<td>' + timestampToTime(data.dateTime) + '</td>' +
+                        '<td>' + data.remark + '</td>' +
+                        '</tr>'
+            }
+            $("#example tbody").html(conStr);
+        }
+
+        //$("#file_up").click()
+    })
+    function cancel() {
+        layer.confirm('确定取消?',{
+            icon: 3,
+            btn: ['确定', '返回'],
+            btnAlign: 'c',
+            closeBtn : 0,
+            btn1: function(){
+                sessionStorage.removeItem("dataXls");
+                location.href="/web/repertory/toRepertoryList";
+            },
+            btn2: function(index){
+                layer.close(index);
+            }
+        });
+    }
+
+    function addExcelaa(){
+        var dataStr = sessionStorage.getItem("dataXls");
+        $.ajax({
+            url:"/web/repertory/addRepertoryApply",
+            data:{repertoryApplyDetailJSON:dataStr},
+            type:"post",
+            success:function (data) {
+                if(data.success){
+                    sessionStorage.removeItem("dataXls");
+                    layer.alert(data.message, {icon:1, closeBtn : 0},function () {
+                        window.location.href="/web/repertory/toRepertoryList";
+                    })
+                }else{
+                    console.log("**************"+data.message);
+                    layer.alert(data.message, {icon: 2,btnAlign: 'c', closeBtn : 0});
+                }
+            }
+        })
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>结算信息</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">订单结算</a>&nbsp;&gt;&nbsp;<span>结算详情</span></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit no_border">
+            <h2>线上订单结算详情</h2>
+        </div>
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList product">
+                <thead>
+                <tr>
+
+                    <th>商品名称</th>
+                    <th>商品类型</th>
+                    <th>商品规格</th>
+                    <th>数量</th>
+                    <th>单价</th>
+                    <th>总价</th>
+                    <th>物流配送费</th>
+                    <th>店铺服务费</th>
+                    <th class="qijian">旗舰店管理费</th>
+                    <th>一级分享费</th>
+                    <th>二级分享费用</th>
+                    <th>三级分享费用</th>
+                    <th>创作分享费</th>
+                    <th>旗舰店专员管理费</th>
+                    <th>卫星店专员管理费</th>
+                    <th >售后服务费</th>
+                    <th>平台收入</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="prod,iterStat:${prodlist}" >
+
+
+                    <td th:text="${prod.productName}" th:title="${prod.productName}"></td>
+
+                    <!--<td th:text="${prod.PType==0?'专卖商品'：'本地商品'}"></td>--><!--商品类型-->
+                    <td >
+                        <span th:if="${prod.PType eq 0}" id="mechants" th:title="专卖商品">专卖商品</span>
+                        <span th:if="${prod.PType eq 1}"  th:title="本地商品">本地商品</span>
+                    </td>
+                    <td th:text="${prod.productSpecificationName}" th:title="${prod.productSpecificationName}"></td><!--商品规格-->
+                    <td th:text="${prod.num}"  th:title="${prod.num}"></td>
+                    <td th:text="${prod.productSalePrice}" th:title="${prod.productSalePrice}"></td>
+                    <td th:text="${prod.totalPriceD}" th:title="${prod.totalPriceD}"></td>
+
+                    <!--<td th:text="${prod.totalPrice}"></td>-->
+                    <td th:text="${prod.freightFee}"  th:title="${prod.freightFee}"></td>
+
+                    <td th:text="${prod.recommendHunterFen}" th:title="${prod.recommendHunterFen}"></td>
+                    <td th:text="${prod.flagShipFee}" th:title="${prod.flagShipFee}"></td>
+
+                    <td th:text="${prod.oneLevelShareFee}" th:title="${prod.oneLevelShareFee}"></td>
+                    <td th:text="${prod.twoLevelShareFee}" th:title="${prod.twoLevelShareFee}"></td>
+                    <td th:text="${prod.threeLevelShareFee}" th:title="${prod.threeLevelShareFee}"></td>
+
+                    <td th:text="${prod.createShareFee}" th:title="${prod.createShareFee}"></td>
+
+                    <td th:text="${prod.flagShipHunterFee}"  th:title="${prod.flagShipHunterFee}"></td>
+                    <td th:text="${prod.satelliteShopHunterFee}"  th:title="${prod.satelliteShopHunterFee}"></td>
+
+                    <!--<td th:text="${prod.shareFee}"></td>-->
+
+                    <td th:text="${prod.afterServiceFee}" th:title="${prod.afterServiceFee}"></td>
+                    <td th:text="${prod.industryFen}"  th:title="${prod.industryFen}"></td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--返回按钮-->
+        <div class="PopupBtn">
+            <input name="" type="button" value="返回" th:onclick="'toPageList();'">
+        </div>
+        <!--end 返回按钮-->
+    </div>
+    <!--end 主体内容-->
+</div>
+<!--<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>-->
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript">
+
+    /*$(function (){
+
+     var userId = $("#userId").val();
+     $.ajax({
+     async: false,
+     url: "/web/orderUnline/findDeatilProductList",
+     data: {userId: userId},
+     type: "GET",
+     cache:false,
+     dataType: "json",
+     success: function (data) {
+     console.log(data.data);
+     if (data.data) {
+     //MenuTree(data.data);
+
+     }
+     /!*layer.alert("当前用户无菜单权限", {
+     icon: 2,
+     title: '失败',
+     closeBtn: 0,
+     btnAlign: 'c'
+     });*!/
+     },
+     error: function (data) {
+     layer.alert("菜单加载异常", {
+     icon: 2,
+     title: '失败',
+     closeBtn: 0,
+     btnAlign: 'c'
+     });
+     }
+     });
+     });*/
+
+    /**
+     * 返回到列表页面
+     */
+    function toPageList() {
+        window.location.href = "/web/onlineSettlementxt/toSettlementPage";
+    }
+</script>
+</body>
+</html>

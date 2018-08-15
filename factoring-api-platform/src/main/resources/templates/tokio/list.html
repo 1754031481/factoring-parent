@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>订单结算</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <style>
+        .myModal{
+            display: none;
+            position: fixed;
+            width:100%;
+            top:0;
+            bottom:0;
+            background: rgba(0,0,0,0.7);
+        }
+        .myModal>form , .myModal > .resInfo{
+            display: none;
+            background: #f9f9f9;
+            width: 300px;
+            padding: 30px 60px;
+            margin:200px auto 0;
+            position:relative;
+        }
+        .myModal .close{
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .myModal .content{
+            margin:25px 0;
+            text-align: center;
+            font-size: 18px;
+        }
+        .myModal>form > div{
+            margin-top:20px;
+        }
+        .myModal>form label{
+            font-size:18px;
+            font-weight: 700;
+        }
+        .myModal>form button{
+            margin:0 20px;
+            font-size: 14px;
+            padding: 0 10px;
+        }
+        .myMoney{
+            margin-left:10px;
+        }
+        #payMoney{
+            width: 160px;
+            height: 28px;
+            border-radius: 5px;
+            border: 1px solid #aaa;
+            padding-left: 10px;
+            margin-left: 10px;
+        }
+        .myModal>form h4 {
+            font-size: 17px;
+            font-weight: normal;
+            margin-left: -20px;
+        }
+    </style>
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <!--<div class="current">当前位置：<a href="#">订单结算</a></div>-->
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>普济一城花呗额度</h2>
+            <div class="ph_snbBtn">
+                <shiro:hasPermission name="orderOnlineExport">
+                   <!-- <input name="" type="button" th:onclick="'exportExcel();'" value="导出">-->
+                </shiro:hasPermission>
+            </div>
+        </div>
+        <!--end 标题-->
+
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <ul style="font-size:16px">
+                <li>
+                    <p style="display: inline-block;width:260px">本月账单 <b style="color:#e4393c;font-weight:700" class="zhangdan" >¥<span id="monthBill">0</span></b></p>
+                    <button style="background: #10c8ef;border:none;border-radius: 6px;color:#fff;padding:5px 20px;" class="goPayMoney">去还款</button>
+                </li>
+                <li style="margin-top:10px">
+                    <p style="display: inline-block;width:260px">可用额度 <b class="kyed"></b>¥<span id="available">0</span></p>
+                    <p style="display: inline-block">未出账单 <b class="wczd"></b>¥<span id="stillPaybackBill">0</span><span style="color: red">&nbsp;&nbsp;（每月5号还款）</span></p>
+                </li>
+            </ul>
+            <table class="ph_wareList" id="example">
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+
+
+
+
+<div class="myModal">
+    <form action="/web/tokio/tokioPayback" method="POST" id="PayForm" target="_blank">
+        <h4 style="display: inline-block">输入金额:</h4><input id="payMoney" type="number" placeholder="请输入金额" value="">
+        <h4 style="margin-top: 15px;">付款方式</h4>
+        <div>
+            <input type="radio" name="payType" id="yuePay" value="0">
+            <label for="yuePay">余额支付: <span class="myMoney"  th:text="${score}">10000</span></label>
+        </div>
+        <div>
+            <input type="radio" name="payType" id="cardPay" value="1">
+            <label for="cardPay">银行卡支付:</label>
+        </div>
+        <div style="text-align:center">
+            <input type="button" class="cancel" value="取消">
+            <input type="button" class="payBtn" th:onclick="'submitPay();'" value="支付">
+        </div>
+        <span class="close">×</span>
+    </form>
+    <div class="resInfo" style="display: none">
+        <h3 class="title">支付失败</h3>
+        <div class="content">请求失败</div>
+        <p style="text-align: right;">
+
+            <a href="javascript:void(0)" style="color:#e4393c;" class="resBtn">再次重试</a>
+        </p>
+        <span class="close">×</span>
+    </div>
+</div>
+<div id="scriptContent" class="content-wrapper clearfix">
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    var monthBill = [[${monthBill}]];
+    var bill = [[${monthBill}]];
+    var available = [[${available}]];
+    var stillPaybackBill = [[${stillPaybackBill}]];
+    $('#monthBill').html(monthBill)
+    $('#available').html(available)
+    $('#stillPaybackBill').html(stillPaybackBill)
+    if(monthBill <= 0){
+        $('.goPayMoney').remove();
+    }
+    var tb;
+    $(function() {
+        $('.ph_wareBox').on('click','.Js_deliver',function(){
+            layer.open({
+                type: 1,
+                title: '订单发货',
+                closeBtn : 0,
+                area: ['442px','280px'],
+                btn:['发货', '取消'],
+                btnAlign: 'c',
+                content: $('#deliverBox')
+            });
+        });
+        //分页
+        tb = $('#example').DataTable({
+            "lengthChange": false,
+            "ordering": false,
+            "searching": false,
+
+            "bServerSide": true,
+             "sPaginationType": "full_numbers",
+             "bJQueryUI": true,
+             "sDom": '<"">t<"F"ip>',
+             "sAjaxSource": "/web/tokio/tokiolist", //ajax调用接口
+             "aoColumnDefs": [{sDefaultContent: '',aTargets: [ '_all' ]}],
+             "aoColumns": [
+             { "sTitle" : "序号","mData": "id","sWidth" : "220px" },
+             { "sTitle" : "订单号","mData": "orderNo","sWidth" : "220px" },
+             { "sTitle" : "下单时间","mData": "createTime","sWidth" : "220px" },
+             { "sTitle" : "收货时间","mData": "receiveTime" ,"sWidth":"160px"},
+             { "sTitle" : "金额","mData": "totalCost" },
+             { "sTitle" : "还款日期","mData": "paybackTime" },
+             { "sTitle" : "账单类型","mData": "billType"  },
+             /*{ "sTitle" : "结算时间","mData": "status" },*/
+             ],
+            "oLanguage" : {
+                "sProcessing" : "数据加载中······",
+                "sLengthMenu" : "显示 _MENU_ 条记录",
+                "sZeroRecords" : "没有您要搜索的内容！",
+                "sEmptyTable" : "列表中无数据存在！",
+                "sInfo" : "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+                "sInfoEmpty" : "显示 0 到 0 条记录",
+                "sInfoFiltered" : "数据列表中共  _MAX_ 条记录",
+                "oPaginate" : {
+                    "sFirst" : "首页",
+                    "sPrevious" : "上一页",
+                    "sNext" : "下一页",
+                    "sLast" : "末页"
+                }
+            },
+            "fnServerData" : function ( sSource, aoData, fnCallback, oSettings ) {
+                oSettings.jqXHR = $.ajax( {
+                    "dataType" 	: 'json',
+                    "type" 		: "POST",
+                    "async"     : 'false',
+                    "url" 		: sSource,
+                    "data" 		: {
+                        'pageNum': (aoData[3].value/aoData[4].value)+1,
+                        'pageSize' :  aoData[4].value,
+                        'id'  :  $.trim($("#id").val()),
+                        'orderNo'  :  $.trim($("#orderNo").val()),
+                        'createTime' : $.trim($('#createTime').val()),
+                        'receiveTime' : $.trim($('#receiveTime').val()),
+                        'totalCost' : $.trim($('#totalCost').val()),
+                        'paybackTime' : $.trim($('#paybackTime').val()),
+                        'billType' : $.trim($('#billType').val())
+                    },
+                    "success"	: fnCallback
+                } );
+            },
+            "fnDrawCallback" : function(){
+                var api = this.api();
+                var startIndex= api.context[0]._iDisplayStart;//获取到本页开始的条数
+                api.column(0).nodes().each(function(cell, i) {
+                    cell.innerHTML = startIndex + i + 1;
+                });
+            }
+        });
+        $('.goPayMoney').on('click',function(){  
+            $('.myModal').show();
+            $('.myModal form').show();
+        })
+        $('.cancel').click(function(){
+            $('.myModal').hide();
+            $('.myModal form').hide();
+            return false;
+        })
+
+        $('.myModal').on('click','.close',function(){
+            $(this).parent().hide();
+            $(this).parents('.myModal').hide();
+        })
+
+    });
+    function alertRes(type,str){
+        $('#PayForm').hide();
+        $('.resInfo').show();
+        $('.resInfo .title').html(str);
+        $('.resInfo .content').html(str);
+        if(type === 0){
+            $('.resInfo .resBtn').html('确定');
+            return true;
+        }else{
+            $('.resInfo .resBtn').html('再次尝试');
+            return false;
+        }
+
+    }
+    function submitPay() {
+        var checkedValue = $('input[name="payType"]:checked').val();
+        if(checkedValue == null){
+
+            layer.alert("请选择支付方式", {icon: 2,btnAlign: 'c', closeBtn : 0});
+            return false;
+             }
+            var monthBill = parseFloat($('#payMoney').val());
+        console.log("****************************"+monthBill)
+            if(monthBill === "" || monthBill <= 0 || isNaN(monthBill)){
+                layer.alert("请输入还款金额", {icon: 2,btnAlign: 'c', closeBtn : 0});
+                return false;
+            }
+            var available = parseFloat($("#available").text());
+            /*if((available - monthBill) < 0){
+                layer.msg("账户余额不足",{icon: 2,btnAlign: 'c', closeBtn : 0});
+                return false;
+            }*/
+            //0 :余额支付 1: 银行卡支付
+            if (checkedValue == 1){
+                window.open("/web/tokio/toecopaycharge?amount="+monthBill);
+            }else{
+                $.ajax({
+                    async:false,
+                    url:"/web/tokio/tokioPayback",
+                    data: {
+                        type:checkedValue,
+                        amount : monthBill,
+                        bill:bill
+                    },
+                    type:"POST",
+                    dataType:"json",
+                    success:function(data){
+                        $('.myModal form').hide();
+                        if(data.success){
+                            //alertRes(0,'支付成功');
+                           // window.location.reload();
+                            //layer.alert(data.message, {icon: 1,btnAlign: 'c', closeBtn : 0});
+                            layer.alert("支付成功", {icon: 1,btnAlign: 'c', closeBtn : 0,btn1:function(index, layero){
+                                window.location.reload();
+                            }});
+                        }else{
+                            layer.alert("支付失败", {icon: 2,btnAlign: 'c', closeBtn : 0,btn2:function(index, layero){
+                                window.location.reload();
+                            }});;
+                        }
+                        $('.resBtn').one('click',function(){
+                            $('.myModal').hide();
+                            $('.myModal .resInfo').hide();
+                            //$('a:contains("普济一城花呗额度")' ,parent.document).onclick();
+                            $('#main_frame',parent.document).load('/web/tokio/list',function(result){
+
+                                $(result).find("script").appendTo('#scriptContent');
+                            });
+                        })
+                    }
+                });
+            }
+
+
+    }
+
+</script>
+</body>
+</html>

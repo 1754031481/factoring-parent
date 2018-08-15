@@ -1,0 +1,568 @@
+<!DOCTYPE html >
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>直播预告列表</title>
+    <link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/base.css}"/>
+    <!--<link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/page.css}"/>-->
+    <link rel="stylesheet" th:href="@{/static/js/page/pager.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/aliplayer-min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/videolist.css}"/>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/treetable/jquery.treeTable.css}">
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+    <link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/plugins/layer/layer.css}"/>
+</head>
+<style>
+    .form-input {
+        height: 25px;
+        font-size: 14px;
+        color: rgb(102, 102, 102);
+        box-sizing: border-box;
+        vertical-align: middle;
+        border-width: 1px;
+        border-style: solid;
+        border-color: rgb(238, 238, 238);
+        border-image: initial;
+        border-radius: 6px;
+    }
+
+    label {
+        color: rgb(85, 85, 85);
+    }
+
+    h3 {
+        color: rgb(85, 85, 85);
+    }
+
+    .tipImg {
+        margin-left: 530px;
+        margin-top: 100px;
+        text-align: center;
+    }
+</style>
+<body>
+
+<div class="MainContent">
+    <div class="section">
+        <div class="current">当前位置：<a href="#">新媒体管理</a>&nbsp;&gt;&nbsp;<span>直播列表</span>
+        </div>
+        <div class="MainCont">
+            <!--标题-->
+            <div class="ph_subTit">
+                <h2>直播列表</h2>
+                <shiro:hasPermission name="liveAdd">
+                    <div class="ph_snbBtn">
+                        <input name="" type="button" onclick="window.location.href='/web/live/toaddlive'"
+                               value="发布直播">
+                    </div>
+                </shiro:hasPermission>
+            </div>
+
+            <shiro:lacksPermissionPermission name="livelist">
+
+                <div class="ph_screen">
+                    <table class="ph_tableBox">
+                        <tr>
+                            <th>直播标题：</th>
+                            <td><input id="video_title" name="title" type="text"></td>
+                            <th>开播时间：</th>
+                            <td><p class="dayBox"><input class="start_rise date start" name="startTime" type="text"
+                                                         id="startTime" style="width: 80%"></td>
+                            <th>直播状态：</th>
+                            <td>
+                                <select class="selectpicker"  id="video_state" name="liveType">
+                                    <option value="">全部</option>
+                                    <option value="3">直播中</option>
+                                    <option value="1">已结束</option>
+                                    <option value="2">已禁播</option>
+                                </select>
+                            </td>
+
+                            <td colspan="2">
+                                <input id="search" type="button" onclick="selectAllLivePreviewBycondition();"
+                                       value="查询">
+                                <input id="reset" type="button" onclick="javascript:reset();" value="重置">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </shiro:lacksPermissionPermission>
+            <style>
+                .play_title {
+                    position: absolute;
+                    top: 10px;
+                    left: 0;
+                    padding: 0 10px;
+                    overflow: hidden;
+                    width: 100%;
+                    z-index: 10;
+                    box-sizing: border-box;
+                }
+
+                .play_title span, .play_end span {
+                    background-color: #fff;
+                    padding: 4px 10px;
+                }
+
+                .play_end {
+                    position: absolute;
+                    top: 45%;
+                    left: 0;
+                    width: 100%;
+                    z-index: 10;
+                    box-sizing: border-box;
+                    text-align: center;
+                }
+
+                .play_end span {
+                    margin: 0 6px;
+                    border-radius: 5px;
+                }
+            </style>
+            <ul class="product_list"></ul>
+
+            <div style="float: left;width: 100%;margin-top: 10px;text-align: right" class="dataTables_info">
+                <ul class="pagination" id="page1" style="vertical-align: middle;"></ul>
+                <span style="font-size: 14px;">
+				当前显示
+				<span style="color: #000" id="start"></span>
+				到
+				<span style="color: #000" id="end">0</span>
+				条数据，共
+				<span style="color: #000" id="total">0</span>
+				条数据
+			</span>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/zepto.min.js}"></script>
+<!--<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/page.js}"></script>-->
+<script type="text/javascript" th:src="@{/static/js/page/pager.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!-- 验证 -->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--视频-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/aliplayer-min.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    function getLocalTime(nS) {
+        var tt = new Date(nS).toLocaleString();
+        return tt;
+    }
+
+    $(document).on('click', '.btn', function () {
+        /*var that=$(this);
+         var type=$(this).attr('type');
+         $.each($('.prism-player'),function(index,item){
+         if(ite[index].liveType==2 && type == index) {
+         if(ite[index].end==1 && type == index){
+         alert("直播已结束");
+         }else {
+         that.css({'display': 'none'});
+         that.parent().css({'display': 'none'})
+         that.parent().prev().css({'display': 'none'})
+         var id = $(item).attr('id');
+         var player = new Aliplayer({
+         id: id,
+         width: '100%',
+         autoplay: true,
+         //支持播放地址播放,此播放优先级最高
+         source: ite[index].videoUrl
+         //                      source : 'rtmp://live.hkstv.hk.lxdns.com/live/hks',
+         //                      source : 'rtmp://16975.liveplay.myqcloud.com/live/16975_f63b40f4ad3c43cb8654b75e62e19498'
+         }, function (player) {
+         console.log('播放器创建好了。')
+         player.play();
+         });
+         }
+         }else if(ite[index].liveType==0 && type == index){
+         alert("直播未开始");
+         }
+         })*/
+    })
+    var player
+    $(document).on('click', '.play_icon', function () {
+        var url = $(this).attr("data-url");
+        var id = $(this).parent().prev().attr("id");
+        $(this).parent().prev().css({"z-index": "100"})
+        player = new Aliplayer({
+            id: id,
+            width: '100%',
+            autoplay: true,
+            isLive:true,
+            //支持播放地址播放,此播放优先级最高
+            source: url
+//                    source : 'rtmp://live.hkstv.hk.lxdns.com/live/hks'
+        }, function (player) {
+            console.log('播放器创建好了。')
+            player.play();
+        });
+    })
+  /*  $(document).on('click', '.state input', function () {
+        var t = $(this).parent();
+        var url, liveId = $(this).attr('liveid'), liveType = $(this).attr('livetype'), end = $(this).attr('end');
+        $.post("startLivePreview", {liveId: liveId}, function (data) {
+            data = JSON.parse(data).data;
+            var url = data;
+            layer.open({
+                id: 1,
+                type: 1,
+                title: '开启直播',
+                skin: 'layui-layer-rim',
+                area: ['450px', 'auto'],
+
+                content: ' <div class="row" style="width: 420px;  margin-left:7px; margin-top:10px;">'
+                + '<div class="col-sm-12">'
+                + '<div class="input-group">'
+                + '<span class="input-group-addon">直播链接：</span>'
+                + '<input id="firstpwd" type="text" style="width: 100%;" class="form-control" value="' + url + '">'
+                + '</div>'
+                + '</div>'
+                + '</div>'
+                ,
+                btn: ['开启', '取消'],
+                btn1: function (index, layero) {
+                    var id = t.parent().parent().prev().children().children("b").attr("id");
+                    t.parent().parent().prev().children().children(".play_icon").css({'display': 'none'});
+                    t.parent().parent().prev().children().children(".bac").css({'display': 'none'});
+                    console.log(t.parent());
+                    var player = new Aliplayer({
+                        id: id,
+                        width: '100%',
+                        autoplay: true,
+                        //支持播放地址播放,此播放优先级最高
+                        source: url
+//                    source : 'rtmp://live.hkstv.hk.lxdns.com/live/hks'
+                    }, function (player) {
+                        console.log('播放器创建好了。')
+                        player.play();
+                    });
+                    layer.close(index);
+                    t.parent().html("直播中");
+                    $.get('updateLiveTypeById', {liveId: liveId}, function () {
+                    }, 'json');
+                },
+                btn2: function (index, layero) {
+                    layer.close(index);
+                }
+            });
+        })
+    })*/
+
+    /*跳转编辑预告页面*/
+    function toupdateNotice(liveId) {
+        location.href = "/web/live/toupdatelive?roomId=" + liveId;
+    }
+
+    function flushHtml(current,total) {
+        var pageNum = 1;
+        console.log("===========current="+current);
+        if (current) {
+            pageNum = current;
+        }
+        var start=(pageNum-1)*6+1;
+        var end=start+5;
+        if(end>total){
+            end=total;
+        }
+        console.log("===============total="+total);
+        console.log("==============end="+end);
+        var startType = $("[name='liveType']").val();
+        var startTime = $("[name='startTime']").val();
+        var title = $("[name='title']").val();
+        $.get(
+                "/web/live/getlivelist",
+                {
+                    pageSize: 6,
+                    pageNum: pageNum,
+                    isBan: startType,
+                    startTime: startTime,
+                    title: title
+                },
+                function (data) {
+                    console.log(data)
+                    selectByCondition(data.data);
+                }, 'json'
+        );
+
+        $('#start').text(start);
+        $('#end').text(end);
+    }
+    var ite;
+    function selectByCondition(data) {
+        /*var start = data.startRow;
+         var end = data.endRow;
+         var total = data.total;
+         data=data.list;*/
+        ite = data;
+        var content = '';
+        if (data.length > 0) {
+            for (var i in data) {
+                content += '<li class="product_item"><div class="productWrap">'
+                content += '<div class="play_title">'
+                content += '<span style="float:left">房间号：' + data[i].room_id + '</span>'
+                if(data[i].is_ban==0){
+                    content += '<span style="float:right">直播中</span></div>'
+                }else if(data[i].is_ban==1){
+                    content += '<span style="float:right">已结束</span></div>'
+                }else if(data[i].is_ban==2){
+                    content += '<span style="float:right">已禁播</span></div>'
+                }
+                //直播已结束需显示
+                if (data[i].is_ban == 1) {
+                    content += '<div class="play_end">'
+                    content += '<span>最高在线人数'+data[i].online+'人</span> </div>'
+                    content += '<div  class="prism-player" id="J_prismPlayer' + i + '" style="position: absolute;width;100%;height:100%;left:0;bottom:0"></div><a href="javascript:void(0)"><b id="video' + i + '" class="prism-player"></b><img onclick="toupdateNotice(' + data[i].room_id + ')" src="/static/images/edit.png" class="edit" style="width: 40px;height: 40px"/><img onclick="todeleteNotice(' + data[i].room_id + ')" src="/static/images/delete.png" class="dele" style="width: 40px;height: 40px"/><img class="bac" src="' + data[i].img_url + '"><span class="play_icon" data-url="' + data[i].rtmp_play_address + '"></span></a></div>';
+                } else {
+                    content += '<div  class="prism-player" id="J_prismPlayer' + i + '" style="position: absolute;width;100%;height:100%;left:0;bottom:0"></div><a href="javascript:void(0)"><b id="video' + i + '" class="prism-player"></b><img onclick="toupdateNotice(' + data[i].room_id + ')" src="/static/images/edit.png" class="edit" style="width: 40px;height: 40px"/><img onclick="todeleteNotice(' + data[i].room_id + ')" src="/static/images/delete.png" class="dele" style="width: 40px;height: 40px"/><img class="bac" src="' + data[i].img_url + '"><span class="play_icon" data-url="' + data[i].rtmp_play_address + '"><img src="/static/images/play.png" class="btn" type="' + i + '"></span></a></div>';
+                }
+                content += '<div class="product_info"><div style="overflow: hidden"><h3 class="pro_name" style="margin: auto;font-size: 13px; width:95px;verflow: hidden; text-overflow:ellipsis; white-space: nowrap;" title="'+ data[i].title+'" >标题:' + data[i].title + '</h3><p class="clearfix">';
+                if(null==data[i].start_time || data[i].is_ban == 1){
+                    content += '<span class="start_time rt" style="font-size: 13px;">开播时间:暂无</span></p></div>';
+                }else{
+                    content += '<span class="start_time rt" style="font-size: 13px">开播时间:' +(data[i].start_time) + '</span></p></div>';
+                }
+
+
+                if (data[i].topstatus == 1) {
+                    content += '<div  class="clearfix live_handle" style="margin-top:10px"><button style="float: left" id="settop" value="1" onclick="ontop(' + data[i].room_id + ',this.value)">置顶</button>';
+                } else if (data[i].topstatus == 0) {
+                    content += '<div  class="clearfix live_handle" style="margin-top:10px"><button style="float: left" id="outtop" value="1" onclick="outtop(' + data[i].room_id + ',this.value)">取消置顶</button>';
+                }
+                if (data[i].is_ban == 2) {
+                    content += '<button style="float:right" value="1" onclick="recover(' + data[i].room_id + ',this.value)">恢复</button></div>';
+                } else if (data[i].is_ban != 2) {
+                    content += '<button style="float:right" value="0" onclick="recover(' + data[i].room_id + ',this.value)" >禁播</button></div>';
+                }
+
+                content += '<input type="hidden" value="' + data[i].liveType + '"></div></li>';
+            }
+        } else {
+            content += '<div class="tipImg"><img src="/static/images/non.png" ><p class="tipNon">暂无数据</p></div>';
+        }
+        $('.product_list').html(content);
+
+    }
+
+    //恢复,禁播直播操作
+    function recover(id, val) {
+        var titles;
+        layer.confirm('确定此操作吗？', {
+            title: titles,
+            icon: 3,
+            btnAlign: 'c',
+            closeBtn: 0
+        }, function (index) {
+            $.ajax({
+                async: false,
+                url: "/web/live/recoverorbanLive",
+                data: {
+                    roomId: id,
+                    type: val
+                },
+                type: "post",
+                dataType: "json",
+                success: function (data) {
+                    if (data.success) {
+                        //layer.alert('操作成功', {icon: 1,btnAlign: 'c', closeBtn : 0});
+                        location.reload();
+                    } else {
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                        return false;
+                    }
+                }
+            });
+            layer.close(index);
+        });
+    }
+
+
+    //取消置顶操作
+    function outtop(id, val) {
+        var titles;
+        layer.confirm('确定此操作吗？', {
+            title: titles,
+            icon: 3,
+            btnAlign: 'c',
+            closeBtn: 0
+        }, function (index) {
+            $.ajax({
+                async: false,
+                url: "/web/live/outtop",
+                data: {
+                    roomId: id,
+                },
+                type: "post",
+                dataType: "json",
+                success: function (data) {
+                    if (data.success) {
+                        //layer.alert('操作成功', {icon: 1,btnAlign: 'c', closeBtn : 0});
+                        location.reload();
+                    } else {
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                        return false;
+                    }
+                }
+            });
+            layer.close(index);
+        });
+    }
+
+    //置顶操作
+    function ontop(id, val) {
+        var titles;
+        layer.confirm('确定此操作吗？', {
+            title: titles,
+            icon: 3,
+            btnAlign: 'c',
+            closeBtn: 0
+        }, function (index) {
+            $.ajax({
+                async: false,
+                url: "/web/live/settop",
+                data: {
+                    roomId: id
+                },
+                type: "post",
+                dataType: "json",
+                success: function (data) {
+                    if (data.success) {
+                        //layer.alert('操作成功', {icon: 1,btnAlign: 'c', closeBtn : 0});
+                        location.reload();
+                    } else {
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                        return false;
+                    }
+                }
+            });
+            layer.close(index);
+        });
+    }
+
+
+    /*文档就绪函数,在加载页面之前获取直播预告列表*/
+    $(function () {
+        $.get(
+                "/web/live/getlivelist",
+                {
+                    pageSize: 6,
+                    pageNum: 1,
+                    startTime: '',
+                    title: '',
+                    isBan: ''
+                },
+                function (data) {
+                    var total = data.code;
+                    console.log("===============data.code="+total);
+                    $('#total').text(total);
+                    /*分页*/
+                    Page({
+                        num: Math.ceil(total/6),
+                        elem: $('#page1'),
+                        callback: function (n) {
+                            flushHtml(n,total);
+                        }
+                    });
+                    flushHtml(1,total);
+                }
+        );
+    });
+
+
+    /*逻辑删除直播间*/
+    function todeleteNotice(id) {
+        var titles;
+        layer.confirm('确定删除吗？', {
+            title: titles,
+            icon: 3,
+            btnAlign: 'c',
+            closeBtn: 0
+        }, function (index) {
+            $.ajax({
+                async: false,
+                url: "/web/live/deletelive",
+                data: {
+                    roomId: id
+                },
+                type: "post",
+                dataType: "json",
+                success: function (data) {
+                    if (data.success) {
+                        //layer.alert('操作成功', {icon: 1,btnAlign: 'c', closeBtn : 0});
+                        location.reload();
+                    } else {
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                        return false;
+                    }
+                }
+            });
+            layer.close(index);
+        });
+    }
+
+
+
+    function reset() {
+        $("#video_title").val("");
+        $("#promulgator").val("");
+        $("#startTime").val("");
+        $("#video_state").selectpicker('val','');
+    }
+
+    /*根据条件查询*/
+    function selectAllLivePreviewBycondition() {
+        var startType = $("[name='liveType']").val();
+        var startTime = $("[name='startTime']").val();
+        var title = $("[name='title']").val();
+        $('.product_list').empty();
+        $.get(
+                "/web/live/getlivelist",
+                {
+                    pageSize: 6,
+                    pageNum: 1,
+                    isBan: startType,
+                    startTime: startTime,
+                    title: title
+                }, function (data) {
+                    var total = data.code;
+
+                    $('#total').text(total);
+                    /*分页*/
+                    Page({
+                        num: Math.ceil(total/6),
+                        elem: $('#page1'),
+                        callback: function (n) {
+                            flushHtml(n,total);
+                        }
+                    });
+                    flushHtml(1,total);
+                }, 'json'
+        )
+    }
+</script>
+</html>

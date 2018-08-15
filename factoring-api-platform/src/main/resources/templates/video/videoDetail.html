@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>普济一城商城后台系统</title>
+    <head th:include="header::header"></head>
+    <!-- bootstrap-select  css文件 -->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/consultation/product_list.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/page/pager.css}"/>
+    <!--图片点击放大 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}">
+    <link rel="stylesheet" href="//g.alicdn.com/de/prismplayer/2.6.0/skins/default/aliplayer-min.css" />
+    <script type="text/javascript" src="//g.alicdn.com/de/prismplayer/2.6.0/aliplayer-min.js"></script>
+    <style>
+        .product_item{
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid lightgray;
+            padding-left: 50px;
+        }
+        .ping_btn button{
+            padding: 0px;
+            margin-left: 20px;
+            background: #fafafa;
+        }
+        .info_right{
+            margin-left: 30px;
+            font-size: 14px;
+        }
+        .info_right span{
+            line-height: 30px;
+        }
+        .box {
+            width: 80%;
+            height: 450px;
+            margin:0 auto;
+        }
+    </style>
+</head>
+<body>
+<div class="MainContent">
+    <div class="current">当前位置：<a href="javascript:void(0);" alt="">新媒体管理 &gt;</a><a href="javascript:void(0);" alt="">视频管理&gt;</a><span>视频详情</span></div>
+    <div>
+        <span>新媒体管理 - 视频管理</span>
+        <div style="width: 80%;height: 530px;margin:0 auto;">
+            <input type="hidden" th:value="${video.id}" id="vId">
+            <div class="box">
+                <div class="prism-player" id="J_prismPlayer1"></div>
+            </div>
+            <!--<video style="width: 95%;height: 85%" controls='controls' th:src="${video.address}"></video>-->
+            <input class="video_url" type="hidden" th:value="${video.address}" />
+            <div>
+                <h3 th:text="${video.name}"></h3><br />
+                发布于：&nbsp;<span th:text="${video.createdTime}"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                浏览量：&nbsp;<span th:text="${video.views}"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                点赞量：&nbsp;<span th:text="${video.fabulousNum}"/>
+            </div>
+        </div>
+        <div style="width: 80%;height: 400px;margin:0 auto; margin-top: 50px">
+            全部评论 <span style="color: red; font-weight: bold" id="commentNum">0</span>
+            <hr />
+            <ul id="commentList" name="commentList" class="product_list"></ul>
+            <div style="float: left;width: 100%;margin-top: 10px;text-align: right" class="dataTables_info">
+                <ul class="pagination" id="page1" style="vertical-align: middle;"></ul>
+                <span style="font-size: 14px;">
+				当前显示
+				<span style="color: #000" id="start"></span>
+				到
+				<span style="color: #000" id="end">0</span>
+				条数据，共
+				<span style="color: #000" id="total">0</span>
+				条数据
+			</span>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end 遮罩层-->
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript"   th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/page/pager.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript">
+    $(function () {
+        var video_url=$('.video_url').val();
+        console.log(video_url);
+        //初始化播放器
+        var player = new Aliplayer({
+            id: "J_prismPlayer1",
+            autoplay: true,//加载完毕是否自动播放
+            isLive:false,//是否为直播
+            playsinline:true,
+            width:"100%",
+            height:"100%",
+//      controlBarVisibility:"always",//控制条是否始终显示
+            useH5Prism:true,
+            useFlashPrism:false,
+            source:video_url,
+            cover:"img/a_bigpic.png" //封面图
+        },function(player){
+            console.log('播放器创建好了。')
+        });
+        var vId = $("#vId").val();
+        $.post(
+            "/web/video/getVideoComments",
+            {
+                pageSize: 10,
+                pageNum: 1,
+                vId:vId
+            },
+            function (data) {
+                var total = data.code;
+                $('#total').text(total);
+                $('#commentNum').text(total);
+                Page({
+                    num: Math.ceil(total/10),
+                    elem: $('#page1'),
+                    callback: function (n) {
+                        getList(n,total);
+                    }
+                });
+                loadHtml(data.data,1);
+            },
+            'json'
+        );
+    })
+    function loadHtml(current,code) {
+        //处理分页信息
+        pageNum = code;
+        var start=(pageNum-1)*10+1;
+        var end=start+current.length-1;
+        if (code == 0){
+            start = 0;
+            end = 0;
+        }
+        var content="";
+        for (var i=0 ; i<current.length; i++){
+            content += '<li class="product_item">';
+            content += '<span class="info_left">';
+            console.log(">>>>>>>>>>>>>>>>:"+current[i].mImg);
+                if(current[i].mImg == ''){
+                    content += '<span class="ping_left"><img style="width: 50px;height: 50px;border-radius:2em;" src="/static/images/himg.png" /></span>';
+                } else {
+                    content += '<span class="ping_left"><img style="width: 50px;height: 50px;border-radius:2em;" src="'+current[i].mImg+'"/></span>';
+                }
+            content +='</span>';
+            content += '<span class="info_right">';
+            content += '<span class="ping_left">'+current[i].nickName+'&nbsp;&nbsp;:&nbsp;&nbsp;'+current[i].content+'</span></br>';
+            if (current[i].sComments .length > 0){
+                for (var j=0 ; j<current[i].sComments .length ; j++){
+                    content += '<span class="ping_right">回复'+current[i].sComments[j].nickName+'：'+current[i].sComments[j].content+'</span></br>';
+                }
+            }
+
+            content += '<span>'+current[i].createdTime+'</span>';
+            content += '<span class="ping_btn" >';
+            if (current[i].isHidden == 0){
+                content += '<span><button type="button" onclick="hideComment('+current[i].id+',this)" value="1">隐藏</button></span>';
+            } else {
+                content += '<span><button type="button" onclick="hideComment('+current[i].id+',this)" value="2">恢复</button></span>';
+            }
+            if(current[i].isDelete != 0){
+                content += '<span><button onclick="deleteComment('+current[i].id+')">删除</button></span>';
+            }
+            content += '</li>';
+        }
+        $('.product_list').html(content);
+        $('#start').text(start);
+        $('#end').text(end);
+    }
+    function getList(n,total){
+        var vId = $("#vId").val();
+        $.post(
+            "/web/video/getVideoComments",
+            {
+                pageSize: 10,
+                pageNum: n,
+                vId:vId
+            },
+            function (data) {
+                var total = data.code;
+                $('#total').text(total);
+                loadHtml(data.data,n);
+            },
+            'json'
+        );
+    }
+    /*删除评论*/
+    function deleteComment(id) {
+        $.post(
+            "/web/videoComment/deleteVideoComment",
+            {
+                cId:id
+            },
+            function (data) {
+                if (data.success) {
+                    layer.alert('操作成功', {icon: 1,btnAlign: 'c', closeBtn : 0},function () {
+                        location.reload();
+                    });
+                } else {
+                    layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                    return false;
+                }
+            },
+            "json"
+        )
+    }
+    
+    function hideComment(id,e) {
+        var flag=$(e).attr('value');
+        if (flag == 1){
+            //隐藏
+            $.post(
+                "/web/videoComment/hideVideoComment",
+                {
+                    cId:id
+                },
+                function (data) {
+                    if (data.success) {
+                        $(e).html("恢复");
+                        $(e).attr('value','2');
+                        layer.alert('操作成功', {icon: 1,btnAlign: 'c', closeBtn : 0});
+                    } else {
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                        return false;
+                    }
+                },
+                "json"
+            )
+        }
+        if (flag ==2){
+            //恢复
+            $.post(
+                "/web/videoComment/showVideoComment",
+                {
+                    cId:id
+                },
+                function (data) {
+                    if (data.success) {
+                        $(e).html("隐藏");
+                        $(e).attr('value','1');
+                        layer.alert('操作成功', {icon: 1,btnAlign: 'c', closeBtn : 0});
+                    } else {
+                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                        return false;
+                    }
+                },
+                "json"
+            )
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,505 @@
+<!DOCTYPE html >
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>资讯审核</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+    <!--文件树插件 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/ztree/zTreeStyle.css}">
+
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">审核管理</a>&nbsp;&gt;&nbsp;<span>分享审核</span></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>分享审核</h2>
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <form id="queryForm">
+            <div class="ph_screen">
+                <shiro:hasPermission name="consultationQuery">
+                    <table class="ph_tableBox">
+                        <tr>
+                            <th>账号：</th>
+                            <td><input name="phone" id="phone" type="text"></td>
+                            <th>来源：</th>
+                            <td>
+                                <select class="selectpicker" data-live-search="true" name="source"
+                                        id="source">
+                                    <option value="">全部</option>
+                                    <option value="0">普通专员</option>
+                                    <option value="1">驻店专员</option>
+                                </select>
+                            </td>
+                            <th>审核状态：</th>
+                            <td>
+                                <select class="selectpicker" data-live-search="true" name="status" id="status">
+                                    <option value="">全部</option>
+                                    <option value="1">待审核</option>
+                                    <option value="2">已通过</option>
+                                    <option value="3">已驳回</option>
+                                    <option value="4">不显示</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>发布时间：</th>
+                            <td colspan="2">
+                                <p class="dayBox">
+                                    <input class="start_rise date start" name="starTime" id="starTime" type="text">&nbsp;-&nbsp;
+                                    <input class="start_rise date end" name="endTime" id="endTime" type="text">
+                                </p>
+                            </td>
+                            <td colspan="3">
+                                <input name="" th:onclick="'query();'" type="button" value="查询">
+                                <input name="" th:onclick="'resetForm();'" type="button" value="重置">
+                            </td>
+                        </tr>
+                    </table>
+                </shiro:hasPermission>
+            </div>
+        </form>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="example">
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+<!--驳回弹窗-->
+<div class="PopupBox" id="deliverBox">
+    <!--内容-->
+    <div class="PopupCon">
+        <div class="ph_subPoCon ph_screen">
+            <form id="conBackForm">
+                <table class="ph_tableBox">
+                    <input id="id" name="id" type="hidden">
+                    <tr>
+                        <th><span class="require">*</span>驳回原因：</th>
+                        <td><textarea style="height:50px;" id="rejectionReason" name="rejectionReason" class="validate[required,maxSize[50]]"
+                                   ></textarea></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--end 内容-->
+</div>
+<!--end 添加用户弹窗-->
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/spm/spmExtends.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/cascade.js}"></script>
+<!-- 验证 -->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<!--图片点击放大-->
+<script type="text/javascript" th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+<script type="text/javascript"  th:inline="javascript">
+    var tb;
+    var consultationClassifyId;
+    var isBack = "[[${session.isBack==null?false:session.isBack}]]"
+    var iDisplayStart = parseInt("[[${session.iDisplayStart==null?0:session.iDisplayStart}]]");
+    var toBack = [[${param.toBack==null?"":param.toBack[0]}]];
+    $(function () {
+        if(isBack=="false" || toBack==""){
+            iDisplayStart=0;
+        }
+        // 日期控件区间
+        $('.dayBox .start_rise').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            endDate:new Date()
+        });
+        $('.dayBox').datepair();
+        //分页
+        tb = $('#example').DataTable({
+            "lengthChange": false,
+            "ordering": false,
+            "searching": false,
+
+            "bServerSide": true,
+            "sPaginationType": "full_numbers",
+            "bJQueryUI": true,
+            "sDom": '<"">t<"F"ip>',
+            "sAjaxSource": "/web/consultation/getConsultationByPage", //ajax调用接口
+            "aoColumnDefs": [{sDefaultContent: '', aTargets: ['_all']}],
+            "iDisplayStart":iDisplayStart,
+            "aoColumns": [
+                {
+                    "sTitle": "序号", "mData": "id", "class": "sClass", "mRender": function (data, type, full, meta) {
+                    return meta.row + 1 + meta.settings._iDisplayStart;
+                }
+                },
+                {"sTitle": "账号", "mData": "phone", "class": "sClass"},
+                {
+                    "sTitle": "来源", "mData": "source", "mRender": function (data, type, full) {
+                    var text = returnValue(data);
+                    //0：审核中 1：审核通过 2：未通过
+                    if(full.source=='0'){
+                        text = "普通专员";
+                    } else if (full.source == '1') {
+                        text = "驻店专员";
+                    }else{
+                        text = "-";
+                    }
+                    return text;
+                }
+
+                },
+                {
+                    "sTitle": "封面图", "mData": "cover", "mRender": function (data, type, full) {
+                    var text = "-"
+                    if (data) {
+                        text = "<img src='"+(data.indexOf('http://yst-images.img-cn-hangzhou.aliyuncs.com/')>=0||data.indexOf('https://ph-images.oss-cn-shenzhen.aliyuncs.com/')>=0?data:"http://yst-images.img-cn-hangzhou.aliyuncs.com/" + data)+"' class='show-img zoom-img'/>";
+                    }
+                    return text;
+                }
+                },
+                /*{
+                    "sTitle": "资讯分类", "mData": "descriptionName", "mRender": function (data, type, full) {
+                    return returnValue(data);
+                }
+                },*/
+                {"sTitle": "标题", "mData": "title"},
+                {"sTitle": "相关商品", "mData": "productNum"},
+                {"sTitle": "发布时间", "mData": "createdTime"},
+                {"sTitle": "审核时间", "mData": "auditTime"},
+                {
+                    "sTitle": "相关", "mData": "collectNum", "mRender": function (data, type, full) {
+                    var text="";
+                    text+="分享："+full.shareNum+"<br/>";
+                    text+="评论："+full.commentNum+"<br/>";
+                    text+="点赞："+full.fabulousNum+"<br/>";
+                    text+="浏览量："+full.readNum+"<br/>";
+                    return text;
+                }
+                },
+                {
+                    "sTitle": "审核状态", "mData": "status", "mRender": function (data, type, full) {
+                    var text;
+                    if (full.status == 1) {
+                        text = "待审核";
+                    } else if (full.status == 2) {
+                        text = "已通过";
+                    } else if (full.status == 3) {
+                        text = "已驳回";
+                    } else if (full.status == 4) {
+                        text = "不显示";
+                    }
+                    return text;
+                }
+                },
+                {
+                    "sTitle": "操作", "mData": "operateType","sClass": "ph_tableShow", "mRender": function (data, type, full) {
+                    var text = '<div class="ph_operateBox"><input class="ph_operate" name="" type="button" value="操作选项">';
+                    text = text + '<ul class="ph_operateList hide" role="menu">';
+                    if (full.status == 1) {
+                        if ([[${session.consultationPass}]]) {
+                            text += '<li><a href="javascript:void(0);" onclick="consultationPass(\'' + full.id + '\');">通过</a></li>';
+                        }
+                        if ([[${session.consultationBack}]]) {
+                            text += '<li><a href="javascript:void(0);" onclick="conBack(\'' + full.id + '\');">驳回</a></li>';
+                        }
+                    }else if(full.status==2) {
+                        if ([[${session.consultationHidden}]]) {
+                            if(full.isShow==null || full.isShow==0){
+                                text += '<li><a href="javascript:void(0);" onclick="changeShow(1,\'' + full.id + '\');">隐藏</a></li>';
+                            }else {
+                                text += '<li><a href="javascript:void(0);" onclick="changeShow(0,\'' + full.id + '\');">取消隐藏</a></li>';
+                            }
+                        }
+                        if ([[${session.consultationTop}]]) {
+                            if(full.topTime==null || full.topTime==''){
+                                text += '<li><a href="javascript:void(0);" onclick="changeTop(1,\'' + full.id + '\');">置顶</a></li>';
+                            }else {
+                                text += '<li><a href="javascript:void(0);" onclick="changeTop(0,\'' + full.id + '\');">取消置顶</a></li>';
+                            }
+                        }
+                    }
+                    text += '<li><a href="/web/consultation/toSeeConsultationDetails?id=' + full.id + '&pageNum=5&backUrl=/web/consultation/toConsultationAuditListPage">查看详情</a></li>';
+                    text = text + '</ul></div>';
+                    return text;
+                }
+                }
+            ],
+            "oLanguage": {
+                "sProcessing": "数据加载中······",
+                "sLengthMenu": "显示 _MENU_ 条记录",
+                "sZeroRecords": "没有您要搜索的内容！",
+                "sEmptyTable": "列表中无数据存在！",
+                "sInfo": "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+                "sInfoEmpty": "显示 0 到 0 条记录",
+                "sInfoFiltered": "数据列表中共  _MAX_ 条记录",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "fnServerData": function (sSource, aoData, fnCallback, oSettings) {
+                oSettings.jqXHR = $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "async": 'false',
+                    "url": sSource,
+                    "data": {
+                        'pageNum': (aoData[3].value / aoData[4].value) + 1,
+                        'pageSize': aoData[4].value,
+                        'pageNum': (aoData[3].value / aoData[4].value) + 1,
+                        'pageSize': aoData[4].value,
+                        'phone': $.trim($('#phone').val()),
+                        'source': $.trim($('#source').val()),
+//                        'consultationClassifyId': consultationClassifyId,
+                        'status': $.trim($('#status').val()),
+                        'createdTime': $.trim($('#starTime').val())?$.trim($('#starTime').val())+" 00:00:00":$.trim($('#starTime').val()),
+                        'endTime': $.trim($('#endTime').val())?$.trim($('#endTime').val())+" 23:59:59":$.trim($('#endTime').val())
+                    },
+                    "success": fnCallback
+                });
+            },
+            "fnDrawCallback": function () {
+                var api = this.api();
+                var startIndex = api.context[0]._iDisplayStart;//获取到本页开始的条数
+                api.column(0).nodes().each(function (cell, i) {
+                    cell.innerHTML = startIndex + i + 1;
+                });
+                //点击图片放大初始化
+                $('.zoom-img').viewer({
+                    url: 'src',
+                    navbar: false,
+                    keyboard: true,
+                    title: true
+                });
+            }
+        });
+    });
+    //条件查询重新加载数据
+    function query() {
+        /*var data=$("#agent_level_div .filter-option").html();
+        var id=0;
+        $("select[name=id] option").each(function(){
+            if($(this).html()==data)
+            {
+                id=$(this).val()
+            }
+        })
+        consultationClassifyId=id;*/
+        tb.draw();
+    }
+    function changeShow(act,consultationId){
+        var str="显示";
+        if(act==1){
+            str="隐藏";
+        }
+        layer.confirm('您确定要'+str+'这条资讯？', {
+            icon: 3,
+            btn: ['是', '否'], //按钮
+            btn1: function (index) {
+                $.ajax({
+                    async: false,
+                    url: "/web/consultation/getConsultationShow",
+                    data: {act:act,consultationId: consultationId},
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code == 1) {
+                            layer.alert(data.msg, {icon: 1,title: '提示',closeBtn: 0,btnAlign: 'c'});
+                            tb.draw(false);
+                        } else {
+                            layer.alert(data.msg, {icon: 2,title: '失败',closeBtn: 0,btnAlign: 'c'});
+                        }
+                    }
+                });
+                layer.close(index);
+            }
+        });
+    }
+    function changeTop(act,consultationId){
+        var str="取消置顶";
+        if(act==1){
+            str="置顶";
+        }
+        layer.confirm('您确定要'+str+'这条资讯？', {
+            icon: 3,
+            btn: ['是', '否'], //按钮
+            btn1: function (index) {
+                $.ajax({
+                    async: false,
+                    url: "/web/consultation/getConsultationTop",
+                    data: {act:act,consultationId: consultationId},
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code == 1) {
+                            layer.alert(data.msg, {icon: 1,title: '提示',closeBtn: 0,btnAlign: 'c'});
+                            tb.draw(false);
+                        } else {
+                            layer.alert(data.msg, {icon: 2,title: '失败',closeBtn: 0,btnAlign: 'c'});
+                        }
+                    }
+                });
+                layer.close(index);
+            }
+        });
+    }
+    /**
+     * 重置内容
+     */
+    function resetForm() {
+        clearData("queryForm");
+    }
+    function clearData(id) {
+        $("#" + id)[0].reset();
+        var selected = $("#" + id).find("select");
+        if (selected.length > 0) {
+            for (var i = 0, length = selected.length; i < length; i++) {
+                selected.eq(i).selectpicker('val', '');
+            }
+        }
+    }
+    /*cascade({
+        url: "/web/consultation/getClassfiyList",
+        totalSelect: 1,
+        DivId: "agent_level_div",
+        selectNames: ["id"],
+        requestNames: ["descriptionName"],
+        bindCols: ["id"],
+        bindData: ["id"],
+        frozenSelect: true,
+        backFun: function () {
+        }
+    });*/
+    //返回值处理
+    var returnValue = function (val) {
+        var text;
+        if (val) {
+            text = val;
+        } else {
+            text = '-';
+        }
+        return text;
+    };
+    //通過
+    function consultationPass(id) {
+        layer.confirm('是否通过这条资讯？', {
+            icon: 3,
+            btn: ['是', '否'], //按钮
+            btn1: function (index) {
+                $.ajax({
+                    async: false,
+                    url: "/web/consultation/consultationPass",
+                    data: {id: id},
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code = "200") {
+                            tb.draw(false);
+                            layer.alert(data.message, {
+                                icon: 1,
+                                title: '提示',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        } else {
+                            layer.alert(data.message, {
+                                icon: 2,
+                                title: '失败',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        }
+                    }
+                });
+                layer.close(index);
+            },
+
+        });
+    }
+    function conBack(id) {
+        //给表单赋值
+        $("#id").val(id);
+        layer.open({
+            type: 1,
+            title: '驳回原因',
+            closeBtn: 0,
+            area: ['442px', '230px'],
+            btn: ['保存', '取消'],
+            btnAlign: 'c',
+            content: $('#deliverBox'),
+            btn1: function (index) {
+                var flag = $("#conBackForm").validationEngine("validate");
+                if (!flag) {
+                    return false;
+                }
+                var rejectionReason = $("#rejectionReason").val();
+                if (rejectionReason == 'null') {
+                    return false;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "/web/consultation/consultationBack",
+                    data: $("#conBackForm").serialize(),
+                    success: function (d) {
+                        console.log(d);
+                        if (d.success) {
+                            tb.draw(false);
+                            layer.alert("保存成功！", {
+                                icon: 1,
+                                title: '提示',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        } else {
+                            layer.alert(d.message, {
+                                icon: 2,
+                                title: '失败',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        }
+                    }
+                });
+                $('#conBackForm')[0].reset()
+                layer.close(index);
+
+            },
+            btn2: function (index) {
+                //清空表单
+                $('#conBackForm')[0].reset()
+                layer.close(index);
+            }
+        });
+    }
+</script>
+</body>
+</html>

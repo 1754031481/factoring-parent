@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>普济一城商城后台系统</title>
+    <head th:include="header::header"></head>
+    <!-- bootstrap-select  css文件 -->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--图片点击放大 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}">
+</head>
+<body>
+<div class="MainContent">
+    <div class="current">当前位置：
+        <a href="#" alt="">运费模板 &gt;</a>
+        <span>添加运费模板</span>
+    </div>
+    <div class="MainCont ">
+        <div class="ph_subConTit">
+            <h2 th:text="${operateType =='update'?'修改运费模板':'添加运费模板'}"></h2>
+        </div>
+        <form id="form">
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">费用计算方式:</span>
+                </label>
+                <input type="text" id="feeReckonType" name="feeReckonType" value="按重量" class="left  validate[required]" />
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">商品总金额:</span>
+                </label>
+                <p><input id="minProductPrice" name="minProductPrice" th:value="${freightVO.minProductPrice}"  type="text"  class="left  validate[required,custom[minNewNumber]]">&nbsp;-
+                <input id="maxProductPrice" name="maxProductPrice" th:value="${freightVO.maxProductPrice}" type="text" class="validate[required,custom[minNewNumber]]">
+                </p>
+            </div>
+            <div    class="mainFrom">
+            <label class="left">
+                <span class="">范围:</span>
+            </label>
+                &nbsp;&nbsp;&nbsp;<input type="checkbox" name="type" id="type" value="1" style="height: 40px;width: 18px;vertical-align:middle;" onclick="csan()"/>大于等于
+            </div>
+            <!--<div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">范围:</span>
+                </label>
+                <input type="radio" name="type" class="validate[required]" th:checked="${freightVO.type==0?true:false}"  value="0"/>小于
+                <input type="radio" name="type" class="validate[required]" th:checked="${freightVO.type==1?true:false}"  value="1"/>大于等于
+            </div>-->
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">运送方式:</span>
+                </label>
+                <span class="">默认运费:</span>
+                <input id="weight" name="weight" type="text" th:value="${freightVO.weight}"  class="validate[required,custom[minNumber]]"  style="width: 65px;height: 36px">
+                <span class="">kg内</span>
+                <input id="price" name="price" type="text" th:value="${freightVO.price}"  class="validate[required,custom[minNewNumber]]" style="width: 65px;height: 36px">
+                <span class="">元，</span>
+                <span class="">每增加</span>
+                <input id="addWeight" name="addWeight" type="text" th:value="${freightVO.addWeight}"  class="validate[required,custom[minNumber]]" style="width: 65px;height: 36px">
+                <span class="">kg, </span>
+                <span class="">增加运费</span>
+                <input id="addPrice" name="addPrice" type="text" th:value="${freightVO.addPrice}"  class="validate[required,custom[minNewNumber]]" style="width: 65px;height: 36px">
+                <span class="">元，</span>
+                </input>
+            </div>
+            <div class="PopupBtn btnLeft" style="margin-bottom: 20px;">
+                <input id="saveOrUpdate" class="submit addIndustry_save" name="" type="button" th:value="${operateType =='update'?'修改':'保存'}">
+                <input onclick="window.location.href='/web/freight/toFreightTemplet'" class="submit addMerchant_cancel" type="button" value="取消">
+            </div>
+            <input th:value="${freightVO.id}" name="id" type="hidden"/>
+            <input id="hiddenMinProductPrice" name="hiddenMinProductPrice" type="hidden"/>
+        </form>
+
+        <div class="ph_wareBox ph_tabScroll">
+            <table class="ph_wareList" id="table">
+            </table>
+        </div>
+        <div class="PopupBtn btnLeft" style="margin-bottom: 20px;">
+            <input id="commitPost" class="submit addIndustry_save" name="" type="button" value="提交">
+            <!--<input onclick="window.location.href='/web/freight/toFreightTemplet'" class="submit addMerchant_cancel" type="button" value="取消">-->
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<!--图片上传插件-->
+<script type="text/javascript" th:src="@{/static/js/common/imgUp.js}"></script>
+<!--分页-->
+<script type="text/javascript"   th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!-- 验证 -->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<!--属性输入框的增加和删除-->
+<script type="text/javascript" th:src="@{/static/js/common/attrbox.js}"></script>
+<!--图片点击放大-->
+<script type="text/javascript" th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--自定义js-->
+<script type="text/javascript" th:src="@{/static/js/common/cascade.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/rewriteAjax.js}"></script>
+<script th:inline="javascript">
+    var operateType = [[${operateType}]];
+    if (operateType === "add") {
+        $(" #minProductPrice ").val(0);
+            }
+    if(operateType === "update"){
+        var  a=$("#maxProductPrice").val();
+        if(a==""){
+            $('#type').attr("checked", true);
+            $('#type').attr("disabled",true);
+        }else{
+            $('#type').attr("disabled",true);
+        }
+    }
+
+    $('#maxProductPrice').blur(function(){
+        var text = $('#maxProductPrice').val();
+        if (text!= "") {
+            $('#type').attr("disabled",true);
+            $('#type').attr("checked",false);
+        }else{
+            $('#type').removeAttr("disabled");
+        }
+    })
+
+    function csan(){
+        var id2=document.getElementById("type");
+        if(id2.checked){
+            $("#maxProductPrice").removeAttr("class");
+            document.getElementById("maxProductPrice").readOnly=true;
+        }else{
+            document.getElementById("maxProductPrice").readOnly=false;
+        }
+    }
+
+    var  tb;
+    $(function() {
+        var Popupe = new PopupBase();
+        Popupe.show('.Js_deliver', '.maskBox,.deliverBox');
+        Popupe.show('.Js_refund', '.maskBox,.Js_refundBox');
+        Popupe.show('.Js_btn', '.maskBox,.DeterBox');
+        Popupe.show('.Js_refunddeta', '.maskBox,.Js_refundDetaBox');
+        Popupe.showHide('.subQuemit','.refundBox','.SucBox');
+        Popupe.hide('.close', '.maskBox,.DeterBox,.SucBox,.deliverBox,.Js_refundBox,.Js_refundDetaBox');
+
+        //分页
+        tb=$("#table").DataTable({
+            "bServerSide": true,
+            "sPaginationType": "full_numbers",
+            "bJQueryUI": true,
+            "sDom": '<"">t<"F"ip>',
+            "sAjaxSource": "/web/freight/getMiddleFreightList", //ajax调用接口
+            "aoColumnDefs": [{sDefaultContent: '',aTargets: [ '_all' ]}],
+            "aoColumns": [
+                { "sWidth":"50px","sTitle" : "序号","mData": "id","sClass":"sClass" },
+                { "sWidth":"150px","sTitle" : "商品总金额(元)","mData": "productPrice","sClass":"sClass", "mRender": function (data, type, full) {
+                    var text;
+                    if (full.maxProductPrice!=null){
+                        text=full.minProductPrice+"-"+full.maxProductPrice;
+
+                    }else{
+                        text="≥"+full.minProductPrice;
+                        $("#hiddenMinProductPrice").val("1");
+
+                    }
+                    return text;
+                } },
+                { "sWidth":"150px","sTitle" : "首重(kg)","mData": "weight","sClass":"sClass", "mRender": function (data, type, full) {
+                    var text;
+                    text=full.weight+"kg内"
+                    return text;
+                }  },
+                { "sWidth":"120px","sTitle" : "运费(元)","mData": "price","sClass":"sClass" },
+                { "sWidth":"120px","sTitle" : "续重(kg)","mData": "addWeight","sClass":"sClass" },
+                { "sWidth":"120px","sTitle" : "加价","mData": "addPrice","sClass":"sClass" },
+
+
+                {
+                    "sWidth": "110px",
+                    "sTitle": "操作",
+                    "mData": "id",
+                    "sClass": "ph_tableShow",
+                    "mRender": function (data, type, full) {
+                        var text = '<div class="ph_operateBox"><input class="ph_operate" name="" type="button" value="操作选项">';
+                        text = text + '<ul class="ph_operateList hide" role="menu">';
+                        if ([[${session.freightUpdate}]]) {
+                            text += '<li><a href=/web/freight/update/'+full.id+'>编辑</a></li>';
+                        }
+                        if (full.maxProductPrice==null){
+                            text += '<li ><a href="#" onclick="deleteLogistics(\'' + full.id + '\');">删除</a> </li>';
+                        }
+                        /*if ([[${session.freightDelete}]]) {
+                            text += '<li ><a href="#" onclick="deleteLogistics(\'' + full.id + '\');">删除</a> </li>';
+                        }*/
+                        text = text + '</ul></div>';
+                        return text;
+                    }
+                }
+            ],
+            "oLanguage" : {
+                "sProcessing" : "数据加载中······",
+                "sLengthMenu" : "显示 _MENU_ 条记录",
+                "sZeroRecords" : "没有您要搜索的内容！",
+                "sEmptyTable" : "列表中无数据存在！",
+                "sInfo" : "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+                "sInfoEmpty" : "显示 0 到 0 条记录",
+                "sInfoFiltered" : "数据列表中共  _MAX_ 条记录",
+                "oPaginate" : {
+                    "sFirst" : "首页",
+                    "sPrevious" : "上一页",
+                    "sNext" : "下一页",
+                    "sLast" : "末页"
+                }
+            },
+            "fnServerData" : function ( sSource, aoData, fnCallback, oSettings ) {
+                oSettings.jqXHR = $.ajax( {
+                    "dataType" 	: 'json',
+                    "type" 		: "GET",
+                    "async"     : 'false',
+                    "url" 		: sSource,
+                    "data" 		: {
+                        'pageNum': (aoData[3].value/aoData[4].value)+1,
+                        'pageSize' :  aoData[4].value
+                    },
+                    "success"	: fnCallback
+                } );
+            },
+            "fnDrawCallback" : function(){
+                var api = this.api();
+                var startIndex= api.context[0]._iDisplayStart;//获取到本页开始的条数
+                api.column(0).nodes().each(function(cell, i) {
+                    cell.innerHTML = startIndex + i + 1;
+                });
+            }
+        });
+    });
+
+    //操作类型
+    var operateType = [[${operateType}]];
+    var bindMerchantType = [[${freightVO}]];
+
+    $(function () {
+
+        //保存或者修改
+        $("#saveOrUpdate").on("click", function () {
+            var  minProductPrice=$(" #minProductPrice ").val()
+            var  maxProductPrice=$(" #maxProductPrice ").val()
+            if(maxProductPrice!=null && parseInt(minProductPrice)>parseInt(maxProductPrice)){
+                layer.alert("商品金额区间输入有误");
+                return;
+            }
+            if(operateType!="update"){
+            var a=$("#hiddenMinProductPrice").val();
+                if (a==1){
+                    layer.alert("不能再添加");
+                }
+            }
+
+            if($("#type").attr('checked')){
+                $("#maxProductPrice").removeAttr("class");
+            }
+            $(this).formSubmit({
+                url: "/web/freight/" + operateType,
+                backFun: function (result) {
+                    layer.alert(result.message);
+                    if (result.success) {
+                        if(operateType=="add" || operateType=="update"){
+                            //$('#form')[0].reset();
+                            //$("#form input").val("");
+                            /*$('input[type=text]').val("");
+                            //$("#saveOrUpdate").val("保存");
+                            $("#feeReckonType").val("按重量");
+                            $(" #minProductPrice ").val(maxProductPrice);
+                            document.getElementById("minProductPrice").readOnly="readonly";
+                            $('#table').DataTable().ajax.reload();*/
+                            window.location.href="/web/freight/addOrUpdate";
+                        }/*else{
+                            //window.location.reload();
+                            $('#form')[0].reset();
+                            $("#saveOrUpdate").val("保存");
+                            $(" #minProductPrice ").val(maxProductPrice);
+                            document.getElementById("minProductPrice").readOnly="readonly";
+                            /!*setTimeout(function () {
+                             window.location.href = "/web/freight/toFreightTemplet";
+                             }, 1500)*!/
+                        }*/
+                    }
+                }
+            })
+        });
+        $("#commitPost").on("click", function () {
+            var a=$("#hiddenMinProductPrice").val();
+            if (a!=1){
+                layer.alert("请完善区间信息");
+            }else{
+
+                $.ajax({ url: "/web/freight/updateDeleteFlag", context: document.body, success: function (result) {
+                    layer.alert(result.message);
+                    if (result.success) {
+                        setTimeout(function () {
+                            window.location.href = "/web/freight/toFreightTemplet";
+                        }, 1500)
+                    }
+                }
+                });
+            }
+            /*$(this).formSubmit({
+                url: "/web/freight/updateDeleteFlag",
+                backFun: function (result) {
+                    layer.alert(result.message);
+                    if (result.success) {
+                        setTimeout(function () {
+                            window.location.href = "/web/freight/toFreightTemplet";
+                        }, 1500)
+                    }
+                }
+            })*/
+        });
+
+    });
+
+
+</script>
+</body>
+</html>

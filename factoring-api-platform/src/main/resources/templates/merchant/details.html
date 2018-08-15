@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>订单详情</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+
+    <style>
+        .MainCont{
+            font-size:16px;
+            width: 500px;
+            margin: auto;
+        }
+        .MainCont h2{
+            text-align: center;
+        }
+        .MainCont > ul > li{
+            margin-bottom: 15px;
+        }
+        .orderList{
+            overflow: hidden;
+        }
+        .orderList tbody td{
+            padding:6px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">收银管理</a>&nbsp;&gt;&nbsp;<span>订单详情</span></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <!--startprint-->
+    <div class="MainCont" style="width: 150px;overflow: hidden; margin: 0 auto; padding: 0; font-size: 8px;">
+        <h2 style="font-size: 18px;">专卖商城超市</h2>
+        <input type="hidden" id = "payType" th:value="${payType}">
+        <ul>
+            <li>超市名称：<span th:utext="${merchant_name}"></span></li>
+            <li>订单号：<span th:utext="${order_no}"></span></li>
+            <li>
+                <p>===================================</p>
+
+                <table class="orderList">
+                    <thead>
+                        <tr>
+                            <td>商品名</td>
+                            <td>数量</td>
+                            <td>单价</td>
+                            <div th:if="${payType == '1' || payType == '3'}">
+                                <td>金额</td>
+                            </div>
+                            <div th:if="${payType == '2'}">
+                                <td>积分</td>
+                            </div>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <tr  th:each="mapS:${allData}">
+                        <td  style="width:170px" th:text="${mapS.productName}"></td>
+                        <td  style="width:60px" th:text="${mapS.num}"></td>
+                        <div th:if="${payType == '1' || payType == '3'}">
+                            <td  style="width:80px" th:text="${mapS.product_sale_price}"></td>
+                            <td class="totalPriceSum" th:text="${mapS.total_price}"></td>
+                        </div>
+                        <div th:if="${payType == '2'}">
+                            <td  style="width:80px" th:text="${mapS.scorePrice}"></td>
+                            <td class="totalScorePrice" th:text="${mapS.totalScorePrice}"></td>
+                        </div>
+
+                    </tr>
+                    </tbody>
+                </table>
+
+                <p>===================================</p>
+            </li>
+            <li>应付货款：<span class="payMoney"></span></li>
+            <li>消费者账号：<span th:utext="${phone}"></span></li>
+            <li>
+                <span class="time"></span>
+            </li>
+            <li>客服电话：4000-325-315<span></span></li>
+            <li>请当面核实所购商品与小票清单数据是否一致，如有疑问，请咨询客服或到当地订单中心咨询</li>
+            <li>
+                <p>更多优惠商品请登录</p>
+                <p>http://manage.factoring315.com</p>
+            </li>
+            <li>手机用户请下载普济一城商城APP</li>
+            <li style="text-align:right">谢谢惠顾</li>
+        </ul>
+       <!-- <div th:each="mapS:${allData}">
+            <div th:text="${mapS}">111</div>
+        </div>-->
+    </div>
+    <!--endprint-->
+    <div style="text-align: center"><input type="button" onclick="pay()"  value="打印小票"></div>
+    <!-- <input type="button" onclick="pay()">-->
+    <!--end 主体内容-->
+    <script type="text/javascript" th:src="@{/static/uploadfy/jquery.uploadify.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+    <!--bootstrap-select-->
+    <script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+    <!--分页-->
+    <script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/spm/spmExtends.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        function pay(){
+            /* $(".invoice").printArea(); */
+            bdhtml = window.document.body.innerHTML;
+            sprnstr = "<!--startprint-->";
+            eprnstr = "<!--endprint-->";
+            prnhtml = bdhtml.substring(bdhtml.indexOf(sprnstr) + 17);
+            prnhtml = prnhtml.substring(0, prnhtml.indexOf(eprnstr));
+            window.document.body.innerHTML = prnhtml;
+            window.print();
+             window.location.href ="/web/Cashier/toCashier";
+        }
+        $(document).ready(function(){
+            var totalPriceSum = 0;
+            var totalScorePrice = 0;
+            var payType = $("#payType").val();
+            $('.totalPriceSum').each(function(i,elem){
+                totalPriceSum += parseFloat($(elem).html()) * 100;
+            })
+            $('.totalScorePrice').each(function(i,elem){
+                totalScorePrice += parseFloat($(elem).html()) * 100;
+            })
+            if( payType == "1" ||payType == "3" ){
+                $('.payMoney').html(totalPriceSum/100);
+            }else{
+                $('.payMoney').html(totalScorePrice/100).append("积分");
+            }
+        })
+    </script>
+</div>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>奖池详情</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <script TYPE="text/javascript" th:src="@{/static/js/plugins/My97DatePicker/WdatePicker.js}"></script>
+</head>
+<body>
+<div class="MainContent">
+    <div class="current">当前位置：<a href="#">店长审核列表</a></div>
+    <div class="MainCont">
+        <div class="ph_subTit">
+            <h2>店长审核列表</h2>
+            <div class="ph_snbBtn">
+
+            </div>
+        </div>
+        <form>
+            <div class="ph_screen">
+                <shiro:hasPermission name="orderOnlineQuery">
+                    <table class="ph_tableBox">
+                        <tr>
+                            <th>审核状态：</th>
+                            <td colspan="2" style="width: 200px">
+                                <select class="selectpicker" data-live-search="true" name="status">
+                                    <option value="">全部</option>
+                                    <option value="0">店长待审核</option>
+                                    <option value="1">财务待审核</option>
+                                    <option value="2">店长已驳回</option>
+                                    <option value="3">财务已驳回</option>
+                                    <option value="4">审核通过</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input name="" type="button" value="查询" onclick="query()">
+                            </td>
+                        </tr>
+                    </table>
+                </shiro:hasPermission>
+            </div>
+        </form>
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="example" >
+
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    var tb;
+    //分页
+    tb = $('#example').DataTable({
+        "lengthChange": false,
+        "ordering": false,
+        "searching": false,
+
+        "bServerSide": true,
+        "sPaginationType": "full_numbers",
+        "bJQueryUI": true,
+        "sDom": '<"">t<"F"ip>',
+        "sAjaxSource": "getManagerReviewList", //ajax调用接口
+        "aoColumnDefs": [{sDefaultContent: '', aTargets: ['_all']}],
+        "aoColumns": [
+            {
+                "sWidth": "50px",
+                "sTitle": "序号",
+                "mData": "id",
+                "class": "sClass",
+                "mRender": function (data, type, full, meta) {
+                    return meta.row + 1 + meta.settings._iDisplayStart;
+                }
+            },
+            {"sTitle": "差异数据条数", "mData": "differenceCount", "sWidth": "250px"},
+            {"sTitle": "操作人", "mData": "operator"},
+            {
+                "sTitle": "状态", "mData": "status", "mRender": function (data, type, full) {
+                    var text;
+                    if (full.status == 1) {
+                        text = "财务待审核";
+                    }  else if (full.status == 0) {
+                        text = "店长待审核";
+                    }else if (full.status == 2) {
+                        text = "店长已驳回";
+                    }else if (full.status == 3) {
+                        text = "财务已驳回";
+                    }else if (full.status == 4) {
+                        text = "审核通过";
+                    }
+                    return text;
+                }
+            },
+            {"sTitle": "操作时间","mRender":function (data, type, full) {
+                        var date = new Date(full.operatingTime);
+                        var Y = date.getFullYear() + '-';
+                        var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+                        var D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + ' ';
+                        var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+                        var m = (date.getMinutes() <10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+                        var s = (date.getSeconds() <10 ? '0' + date.getSeconds() : date.getSeconds());
+                        return Y+M+D+h+m+s;
+                }},
+            {"sTitle": "备注", "mData": "lotteryNum","mRender":function (data, type, full) {
+                    var text;
+                    if ((full.cwRemark != '' && full.cwRemark != null) && (full.dzRemark != '' &&full.dzRemark != null)) {
+                        text = "<p><span>财务: </span>" + full.cwRemark + "</p><p><span>店长: </span>" + full.dzRemark + "</p>";
+                    } else if ((full.cwRemark != '' && full.cwRemark != null )&& (full.dzRemark == '' || full.dzRemark == null)) {
+                        text = "<p><span>财务: </span>" + full.cwRemark + "</p>";
+                    } else if ((full.cwRemark == '' || full.cwRemark == null) && (full.dzRemark != '' && full.dzRemark != null)) {
+                        text = "<p><span>店长: </span>" + full.dzRemark + "</p>";
+                    }
+                    return text;
+                }},
+            { "sWidth": "110px", "sTitle" : "操作","mData" : "id","sClass":"ph_tableShow", "mRender" : function ( data, type, full ) {
+                    var text = '<div class="ph_operateBox"><input class="ph_operate" name="" type="button" value="操作选项">';
+                    text = text+'<ul class="ph_operateList hide" role="menu">';
+                    text += "<li><a href='getManagerReviewListForId?id=" + full.id + "'>查看</a></li>";
+                    return text;
+                }}
+        ],
+        "oLanguage": {
+            "sProcessing": "数据加载中······",
+            "sLengthMenu": "显示 _MENU_ 条记录",
+            "sZeroRecords": "没有您要搜索的内容！",
+            "sEmptyTable": "列表中无数据存在！",
+            "sInfo": "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+            "sInfoEmpty": "显示 0 到 0 条记录",
+            "sInfoFiltered": "数据列表中共  _MAX_ 条记录",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        },
+        "fnServerData": function (sSource, aoData, fnCallback, oSettings) {
+            oSettings.jqXHR = $.ajax({
+                "dataType": 'json',
+                "type": "GET",
+                "async": 'false',
+                "url": sSource,
+                "data": {
+                    'pageNum': (aoData[3].value / aoData[4].value) + 1,
+                    'pageSize': aoData[4].value,
+                    'status': $.trim($("[name='status']").val())
+                },
+                "success": fnCallback
+            });
+        },
+        "fnDrawCallback": function () {
+            var api = this.api();
+            var startIndex = api.context[0]._iDisplayStart;//获取到本页开始的条数
+            api.column(0).nodes().each(function (cell, i) {
+                cell.innerHTML = startIndex + i + 1;
+            });
+        }
+    });
+    function query() {
+        tb.draw();
+    }
+</script>
+</body>
+</html>

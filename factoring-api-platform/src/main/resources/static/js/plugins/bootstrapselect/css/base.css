@@ -1,0 +1,70 @@
+@charset "utf-8";
+/* CSS Document */
+html{text-overflow:hidden;
+	white-space: no-wrap;}
+body{margin:0; padding: 0;width:100%; }
+h1,h2,h3,h4,h5,h6{ margin:0; font-weight:normal; }
+a{ color:#000; text-decoration:none;}
+ol,ul,li{ list-style:none; padding:0; margin:0;}
+p{ margin:0;}
+i,em{ font-style:normal;}
+b,strong{ font-weight:normal;}
+/*outline: none  去除图片移动端自带边框*/
+a img{ border:none;outline: none;}
+input{outline: none; border: 1px;}
+/*移动端点击蓝屏现象 -webkit-tap-highlight-color:rgba(0,0,0,0)*/
+*{margin: 0; padding: 0;-webkit-tap-highlight-color:rgba(0,0,0,0)}
+.clearfix:after{ display:block; content:""; clear:both;}
+.clearfix{ zoom:1; }
+ .footer{
+// 	position:fixed;
+// 	z-index: 2;
+// 	bottom:0;
+// 	left:0;
+// 	width:100%;
+// 	height:4.9rem;
+// 	background: #fff;
+// 	border-top:1px solid #ddd;
+// 	display:-webkit-box;
+// 	display:-webkit-flex;
+// 	display:-ms-flexbox;
+// 	display:flex;
+// 	justify-content:space-around;
+ }
+ .footer div{
+// 	height:100%;
+// 	width:25%;
+// 	display: flex;
+// 	flex-direction:column;
+// 	justify-content:center;
+// 	/*text-align:center;*/
+// 	align-items:center;
+// 	font-style: normal;
+// 	font-size:0.8rem;
+// 	font-weight: 100;
+// 	color:#696969;
+// 	cursor:pointer;
+ }
+ .footer div span{
+// 	display: flex;
+// 	justify-content:center;
+// 	/*text-align:center;*/
+// 	align-items:center;
+// 	margin:.1rem;
+ }
+ .footer img{
+// 	height:50%;
+// 	width:50%;
+ }
+ .back{
+// 	cursor:pointer;
+// 	padding-right:2rem;
+// }
+/*ios去除点击边框*/
+/*a:focus,
+input:focus,
+p:focus,
+div:focus{
+-webkit-tap-highlight-color:rgba(0,0,0,0);
+-webkit-user-modify:read-write-plaintext-only; 
+}*/

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>普济一城商城后台系统</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/zurb-foundation-5.5.1/foundation.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/font-awesome-4.3.0/css/font-awesome.min.css}">
+    <!--富文本  css文件-->
+    <!--<link rel="stylesheet" href="css/ueditor.css">-->
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}"/>
+</head>
+<body>
+<div class="MainContent">
+    <div class="current">当前位置：
+        <a href="#" alt="">商户管理 &gt;</a>
+        <a href="#" alt="">商户列表 &gt;</a>
+        <span th:text="${operateType =='update'?'修改商户':'添加商户'}"></span></div>
+    <div class="MainCont ">
+        <div class="ph_subConTit">
+            <h2 th:text="${operateType =='update'?'修改商户':'添加商户'}"></h2>
+        </div>
+        <form id="form">
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">店铺账号:</span>
+                </label>
+                <input th:value="${merchantVO.telPhone}" name="telPhone" class="left validate[required,custom[phone]]" type="text"  placeholder="" disabled />
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">店铺类型:</span>
+                </label>
+                <input th:if="${merchantVO.merchantType == 1  || merchantVO.merchantType == null}" th:value="卫星店" type="text"  placeholder="" disabled />
+                <input th:if="${merchantVO.merchantType == 2}" th:value="旗舰店" type="text"  placeholder="" disabled />
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">店铺编号:</span>
+                </label>
+                <input th:value="${merchantVO.merchantNo}" type="text"  placeholder="" disabled />
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">店铺名称:</span>
+                </label>
+                <input th:value="${merchantVO.merchantName}" name="merchantName" type="text" class="left validate[required]" placeholder="" />
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">所属旗舰店:</span>
+                </label>
+                <input th:value="${merchantVO.flagMerchantName}" name="flagMerchantName" class="left validate[required]" type="text"  placeholder="" disabled />
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">简介:</span>
+                </label>
+                <input th:value="${merchantVO.description}" name="description" type="text" class="left validate[required]" placeholder="" />
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">所属区域:</span>
+                </label>
+                <div id="area_div"></div>
+            </div>
+           <!--配送范围开始-->
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">配送范围:</span>
+                </label>
+                <div class="left">
+                    <label for="scope_all" >全国</label>
+                    <input id="scope_all" th:checked="${merchantVO.scope==0}"  th:value="0" name="scope" type="radio" placeholder="" />
+                </div>
+                <div class="left">
+                    <label for="scope_local" >指定地区</label>
+                    <input  id="scope_local" th:checked="${merchantVO.scope==1}" th:value="1" name="scope" type="radio" placeholder="" />
+                </div>
+                <!--下拉框-->
+                <div id="areaScopeForm" class="dynamicWrapper">
+
+
+                </div>
+            </div>
+            <!--配送范围结束-->
+
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">联系电话:</span>
+                </label>
+                <input th:value="${merchantVO.telPhone}" name="contactPhone" type="text" class="left validate[required,custom[phone]]" placeholder="" disabled/>
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="">详细地址:</span>
+                </label>
+                <input th:value="${merchantVO.address}" name="address" class="validate[required]" type="text" id="tipinput" value='点击地图显示地址/输入地址显示位置' placeholder=""/>
+                <div id="message"></div>
+            </div>
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="">定位地图:</span>
+                </label>
+                <div id="map_container" tabindex="0" class="relative">
+                    <div class="location_span absolute">当前经纬度：X:<span id="lng"></span>Y:<span id="lat"></span></div>
+                </div>
+            </div>
+            <div class="mainFrom imgupbox">
+                <input class='zoom-img-input' type='hidden' name='headImg' value="" id="headImg">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">店铺照片:</span>
+                </label>
+                <div class="content-box">
+                    <div class="img-box addIndustry">
+                        <span class="imgup-notice">请上传店铺照片，照片大小不超过10M.</span>
+                        <div class="img-box full">
+                            <section class="img-section">
+                                <div class="z_photo upimg-div" data-file-type=3>
+                                    <section class="z_file left">
+                                        <img th:src="@{/static/images/add.png}" class="add-img">
+                                        <input id="file2" type="file" class="file" value=""
+                                               accept="image/jpg,image/jpeg,image/png,image/bmp"/>
+                                    </section>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="PopupBtn btnLeft" style="margin-bottom: 20px;padding-left: 104px;margin-top: 50px">
+                <input id="saveOrUpdate" class="submit addMerchant_save" type="button" th:value="${operateType =='update'?'修改':'保存'}">
+                <input onclick="window.history.back();" class="submit addMerchant_cancel" type="button" value="取消">
+            </div>
+            <!--服务专员id-->
+            <input name="promoterId" type="hidden"/>
+            <input th:value="${merchantVO.id}" name="id" type="hidden"/>
+            <input th:value="${merchantVO.merchantType}" name="merchantType" id="merchantType" type="hidden" >
+        </form>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/jquery.dynamic-rows.min.js}"></script>
+<!--图片上传插件-->
+<script type="text/javascript" th:src="@{/static/js/common/imgUp.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<!--<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>-->
+<!--属性输入框的增加和删除-->
+<script type="text/javascript" th:src="@{/static/js/common/attrbox.js}"></script><!--图片点击放大-->
+<script type="text/javascript" th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+<!--区域-->
+<script type="text/javascript" th:src="@{/static/js/common/cascade.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--高德地图API-->
+<script type="text/javascript" src="//webapi.amap.com/maps?v=1.3&key=82cb1402e66fd67bee6e35dac65195f0"></script>
+<script type="text/javascript" th:src="@{/static/js/common/map_init.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/main.js}"></script>
+<!-- 验证 -->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<script th:inline="javascript">
+
+
+    //操作类型
+    var operateType = [[${operateType}]];
+    var bindMerchant = [[${merchantVO}]];
+
+
+    //修改
+    if (operateType === "update") {
+        //回填地图
+        $("#tipinput").change();
+        //回填图片
+        /*$(bindMerchant.merchantImageVOList).each(function (i, img) {
+         var section =
+         '<section class="up-section left">' +
+         '<span class="up-span"></span>' +
+         '<img class="close-upimg" src="/static/images/img-del.png">' +
+         '<img class="up-img zoom-img" data-img-upload-src="' + img.url + '" src="' + img.url + '">' +
+         '</section>';
+         var divDataFileType = $("div[data-file-type='" + img.type + "']");
+         var lastChildren = divDataFileType.children(":last");
+         var maxImage = parseInt(divDataFileType.attr("data-file-maxImage")) || 1;
+         lastChildren.before(section);
+         if (divDataFileType.children().length === (maxImage + 1)) {
+         lastChildren.css("display", "none");
+         }
+         });*/
+        $(function(){
+            $('.dynamicWrapper').ssdDynamicRows();
+            //alert(${merchantVO.attachentAddress});
+            var section =
+                    '<section class="up-section left">' +
+                    '<span class="up-span"></span>' +
+                    '<img class="close-upimg" src="/static/images/img-del.png">' +
+                    '<img id="upimg" class="up-img zoom-img" data-img-upload-src="' + bindMerchant.attachentAddress + '" src="' + bindMerchant.attachentAddress + '">' +
+                    '</section>';
+            var divDataFileType = $("div[data-file-type='" + 3 + "']");
+            var lastChildren = divDataFileType.children(":last");
+            var maxImage = parseInt(divDataFileType.attr("data-file-maxImage")) || 1;
+            lastChildren.before(section);
+            $("#headImg").val($(".up-img").attr("data-img-upload-src"));
+            if (divDataFileType.children().length === (maxImage + 1)) {
+                lastChildren.css("display", "none");
+            }
+        });
+//        generateImg();
+        //回填行业类别标签
+//        $(bindMerchant.merchantMerchantTypeVOList).each(function (i, merchantType) {
+//            generateMerchantType(
+//                merchantType.secondMerchantTypeName,
+//                i,
+//                merchantType.firstMerchantTypeId,
+//                merchantType.secondMerchantTypeId);
+//        });
+    }
+    cascade({
+        totalSelect: 4,
+        DivId: "area_div",
+        bindData: [bindMerchant.provinceId, bindMerchant.cityId, bindMerchant.countyId, bindMerchant.townId]
+    });
+
+    $(function () {
+         var areaScope = bindMerchant.areaScope;
+         var sc = bindMerchant.scope;
+         if (sc == 0) {
+            $("#areaScopeForm").hide();
+         }
+         else if (sc == 1) {
+            $("#areaScopeForm").show();
+         }
+         var rs = "";
+         $.each(areaScope,function (i,item) {
+              if (i==0){
+                  rs += "<div  class=\"row\">\n" +
+                      "      <div class=\"medium-1 columns\">\n" +
+                      "\n" +
+                      "             <select data-live-search=\"true\"\n" +
+                      "                                    type=\"text\"\n" +
+                      "                                    id=\"provinceId-"+i+"\"\n" +
+                      "                                    name=\"provinceId-"+i+"\"\n" +
+                      " onchange=\"selectValue(this.id)\">\n" +
+                      "                            </select>\n" +
+                      "                        </div>\n" +
+                      "                        <div class=\"medium-1 columns\">\n" +
+                      "\n" +
+                      "                            <select data-live-search=\"true\"\n" +
+                      "                                    type=\"text\"\n" +
+                      "                                    name=\"cityId-"+i+"\"\n" +
+                      "                                    id=\"cityId-"+i+"\" onchange=\"selectValue(this.id)\">\n" +
+                      "                            </select>\n" +
+                      "                        </div>\n" +
+                      "                        <div class=\"medium-1 columns\">\n" +
+                      "\n" +
+                      "                            <select data-live-search=\"true\"\n" +
+                      "                                    type=\"text\"\n" +
+                      "                                    name=\"townId-"+i+"\"\n" +
+                      "                                    id=\"townId-"+i+"\">\n" +
+                      "                            </select>\n" +
+                      "                        </div>\n" +
+                      "\n" +
+                      "                        <div id='minusDiv' class=\"medium-1 columns\">\n" +
+                      "                            <a  style=\"display: none;\" href=\"#\"\n" +
+                      "                               class=\"postfix button dynamicRemove\"\n" +
+                      "                            ><i class=\"fa fa-minus\"></i></a>\n" +
+                      "                        </div>\n" +
+                      "                        <div id='btnAdd' class=\"medium-1 columns\">\n" +
+                      "                            <a onclick='addDiv()' href=\"#\"\n" +
+                      "                               class=\"postfix button dynamicAdd\"\n" +
+                      "                            ><i  class=\"fa fa-plus\"></i></a>\n" +
+                      "                        </div>\n" +
+                      "\n" +
+                      "                    </div>";
+              } else {
+                  //构造row
+                  rs += "<div  class=\"row\">\n" +
+                      "      <div class=\"medium-1 columns\">\n" +
+                      "\n" +
+                      "             <select data-live-search=\"true\"\n" +
+                      "                                    type=\"text\"\n" +
+                      "                                    id=\"provinceId-"+i+"\"\n" +
+                      "                                    name=\"provinceId-"+i+"\"\n" +
+                      " onchange=\"selectValue(this.id)\">\n" +
+                      "                            </select>\n" +
+                      "                        </div>\n" +
+                      "                        <div class=\"medium-1 columns\">\n" +
+                      "\n" +
+                      "                            <select data-live-search=\"true\"\n" +
+                      "                                    type=\"text\"\n" +
+                      "                                    name=\"cityId-"+i+"\"\n" +
+                      "                                    id=\"cityId-"+i+"\" onchange=\"selectValue(this.id)\">\n" +
+                      "                            </select>\n" +
+                      "                        </div>\n" +
+                      "                        <div class=\"medium-1 columns\">\n" +
+                      "\n" +
+                      "                            <select data-live-search=\"true\"\n" +
+                      "                                    type=\"text\"\n" +
+                      "                                    name=\"townId-"+i+"\"\n" +
+                      "                                    id=\"townId-"+i+"\">\n" +
+                      "                            </select>\n" +
+                      "                        </div>\n" +
+                      "\n" +
+                      "                        <div id='minusDiv' class=\"medium-1 columns\">\n" +
+                      "                            <a href=\"#\"\n" +
+                      "                               class=\"postfix button dynamicRemove\"\n" +
+                      "                            ><i class=\"fa fa-minus\"></i></a>\n" +
+                      "                        </div>\n" +
+                      "                        <div id='btnAdd' class=\"medium-1 columns\">\n" +
+                      "                            <a onclick='addDiv()' href=\"#\"\n" +
+                      "                               class=\"postfix button dynamicAdd\"\n" +
+                      "                            ><i  class=\"fa fa-plus\"></i></a>\n" +
+                      "                        </div>\n" +
+                      "\n" +
+                      "                    </div>";
+              }
+
+
+
+         });
+        $('.dynamicWrapper').html("");
+        $('.dynamicWrapper').html(rs);
+
+        $.each(areaScope,function (i,item) {
+            var pid = "provinceId-"+i;
+            var cid = "cityId-"+i;
+            var tid = "townId-"+i;
+            var pvid = item.provinceId;
+            var cvid = item.cityId;
+            var countyId = item.townId;
+            initSelect(pid,{'provinceId':0},'0',pvid);
+            initSelect(cid,{'provinceId':pvid},'1',cvid);
+            initSelect(tid,{'cityId':cvid},'2',countyId);
+        })
+
+        //$('#headImg').attr('src','https://ph-images.oss-cn-shenzhen.aliyuncs.com/merchant/20171017/20171017201036886181379.jpg');
+        //保存或者修改
+        $("#saveOrUpdate").on("click", function () {
+            var address = $("#tipinput").val();
+            if (address.length > 30){
+                layer.alert("地址最大长度不能超过30");
+                return;
+            }
+            var scope = $("input[name='scope']:checked").val();
+            if (scope ==null || scope == undefined){
+                layer.alert("请选择配送范围类型");
+                return;
+            }
+            var r = "";
+            if (scope == 1){
+                var len = $("#areaScopeForm").children("div").length;
+                for (i=0;i<len;i++){
+                    var p = $("#provinceId-"+i).val();
+                    var c = $("#cityId-"+i).val();
+                    var t = $("#townId-"+i).val();
+                    if (c == null){
+                        c = 0;
+                    }
+                    if (t == null){
+                        t = 0;
+                    }
+                    if (p != null && p!=0 ){
+                        r+= p+","+c+","+t+";";
+                    }else {
+                        layer.alert("请选择完整配送范围");
+                        return;
+                    }
+                }
+            }
+
+            var pvtxt = $("#area_div select[name=provinceId] option:selected").text();
+            var citytxt = $("#area_div select[name=cityId] option:selected").text();
+            var countyxt = $("#area_div select[name=countyId] option:selected").text();
+            var pctxt;
+            if (citytxt == '市辖区' || citytxt =='市辖县'){
+                pctxt = pvtxt+countyxt;
+            } else {
+                pctxt = pvtxt+citytxt+countyxt;
+            }
+
+            if (address.indexOf(pctxt) == -1 ){
+                layer.alert("所属区域和详细址输入不一致");
+                return;
+            }
+            var $townSelect = $("select[name='townId']");
+
+         //提交防止图片为空限制
+            if ($('#upimg').attr('src') == null && $("#file2").val() == "") {
+                    layer.alert("请添加店铺照片");
+                    return;
+            }
+
+
+
+            $(this).formSubmit({
+//                startFun: function (opt) {
+//                    var validateImgMsg = {
+//                       /* "1": "营业执照",
+//                        "2": "法人身份证",*/
+//                        "3": "门店照片"
+//                    };
+//                    var types = [];
+//                    $("input[data-validate-img-type]").each(function (i, img) {
+//                        types.push($(img).attr("data-validate-img-type"));
+//                    });
+//                    types.join(",");
+//                    for (var validateImgCol in validateImgMsg) {
+//                        if (types.indexOf(validateImgCol) === -1) {
+//                            layer.alert(validateImgMsg[validateImgCol] + "不能为空");
+//                            opt.needContinue = false;
+//                            break;
+//                        }
+//                    }
+//                },
+                url: "/web/merchants/" + operateType,
+                data: {
+                    provinceId: $("select[name='provinceId']").attr("data-area-code-selected") || null,
+                    cityId: $("select[name='cityId']").attr("data-area-code-selected") || null,
+                    countyId: $("select[name='countyId']").attr("data-area-code-selected") || null,
+                    townId: $townSelect.attr("data-area-code-selected") || null,
+                    positionId: $townSelect.val() || null,
+                    scope: scope,
+                    scopeAreas: r,
+                    merchantTypeSub: $("#merchantType").val()
+                },
+                backFun: function (result) {
+                    layer.alert(result.message);
+                    if (result.success) {
+                        setTimeout(function () {
+                            window.location.href = "/web/merchants/toUpdatePage";
+                        }, 1500)
+                    }
+                }
+            })
+        });
+        //根据账号（手机号）自动查询推广人
+//        $("#telPhone").blur(function () {
+//            var telPhone = $(this).val().trim();
+//            if (isNull(telPhone)) {
+//                return false;
+//            } else {
+//                $.post("/web/merchants/getPromoterByMerchantTel", {telPhone: telPhone}, function (result) {
+//                    if (result.success) {
+//                        $("#promoterAccount").val(result.data.telPhone);
+//                        $("#promoterAccountName").val(result.data.userName);
+//                        $("input[name='promoterId']").val(result.data.id);
+//            			$("#promoterAccount").attr("disabled",true);
+//                    } else {
+//                        $("#promoterAccount").val("");
+//                        $("#promoterAccountName").val("");
+//                        $("input[name='promoterId']").val("");
+//            			$("#promoterAccount").attr("disabled",false);
+//                    }
+//                })
+//            }
+//        });
+//        //获取服务专员姓名
+//        $("#promoterAccount").blur(function () {
+//            var telPhone = $(this).val().trim();
+//            if (isNull(telPhone)) {
+//                return false;
+//            } else {
+//                $.post("/web/member/getPromoterNameByTel", {telPhone: telPhone,isAgent:"1"}, function (result) {
+//                    if (result.success) {
+//                        $("#promoterAccountName").val(result.data.memberName);
+//                        $("input[name='promoterId']").val(result.data.id);
+//                    } else {
+//                        $("#promoterAccountName").val(result.message);
+//                    }
+//                })
+//            }
+//        });
+        //上传图片
+        $(".file").each(function (i, file) {
+            $(file).takungaeImgup({
+                maxImage: $(file).attr("data-file-maxImage"),
+                needNameInput: false,
+                formData: {
+                    'module': 'merchant'
+                },
+                success: function () {
+                    $("#headImg").val($(".up-img").attr("data-img-upload-src"));
+//                    generateImg();
+                }
+            });
+        });
+
+        //删除重新生成图片
+        $(".img-section").on("click", function () {
+//            generateImg();
+        });
+
+        //行业类别标签
+        $('.mainFrom').on('click', '.js_addhuntBtn', function () {
+            layer.open({
+                type: 1,
+                title: '添加标签',
+                closeBtn: 0,
+                area: ['460px', '400px'],
+                btn: ['确定', '取消'],
+                btnAlign: 'c',
+                content: $('#Js_addLinkman'),
+                btn1: function (index) {
+                    var $merchantTypeForm = $("#merchantTypeForm");
+                    var $secondMerchantTypeId = $("select[name='secondMerchantTypeId']", $merchantTypeForm);
+                    var $firstMerchantTypeId = $("select[name='firstMerchantTypeId']", $merchantTypeForm);
+                    var from = $("#form");
+                    var merchantTypeCountLength = $("input.merchantTypeCount", from).length;
+                    if (isNotNull($secondMerchantTypeId.val())) {
+                        if (merchantTypeCountLength >= 5) {
+                            layer.alert("最多选择五个行业分类");
+                        } else if ($("input.merchantTypeCount[value=" + $secondMerchantTypeId.val() + "]", from).length > 0) {
+                            layer.alert("当前行业分类已经添加");
+                        } else {
+                            generateMerchantType($secondMerchantTypeId.find("option:selected").html(), merchantTypeCountLength
+                                    , $firstMerchantTypeId.val(), $secondMerchantTypeId.val()
+                            );
+                        }
+                    }
+                    $("#merchantTypeDiv").html("");
+                    layer.close(index);
+                },
+                btn2: function () {
+                    $("#merchantTypeDiv").html("");
+                }
+            });
+            cascade({
+                url: "/web/merchantType/getMerchantTypeByChildList",
+                totalSelect: 2,
+                DivId: "merchantTypeDiv",
+                selectNames: ["firstMerchantTypeId", "secondMerchantTypeId"],
+                requestIds: ["parentId"],
+                requestNames: ["merchantTypeName", "merchantTypeName"]
+            })
+        });
+        $('#merchantType').on('click', '.addLabelClose', function () {
+            var inputId = $(this).attr("data-merchantType-id");
+            $(this).parents('.addLabel').remove();
+            var dataMerchantTypeIndex = $("input[data-merchantType-id=" + inputId + "]").attr("data-merchantType-index");
+            $("input[data-merchantType-id]").each(function (i, input) {
+                var index = $(input).attr("data-merchantType-index");
+                if (parseInt(index) > parseInt(dataMerchantTypeIndex)) {
+                    $(input).prop("name", "merchantMerchantTypeDTOList[" + (parseInt(index) - 1) + "]" + $(input).prop("name").split("]")[1]);
+                    $(input).attr("data-merchantType-index", (parseInt(index) - 1));
+                }
+            });
+            $("[data-merchantType-id=" + inputId + "]").remove();
+        });
+    });
+
+    function generateImg() {
+        var zoomImage = $(".zoom-img");
+        $("input.zoom-img-input").remove();
+        zoomImage.each(function (i, img) {
+            var form = $("#form"),
+                    type = $(img).recursiveParentNode("div").attr("data-file-type"),
+                    src = $(img).attr("data-img-upload-src"),
+                    inputUrl = "<input class='zoom-img-input' type='hidden' name='merchantImageDTOList[" + i + "].url' value=" + src + ">",
+                    inputType = "<input data-validate-img-type=" + type + " class='zoom-img-input' type='hidden' name='merchantImageDTOList[" + i + "].type' value=" + type + ">";
+            $(inputUrl).appendTo(form);
+            $(inputType).appendTo(form);
+        })
+    }
+
+    function generateMerchantType(title, index, firstMerchantTypeVal, secondMerchantTypeVal) {
+        var from = $("#form");
+        var inputId = new Date().getTime() + Math.random() * 100000;
+        inputId = inputId.toString().split(".")[0];
+        $("#merchantType").append(
+                '<span class="addLabel">' + title + '' +
+                '<i class="addLabelClose" data-merchantType-id="' + inputId + '">x</i>' +
+                '</span>');
+        from.append("<input data-merchantType-id=" + inputId + " data-merchantType-index=" + index + "   type='hidden' name='merchantMerchantTypeDTOList[" + index + "].firstMerchantTypeId' " +
+                "value='" + firstMerchantTypeVal + "' >");
+        from.append("<input data-merchantType-id=" + inputId + " data-merchantType-index=" + index + " type='hidden' name='merchantMerchantTypeDTOList[" + index + "].secondMerchantTypeId' " +
+                "value='" + secondMerchantTypeVal + "' class='merchantTypeCount'>");
+    }
+    function clearNoNum(obj) {
+        obj.value = obj.value.replace(/[^\u4E00-\u9FA5a-zA-Z]/g, "");//清除“汉字”和“英文”以外的字符
+    }
+
+    function initSelect(selectId,param,type,seVal){
+        var sel = $("#"+selectId).html("");
+        $.ajax({
+            type: "post",
+            dataType: "json",
+            data: param,
+            url: '/web/position/getPositionList',
+            success: function (data) {
+                var opt= "<option value='0'>请选择</option>";
+                $.each(data, function (index, item) {
+                   if (type == '0'){
+                       if (seVal == item.provinceId){
+                           opt += '<option value=' + item.provinceId + ' selected>'
+                               + item.provinceName + '</option>';
+                       } else {
+                           opt += '<option value=' + item.provinceId + '>'
+                               + item.provinceName + '</option>';
+                       }
+
+                   }
+                    if (type == '1'){
+                        if (seVal == item.cityId){
+                            opt += '<option value=' + item.cityId + ' selected>'
+                                + item.cityName + '</option>';
+                        } else {
+                            opt += '<option value=' + item.cityId + '>'
+                                + item.cityName + '</option>';
+                        }
+
+                    }
+                    if (type == '2'){
+                        if (seVal == item.countyId){
+                            opt += '<option value=' + item.countyId + ' selected>'
+                                + item.countyName + '</option>';
+                        } else {
+                            opt += '<option value=' + item.countyId + '>'
+                                + item.countyName + '</option>';
+                        }
+                    }
+                });
+                sel.html(opt);
+            }
+        });
+
+    }
+
+   function selectValue(id){
+      var val = $("#"+id).val();
+      var idx = id.split("-")[1];
+      var p = id.indexOf("provinceId");
+      //省触发市
+      if (p != -1){
+          initSelect("cityId-"+idx,{"provinceId":val},'1',0);
+      }
+      var t = id.indexOf("cityId");
+      //触发县
+      if (t != -1){
+          initSelect("townId-"+idx,{"cityId":val},'2',0);
+      }
+    }
+
+    $(document).ready(function() {
+        $('input[type=radio][name=scope]').change(function() {
+
+            if (this.value == 0) {
+                $("#areaScopeForm").hide();
+            }
+            else if (this.value == 1) {
+                $("#areaScopeForm").show();
+            }
+        });
+    });
+
+    function addDiv(){
+        var len = $("#areaScopeForm").children("div").length;
+        if (len >= 4 ){
+            $("#areaScopeForm").children("div").last().children("div").last().hide();
+        }
+    }
+
+</script>
+</body>
+</html>
+

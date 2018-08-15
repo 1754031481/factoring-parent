@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>供货订单</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">订单管理</a>&nbsp;&gt;&nbsp;<span>供货订单</span> </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>供货订单</h2>
+            <shiro:hasPermission name="supplyOrderExoprt">
+                <div class="ph_snbBtn"><input name="" type="button" th:onclick="'exportExcel();'" value="导出"></div>
+            </shiro:hasPermission>
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <form id="queryForm">
+            <div class="ph_screen">
+            <table class="ph_tableBox">
+                <tr>
+                    <th th:if="${roleCode!=2}">供应商账号：</th>
+                    <td th:if="${roleCode!=2}"><input name="" type="text" id="supplierPhone"></td>
+                    <th th:if="${roleCode!=6}">店铺账号：</th>
+                    <td th:if="${roleCode!=6}"><input name="" type="text" id="merchantPhone"></td>
+                    <th>订单号：</th>
+                    <td><input name="" type="text" id="orderNo"></td>
+
+                    <th>完成时间：</th>
+                    <td>
+                        <p class="dayBox">
+                            <input class="start_rise date start" name="settleTimeStr" type="text" id="settleTimeStr" >&nbsp;-&nbsp;
+                            <input class="start_rise date end" name="settleTimeEnd" type="text" id="settleTimeEnd">
+                        </p>
+                    </td>
+
+                </tr>
+                <tr>
+                    <th>创建时间：</th>
+                    <td>
+                        <p class="dayBox">
+                            <input class="start_rise date start" name="createTimeStr" type="text" id="createTimeStr" >&nbsp;-&nbsp;
+                            <input class="start_rise date end" name="createTimeEnd" type="text" id="createTimeEnd">
+                        </p>
+                    </td>
+
+                    <th>订单状态：</th>
+                    <td>
+                        <select class="selectpicker" name="status" id="status" >
+                            <option value="">全部</option>
+                            <option value="0">待付款</option>
+                            <option value="1">待发货</option>
+                            <option value="2">待收货</option>
+                            <option value="3">已收货</option>
+                            <option value="4">已撤销</option>
+                            <option value="5" th:if="${roleCode!=2}">待还款</option>
+                            <option value="6" th:if="${roleCode!=2}">已还款</option>
+                        </select>
+                    </td>
+                    <th>付款方式：</th>
+                    <td>
+                        <select class="selectpicker" name="payType" id="payType" >
+                            <option value="">全部</option>
+                            <option value="0">余额</option>
+                            <option value="1">银行卡</option>
+                            <option value="3">积分</option>
+                            <!--<option value="2">花呗支付</option>-->
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6">
+                        <input name="" type="button" th:onclick="'query();'" value="查询">
+                        <input name="" type="button" th:onclick="'resetForm();'" value="重置">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        </form>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="purchaseOrder">
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+<!--遮罩层-->
+<div class="maskBox"></div>
+<!--end 遮罩层-->
+
+<!--导出start-->
+<div hidden>
+    <form action="/web/order/supply/export"  id="orderExport" method="post">
+        <input type="hidden" name="supplierPhone" value="" id="e_supplierPhone"/>
+        <input type="hidden" name="merchantPhone" value="" id="e_merchantPhone"/>
+        <input type="hidden" name="orderNo" value="" id="e_orderNo"/>
+        <input type="hidden" name="settleTimeStr" value="" id="e_settleTimeStr"/>
+        <input type="hidden" name="settleTimeEnd" value="" id="e_settleTimeEnd"/>
+        <input type="hidden" name="createTimeStr" value="" id="e_createTimeStr"/>
+        <input type="hidden" name="createTimeEnd" value="" id="e_createTimeEnd"/>
+        <input type="hidden" name="status" value="" id="e_status"/>
+        <input type="hidden" name="payType" value="" id="e_payType"/>
+    </form>
+</div>
+<!--导出end-->
+
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript"   th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    var tb;
+    var roleCode ="[[${roleCode}]]";
+    $(function() {
+        $("#validateForm").validationEngine({
+            addPromptClass: 'formError-text',
+            showArrow: false,
+            promptPosition: 'bottomLeft'
+        });
+
+        //分页
+        tb=$("#purchaseOrder").DataTable({
+            "bServerSide": true,
+            "sPaginationType": "full_numbers",
+            "sDom": '<"">t<"F"ip>',
+            "sAjaxSource": "/web/order/supply/getSupplierOrderList", //ajax调用接口
+            "aoColumnDefs": [{sDefaultContent: '',aTargets: [ '_all' ]}],
+            "aoColumns": [
+                { "sTitle" : "序号","mData": null, "sWidth" : "50px"},
+                { "sTitle" : "订单号","mData": "orderNo","sWidth" : "220px"},
+                { "sTitle" : "供应商账号","mData": "supplierPhone" ,"visible":(roleCode==2)?false:true},
+                { "sTitle" : "供应商名称","mData": "supplierName" ,"visible":(roleCode==2||roleCode==1)?false:true},
+                { "sTitle" : "店铺账号","mData": "merchantPhone","visible":(roleCode==6)?false:true },
+                { "sTitle" : "店铺名称","mData": "merchantName" ,"visible":(roleCode==6 ||roleCode==1)?false:true},
+                { "sTitle" : "创建时间","mData": "createdTime","sWidth" : "150px"},
+                { "sTitle" : "完成时间","mData": "settleTime","sWidth" : "150px"},
+                { "sTitle" : "订单总额","mData": "totalScorePrice","mRender" : function (data,type,full) {
+                   var text;
+                   if(roleCode == 2){
+                       text = full.totalPrice/10000;
+                   }else if (roleCode == 6) {
+                       text = full.totalScorePrice/10000;
+                   }
+                   return text;
+                }},
+                { "sTitle" : "订单状态","mData": "status" ,"mRender" : function ( data, type, full ) {
+                    var text;
+                    if (full.status == 0) {
+                        text = "待付款";
+                    }else if (full.status == 1) {
+                        text = "待发货";
+                    }else if (full.status == 2) {
+                        text = "待收货";
+                    }else if (full.status == 3) {
+                        text = "已收货";
+                    }else if (full.status == 4) {
+                        text = "已撤销";
+                    }else if (full.status == 5) {
+                        text = (roleCode==6 ||roleCode==1)?"待还款":"已收货";
+                    }else if (full.status == 6) {
+                        text = (roleCode==6 ||roleCode==1)?"已还款":"已收货";
+                    }
+                    return text;
+                }},
+                { "sTitle" : "付款方式","mData": "payType" ,"mRender" : function ( data, type, full ) {
+                    var text;
+                    if (full.payType == 0) {
+                        text = "余额";
+                    }else if (full.payType == 1) {
+                        text = "银行卡";
+                    }else if (full.payType == null) {
+                        text = "未付款";
+                    }else if (full.payType == 3) {
+                        text = "积分";
+                    }
+                    return text;
+                }},
+                {"sWidth": "110px","sTitle" : "操作","mData" : "id","sClass":"ph_tableShow", "mRender" : function ( data, type, full ) {
+                    var text = '<div class="ph_operateBox"><input class="ph_operate" name="" type="button" value="操作选项">';
+                    text = text+'<ul class="ph_operateList hide">';
+                    if ([[${session.supplyOrderDetail}]]) {
+                        text += '<li><a href="javascript:void(0);" onclick="toDetail(\''+ full.id +'\')">订单详情</a></li>';
+                    }
+                    text = text + '</ul></div>';
+                    return text;
+                }
+                }
+            ],
+            "oLanguage" : {
+                "sProcessing" : "数据加载中······",
+                "sLengthMenu" : "显示 _MENU_ 条记录",
+                "sZeroRecords" : "没有您要搜索的内容！",
+                "sEmptyTable" : "列表中无数据存在！",
+                "sInfo" : "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+                "sInfoEmpty" : "显示 0 到 0 条记录",
+                "sInfoFiltered" : "数据列表中共  _MAX_ 条记录",
+                "oPaginate" : {
+                    "sFirst" : "首页",
+                    "sPrevious" : "上一页",
+                    "sNext" : "下一页",
+                    "sLast" : "末页"
+                }
+            },
+            "fnServerData" : function ( sSource, aoData, fnCallback, oSettings ) {
+                oSettings.jqXHR = $.ajax( {
+                    "dataType" 	: 'json',
+                    "type" 		: "POST",
+                    "async"     : 'false',
+                    "url" 		: sSource,
+                    "data" 		: {
+                        'pageNum': (aoData[3].value/aoData[4].value)+1,
+                        'pageSize' :  aoData[4].value,
+                        'createTimeStr'  :  $("[name='createTimeStr']").val(),
+                        'createTimeEnd' : $("[name='createTimeEnd']").val(),
+                        'settleTimeStr'  :  $("[name='settleTimeStr']").val(),
+                        'settleTimeEnd' : $("[name='settleTimeEnd']").val(),
+                        'orderNo' : $('#orderNo').val(),
+                        'supplierPhone' : $('#supplierPhone').val(),
+                        'merchantPhone' : $('#merchantPhone').val(),
+                        'payType' : $('#payType').val(),
+                        'status' : $('#status').val()
+                    },
+                    "success"	: fnCallback
+                } );
+            },
+            "fnDrawCallback" : function(){
+                var api = this.api();
+                var startIndex= api.context[0]._iDisplayStart;//获取到本页开始的条数
+                api.column(0).nodes().each(function(cell, i) {
+                    cell.innerHTML = startIndex + i + 1;
+                });
+
+            }
+        });
+    });
+
+
+    //条件查询重新加载数据
+    function query() {
+        tb.draw();
+    };
+
+    function resetForm() {
+        clearData("queryForm");
+    }
+
+    function exportExcel() {
+        $('#e_supplierPhone').val($('#supplierPhone').val());
+        $('#e_merchantPhone').val($('#merchantPhone').val());
+        $('#e_orderNo').val($('#orderNo').val());
+        $('#e_settleTimeStr').val($('#settleTimeStr').val());
+        $('#e_settleTimeEnd').val($('#settleTimeEnd').val());
+        $('#e_createTimeStr').val($('#createTimeStr').val());
+        $('#e_createTimeEnd').val($('#createTimeEnd').val());
+        $('#e_status').val($('#status').val());
+        $('#e_payType').val($('#payType').val());
+        $('#orderExport').submit();
+    }
+
+    function toDetail(orderId) {
+        var detailUrl="";
+        if(roleCode==2){
+            detailUrl="/web/order/supply/getSupplierOrderDetail";
+        }else{
+            detailUrl="/web/order/supply/getPurchaseOrderDetail";
+        }
+        HtmlHelper.generateAutoSubmitForm({
+            url: detailUrl,
+            data: {
+                supplierOrderId : orderId
+            }
+        });
+    }
+    function clearData(id) {
+        $("#" + id)[0].reset();
+        var selected = $("#" + id).find("select");
+        if (selected.length > 0) {
+            for (var i = 0, length = selected.length; i< length; i++) {
+                var id = selected.eq(i).attr("id");
+                selected.eq(i).selectpicker('val','');
+            }
+        }
+    }
+</script>
+</body>
+</html>

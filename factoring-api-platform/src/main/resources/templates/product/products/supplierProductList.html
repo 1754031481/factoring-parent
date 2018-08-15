@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>供应商商品</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}"/>
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/plugins/layer/layer.css}"/>
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">进货管理</a>&nbsp;&gt;&nbsp;<span>供应商商品</span></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>供应商商品列表</h2>
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <div class="ph_screen">
+            <table class="ph_tableBox">
+                <tr>
+                    <th>供应商：</th>
+                    <td>
+                        <input type="text" id="supplierName" name="supplierName">
+                    </td>
+                    <th>商品名称：</th>
+                    <td><input type="text" id="productName" name="productName"></td>
+                    <th>条形码：</th>
+                    <td><input type="text" onkeyup="value=value.replace(/[\u4E00-\u9FA5]|/g,'')" id="barCode" name="barCode"></td>
+                </tr>
+                <tr>
+                    <th>商品分类：</th>
+                    <td class="ph_select" colspan="1">
+                        <select class="selectpicker" id="first" data-live-search="true"
+                                onchange="getClass(this.options[this.selectedIndex].value,'second');">
+                            <option value="">请选择</option>
+                            <option th:each="list:${productTypeList}" th:value="${list.id}"
+                                    th:text="${list.classifyName}"></option>
+                        </select>
+                       <!-- <select class="selectpicker" id="second" data-live-search="true"
+                                onchange="getClass(this.options[this.selectedIndex].value,'three');">
+                            <option value="">请选择</option>
+                        </select>
+                        <select class="selectpicker" id="three" data-live-search="true">
+                            <option value="">请选择</option>
+                        </select>-->
+                    </td>
+                    <th>上架状态：</th>
+                    <td>
+                        <select class="selectpicker" id="saleNoSaleStatus" name="saleNoSaleStatus">
+                            <!--<option value="">请选择</option>-->
+                            <option value="" >全部</option>
+                            <option value="1">已上架</option>
+                            <option value="0">已下架</option>
+                        </select>
+                    </td>
+                    <!--<th>普惠补贴：</th>
+                    <td>
+                        <select class="selectpicker" id="phType" name="phType">
+                            <option value="">请选择</option>
+                            <option value="0">支持</option>
+                            <option value="1">不支持</option>
+                        </select>
+                    </td>-->
+                    <td colspan="2">
+                        <input name="" type="button" onclick="javascript:query();" value="查询">
+                        <input name="" type="button" onclick="reset();" value="重置">
+                        <input name="" type="button" onclick="window.location.href='/web/order/purchase/toPurchaseOrderAdd';"
+                               th:value="'去购物车结算('+${merchantShopCartList.size()}+')件商品'">
+                    </td>
+                </tr>
+            </table>
+            <input type="hidden" id="levleHidden" value=""/>
+            <input type="hidden" id="productClassifyId" name="productClassifyId" value=""/>
+            <!-- 	       		<input type="hidden"    id="sp"  name="sp"  th:value="${supplierId}"/>  -->
+
+        </div>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="example"></table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+    <!--查看规格弹窗-->
+    <div class="PopupBox" id="skuShow">
+        <div class="PopupCon">
+            <div class="lookCon ph_wareBox">
+                <table class="ph_wareList">
+                    <thead>
+                    <tr>
+                        <th>规格</th>
+                        <th>积分进货价</th>
+                        <th>库存</th>
+                        <th>销量</th>
+                        <th>进货</th>
+                    </tr>
+                    </thead>
+                    <tbody id="skuList">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!--end 内容-->
+    </div>
+    <!--end 查看规格弹窗-->
+
+    <!--查看购物车弹窗-->
+    <form id="shopForm" name="shopForm">
+    <div class="PopupBox" id="shopCart">
+        <div class="PopupCon">
+            <div class="lookCon ph_wareBox">
+                    <table class="ph_wareList">
+                        <thead>
+                        <tr>
+                            <th><input type="checkbox" onclick="clickAll()">全选</th>
+                            <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                            <th>商品</th>
+                            <th>单价</th>
+                            <th>数量</th>
+                            <th>小计</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="shopList">
+
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+        <!--end 内容-->
+    </div>
+    </form>
+    <!--end 查看规格弹窗-->
+</div>
+
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/formCheck.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/number.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    //当前用户登录的角色
+    var userRole = "[[${userRole}]]";
+    var tb;
+    $(function () {
+        tb = $('#example').DataTable({
+            "bServerSide": true,
+            "autoWidth": false,
+            "sPaginationType": "full_numbers",
+            //"bJQueryUI": true,
+            "sDom": '<"">t<"F"ip>',
+            "sAjaxSource": "/web/product/getSupplierProductByPage", //ajax调用接口
+            "aoColumnDefs": [{sDefaultContent: '', aTargets: ['_all']}],
+            "aoColumns": [
+//          { "sWidth": "50px","sTitle" : "ID", "mData": "id","title":"id"},
+                {"sTitle": "序号", "mData": null, "sWidth": "50px"},
+                {"sTitle": "供应商名称", "mData": "supplierName"},
+                {
+                    "sTitle": "商品名称", "mData": "name", "mRender": function (data, type, full) {
+                    var text;
+                    if (full.is_frozen == '1') {
+                        text = "<font color='#ccc'>[冻结]</font>";
+                        text += full.name;
+                    } else if (full.is_frozen == '2') {
+                        text = "<font color='#ccc'>[暂冻]</font>";
+                        text += full.name;
+                    } else {
+                        text = full.name;
+                    }
+                    return text;
+                }
+                },
+                {"sTitle": "商品分类", "mData": "classifyName"},
+                {"sTitle": "总库存", "mData": "num"},
+                {
+                    "sTitle": "上架状态", "mData": "status", "mRender": function (data, type, full) {
+                    var text;
+                    if (data == 1) {
+                        text = "已上架";
+                    } else if (data == 0) {
+                        text = "<font color='#ccc'>已下架</font>";
+                    } else {
+                        text = "<font color='#ccc'>已下架</font>";
+                    }
+                    return text;
+                }
+                },
+//                {
+//                    "sTitle": "普惠补贴", "mData": "phType", "mRender": function (data, type, full) {
+//                    var text;
+//                    if (data == 0) {
+//                        text = "支持补贴";
+//                    } else  {
+//                        text = "不支持补贴";
+//                    }
+//                    return text;
+//                }
+//                },
+                {
+                    "sWidth": "110px",
+                    "sTitle": "操作",
+                    "mData": "id",
+                    "sClass": "ph_tableShow",
+                    "mRender": function (data, type, full) {
+                        var text = '<div class="ph_operateBox"><input class="ph_operate" name="" type="button" value="操作选项">';
+                        text = text + '<ul class="ph_operateList hide" role="menu">';
+                        if ('[[${session.productPurchase}]]' != '' && full.status == 1 && full.num > 0) {
+                            text += "<li><a class='Js_btn' href='javascript:purchase(" + full.id + ");'>进货</a></li>";
+                        }
+                        if ('[[${session.productDetail}]]' != '') {
+                            text += "<li><a href='/web/product/toSupplierProductDetail?id=" + full.id + "'>商品详情</a></li>";
+                        }
+                        return text;
+                    }
+                }
+            ],
+            "oLanguage": {
+                "sProcessing": "数据加载中······",
+                "sLengthMenu": "显示 _MENU_ 条记录",
+                "sZeroRecords": "没有您要搜索的内容！",
+                "sEmptyTable": "列表中无数据存在！",
+                "sInfo": "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+                "sInfoEmpty": "显示 0 到 0 条记录",
+                "sInfoFiltered": "数据列表中共  _MAX_ 条记录",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "fnServerData": function (sSource, aoData, fnCallback, oSettings) {
+                oSettings.jqXHR = $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "async": 'false',
+                    "url": sSource,
+                    "data": {
+                        'pageNum': (aoData[3].value / aoData[4].value) + 1,
+                        'pageSize': aoData[4].value,
+                        'productClassifyId': $('#first').val(),
+                        'supplierName': $('#supplierName').val(),
+                        'productName': $('#productName').val(),
+                        'saleNoSaleStatus': $('#saleNoSaleStatus').val(),
+                        'phType': $('#phType').val(),
+                        'barCode': $('#barCode').val()
+                    },
+                    "success": fnCallback
+                });
+            },
+            "fnDrawCallback": function () {
+                var api = this.api();
+                var startIndex = api.context[0]._iDisplayStart;//获取到本页开始的条数
+                api.column(0).nodes().each(function (cell, i) {
+                    cell.innerHTML = startIndex + i + 1;
+                });
+
+            }
+        });
+    });
+
+    //条件查询重新加载数据
+    function query() {
+        if ($("#first").val() != "" && $("#second").val() == "" && $("#three").val() == "") {
+            $("#productClassifyId").val($("#first").val());
+        }
+        if ($("#first").val() != "" && $("#second").val() != "" && $("#three").val() == "") {
+            $("#productClassifyId").val($("#second").val());
+        }
+        if ($("#first").val() != "" && $("#second").val() != "" && $("#three").val() != "") {
+            $("#productClassifyId").val($("#three").val());
+        }
+        if ($("#first").val() == "" && $("#second").val() == "" && $("#three").val() == "") {
+            $("#productClassifyId").val("");
+        }
+        tb.draw();
+    }
+
+    //通过上商品id查看对应的sku
+    function purchase(psid) {
+        $.ajax({
+            url: '/web/product/seeProductSku', data: {
+                id: psid
+            }, dataType: "json", type: "get", success: skuCallback, error: function (data) {
+                layer.alert('与服务器连接中断', {icon: 2, btnAlign: 'c', closeBtn: 0});
+            }
+        });
+    }
+    //导出
+    var getExcel = function () {
+        var data = {
+            'productClassifyId': $('#productClassifyId').val(),
+            'supplierName': $('#supplierName').val(),
+            'productName': $('#productName').val(),
+            'saleNoSaleStatus': $('#saleNoSaleStatus').val(),
+            'phType': $('#phType').val()
+        };
+        exportExcel("ajaxSubmit", "/web/product/getSupplierExport", data);
+    };
+    //属性列表排序保存成功回调方法
+    function skuCallback(data) {
+        $("#skuList").html("");
+        //使用layer弹窗
+        console.log(data.data);
+        var html;
+        for (var i = 0; i < data.data.length; i++) {
+            html += "<tr>";
+            html += "<td title='" + data.data[i].content + "'><span title='" + data.data[i].content + "'>" + data.data[i].content + "</span></td>";
+            html += "<td>" + (data.data[i].scorePrice / 10000).toFixed(2) + "</td>";
+            html += "<td>" + data.data[i].num + "</td>";
+            html += "<td>" + data.data[i].saleNum + "</td>";
+            html += "<td><input name='' type='button' onclick='javascript:addCart(" + data.data[i].id + ");' value='加入购物车'></td>";
+            html += "</tr>";
+        }
+        $("#skuList").append(html);
+
+        layer.open({
+            type: 1,
+            title: '进货',
+            closeBtn: 2,
+            area: ['900px', '500px'],
+            cancel:function(){
+                window.location.reload();
+            },
+            content: $('#skuShow')
+        });
+    }
+
+    //分类联动方法
+    function getClass(id, level) {
+        $("#levleHidden").val("");
+        $("#levleHidden").val(level);
+        if (level == "second") {
+            document.getElementById("second").options.length = 0;
+            $("#second").prepend("<option value=''>请选择</option>");
+            document.getElementById("three").options.length = 0;
+            $("#three").prepend("<option value=''>请选择</option>");
+            $('.selectpicker').selectpicker('refresh');
+        }
+        if (level == "three") {
+            document.getElementById("three").options.length = 0;
+            $("#three").prepend("<option value=''>请选择</option>");
+            $('.selectpicker').selectpicker('refresh');
+        }
+        if (id != "") {
+            $.ajax({
+                url: '/web/product/productClassify/selectClass?id=' + id,
+                dataType: "json",
+                type: "post",
+                success: savecallbackOne,
+                error: function (data) {
+                    layer.alert('与服务器连接中断', {icon: 2, btnAlign: 'c', closeBtn: 0});
+                }
+            });
+        }
+    }
+    function savecallbackOne(data) {
+        var levle = $("#levleHidden").val();
+        if (levle == "second") {
+            $("#three").find("option").remove();
+            $("#three").prepend("<option value=''>请选择</option>");
+            $('.selectpicker').selectpicker('refresh');
+        }
+        $("#" + levle).find("option").remove();
+        $("#" + levle).prepend("<option value=''>请选择</option>");
+        for (var i = 0; i < data.data.length; i++) {
+            $("#" + levle).append("<option value='" + data.data[i].id + "'>" + data.data[i].classifyName + "</option>");
+        }
+        $('.selectpicker').selectpicker('refresh');
+    }
+
+    function reset() {
+        $('#productClassifyId').val(""),
+                $('#supplierName').val("");
+        $('#productName').val("");
+        $('#saleNoSaleStatus').val("1");
+        $('#phType').val("");
+        $('#barCode').val("");
+        $("#first").selectpicker('val', '');
+        $("#saleNoSaleStatus").selectpicker('val', '');
+        document.getElementById("second").options.length = 0;
+        $("#second").prepend("<option value=''>请选择</option>");
+        document.getElementById("three").options.length = 0;
+        $("#three").prepend("<option value=''>请选择</option>");
+        $('.selectpicker').selectpicker('refresh');
+    }
+
+    function addCart(id) {
+        $.ajax({
+            url: '/web/product/insertMerchantShopCart',
+            data: {specId: id},
+            dataType: "json",
+            type: "post",
+            success: function (data) {
+                layer.msg(data.message);
+            },
+            error: function (data) {
+                layer.alert('与服务器连接中断', {icon: 2, btnAlign: 'c', closeBtn: 0});
+            }
+        });
+    }
+    function deleteCart(id) {
+        $.ajax({
+            url: '/web/product/deleteMerchantShopCart',
+            data: {id: id},
+            dataType: "json",
+            type: "post",
+            success: function (data) {
+                layer.msg(data.message);
+                if (data.code == '200') {
+                    window.location.reload();
+                }
+            },
+            error: function (data) {
+                layer.alert('与服务器连接中断', {icon: 2, btnAlign: 'c', closeBtn: 0});
+            }
+        });
+    }
+    function count(e, type) {
+        if (type == 0) {//加
+            var count = parseInt($(e).next().val());
+            if (count >= 9999) {
+                layer.alert('最大9999', {icon: 2, btnAlign: 'c', closeBtn: 0});
+                return false;
+            }
+            $(e).next().val(count + 1);
+        } else {//减
+            var count = parseInt($(e).prev().val());
+            if (count <= 1) {
+                layer.alert('不能再减了', {icon: 2, btnAlign: 'c', closeBtn: 0});
+                return false;
+            }
+            $(e).prev().val(count - 1);
+        }
+    }
+</script>
+</body>
+</html>

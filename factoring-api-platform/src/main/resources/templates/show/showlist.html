@@ -1,0 +1,433 @@
+<!DOCTYPE html >
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>品秀列表</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+    <!--文件树插件 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/ztree/zTreeStyle.css}">
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}">
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">审核管理</a>&nbsp;&gt;&nbsp;<span>品秀列表</span></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>品秀列表</h2>
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <form id="queryForm">
+            <div class="ph_screen">
+                <shiro:hasPermission name="showQuery">
+                    <table class="ph_tableBox">
+                        <tr>
+                            <th>账号：</th>
+                            <td><input name="phone" id="phone" type="text"></td>
+                            <th>来源：</th>
+                            <td>
+                                <select id="userType" class="selectpicker">
+                                    <option value=""> 全部</option>
+                                    <option value="0">普通专员</option>
+                                    <option value="1">驻店专员</option>
+                                </select>
+                            </td>
+                            <th>审核状态：</th>
+                            <td>
+                                <select id="status" class="selectpicker">
+                                    <option value=""> 全部</option>
+                                    <option value="1">待审核</option>
+                                    <option value="2">已通过</option>
+                                    <option value="3">已驳回</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>发布时间：</th>
+                            <td colspan="2">
+                                <p class="dayBox">
+                                    <input class="start_rise date start" name="starTime" id="starTime" type="text">&nbsp;-&nbsp;
+                                    <input class="start_rise date end" name="endTime" id="endTime" type="text">
+                                </p>
+                            </td>
+                            <td colspan="3">
+                                <input name="" th:onclick="'query();'" type="button" value="查询">
+                                <input name="" th:onclick="'resetForm();'" type="button" value="重置">
+                            </td>
+                        </tr>
+                    </table>
+                </shiro:hasPermission>
+            </div>
+        </form>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="example">
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+<!--驳回弹窗-->
+<div class="PopupBox" id="deliverBox">
+    <!--内容-->
+    <div class="PopupCon">
+        <div class="ph_subPoCon ph_screen">
+            <form id="conBackForm">
+                <table class="ph_tableBox">
+                    <input id="id" name="id" type="hidden">
+                    <tr>
+                        <th><span class="require">*</span>驳回原因：</th>
+                        <td><textarea style="height:50px;" id="rejectionReason" name="rejectionReason" class="validate[required,maxSize[50]]"
+                        ></textarea></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--end 内容-->
+</div>
+<!--end 添加用户弹窗-->
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/spm/spmExtends.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/cascade.js}"></script>
+<!-- 验证 -->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<!--图片点击放大-->
+<script type="text/javascript" th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+<script type="text/javascript"  th:inline="javascript">
+    var tb;
+    var isBack = "[[${session.isBack==null?false:session.isBack}]]"
+    var iDisplayStart = parseInt("[[${session.iDisplayStart==null?0:session.iDisplayStart}]]");
+    var toBack = [[${param.toBack==null?"":param.toBack[0]}]];
+    $(function () {
+        if(isBack=="false" || toBack==""){
+            iDisplayStart=0;
+        }
+        // 日期控件区间
+        $('.dayBox .start_rise').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            endDate:new Date()
+        });
+        $('.dayBox').datepair();
+        //分页
+        tb = $('#example').DataTable({
+            "lengthChange": false,
+            "ordering": false,
+            "searching": false,
+
+            "bServerSide": true,
+            "sPaginationType": "full_numbers",
+            "bJQueryUI": true,
+            "sDom": '<"">t<"F"ip>',
+            "sAjaxSource": "/web/show/getShowList", //ajax调用接口
+            "aoColumnDefs": [{sDefaultContent: '', aTargets: ['_all']}],
+            "iDisplayStart":iDisplayStart,
+            "aoColumns": [
+                {
+                    "sTitle": "序号", "mData": "id", "class": "sClass", "mRender": function (data, type, full, meta) {
+                    return meta.row + 1 + meta.settings._iDisplayStart;
+                }
+                },
+                {"sTitle": "账号", "mData": "phone"},
+                { "sTitle" : "来源","mData": "source" ,"mRender":function(data, type, full){
+                    var text;
+                    if(full.source=='0'){
+                        text="普通专员";
+                    }else if(full.source=='1'){
+                        text="驻店专员";
+                    }
+                    return text;
+                }},
+                {"sTitle": "内容", "mData": "content"},
+                {"sTitle": "所属商品名称", "mData": "productName"},
+                {"sTitle": "发布时间", "mData": "createdTime"},
+                {"sTitle": "审核时间", "mData": "auditTime"},
+                {
+                    "sTitle": "相关", "mData": "collectNum", "mRender": function (data, type, full) {
+                    var text="";
+                    text+="收藏："+ 0 +"<br/>";
+                    text+="阅读："+full.views+"<br/>";
+                    text+="评论："+full.commentNum+"<br/>";
+                    text+="点赞："+full.fabulousNum+"<br/>";
+                    return text;
+                }
+                },
+                { "sTitle" : "审核状态","mData": "source" ,"mRender":function(data, type, full){
+                    var text;
+                    if(full.status=='1'){
+                        text="待审核";
+                    }else if(full.status=='2'){
+                        text="已通过";
+                    }else if (full.status=='3'){
+                        text = "已驳回";
+                    }
+                    return text;
+                }},
+                {
+                    "sTitle": "操作", "mData": "operateType","sClass": "ph_tableShow", "mRender": function (data, type, full) {
+                    var text = '<div class="ph_operateBox"><input class="ph_operate" name="" type="button" value="操作选项">';
+                    text = text + '<ul class="ph_operateList hide" role="menu">';
+                    text += '<li><a href="/web/show/toShowDetailPage?showId=' + full.id + '&pageNum=5">查看详情</a></li>';
+                    if (full.status == 1){
+                        if ([[${session.adoptShow}]]) {
+                            text += '<li><a href="javascript:void(0);" onclick="adoptShow(\'' + full.id + '\');">通过</a></li>';
+                        }
+                        if ([[${session.rejectShow}]]) {
+                            text += '<li><a href="javascript:void(0);" onclick="rejectShow(\'' + full.id + '\');">驳回</a></li>';
+                        }
+                    }
+                    if (full.status == 2){
+                        if (full.topTime == '' || full.topTime == null){
+                            if ([[${session.setTop}]]) {
+                                text += '<li><a href="javascript:void(0);" onclick="setTop(\'' + full.id + '\');">置顶</a></li>';
+                            }
+                        } else {
+                            if ([[${session.cancelTop}]]) {
+                                text += '<li><a href="javascript:void(0);" onclick="cancelTop(\'' + full.id + '\');">取消置顶</a></li>';
+                            }
+                        }
+                        if ([[${session.displayShow}]]) {
+                            if (full.isShow == 1){
+                                text += '<li><a href="javascript:void(0);" onclick="displayShow(\'' + full.id + '\');">显示</a></li>';
+                            }else{
+                                text += '<li><a href="javascript:void(0);" onclick="hideShow(\'' + full.id + '\');">隐藏</a></li>';
+                            }
+
+                        }
+                    }
+                    text = text + '</ul></div>';
+                    return text;
+                }
+                }
+            ],
+            "oLanguage": {
+                "sProcessing": "数据加载中······",
+                "sLengthMenu": "显示 _MENU_ 条记录",
+                "sZeroRecords": "没有您要搜索的内容！",
+                "sEmptyTable": "列表中无数据存在！",
+                "sInfo": "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+                "sInfoEmpty": "显示 0 到 0 条记录",
+                "sInfoFiltered": "数据列表中共  _MAX_ 条记录",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "fnServerData": function (sSource, aoData, fnCallback, oSettings) {
+                oSettings.jqXHR = $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "async": 'false',
+                    "url": sSource,
+                    "data": {
+                        'pageNum': (aoData[3].value / aoData[4].value) + 1,
+                        'pageSize': aoData[4].value,
+                        'phone': $('#phone').val(),
+                        'userType' : $('#userType').val(),
+                        'status' : $('#status').val(),
+                        'startTime': $.trim($('#starTime').val())?$.trim($('#starTime').val())+" 00:00:00":$.trim($('#starTime').val()),
+                        'endTime': $.trim($('#endTime').val())?$.trim($('#endTime').val())+" 23:59:59":$.trim($('#endTime').val())
+                    },
+                    "success": fnCallback
+                });
+            },
+            "fnDrawCallback": function () {
+                var api = this.api();
+                var startIndex = api.context[0]._iDisplayStart;//获取到本页开始的条数
+                api.column(0).nodes().each(function (cell, i) {
+                    cell.innerHTML = startIndex + i + 1;
+                });
+                //点击图片放大初始化
+                $('.zoom-img').viewer({
+                    url: 'src',
+                    navbar: false,
+                    keyboard: true,
+                    title: true
+                });
+            }
+        });
+    });
+    //条件查询重新加载数据
+    function query() {
+        tb.draw();
+    }
+    /**
+     * 重置内容
+     */
+    function resetForm() {
+        clearData("queryForm");
+    }
+    function clearData(id) {
+        $("#" + id)[0].reset();
+        var selected = $("#" + id).find("select");
+        if (selected.length > 0) {
+            for (var i = 0, length = selected.length; i < length; i++) {
+                selected.eq(i).selectpicker('val', '');
+            }
+        }
+    }
+
+    function adoptShow(showId) {
+        console.log(">>>>>>>>>>:" + showId);
+        layer.confirm('是否要通过这条品秀？', {
+            icon: 3,
+            btn: ['是', '否'], //按钮
+            btn1: function (index) {
+                $.ajax({
+                    async: false,
+                    url: "/web/show/adoptShow",
+                    data: {showId: showId},
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.success) {
+                            layer.alert(data.message, {icon: 1,title: '提示',closeBtn: 0,btnAlign: 'c'});
+                            tb.draw();
+                        } else {
+                            layer.alert(data.message, {icon: 2,title: '失败',closeBtn: 0,btnAlign: 'c'});
+                        }
+                    }
+                });
+                layer.close(index);
+            },
+
+        });
+    }
+
+    function rejectShow(showId) {
+        console.log(">>>>>>>>>>:" + showId);
+        layer.confirm('是否要驳回这条品秀？', {
+            icon: 3,
+            btn: ['是', '否'], //按钮
+            btn1: function (index) {
+                $.ajax({
+                    async: false,
+                    url: "/web/show/rejectShow",
+                    data: {showId: showId},
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.success) {
+                            layer.alert(data.message, {icon: 1,title: '提示',closeBtn: 0,btnAlign: 'c'});
+                            tb.draw();
+                        } else {
+                            layer.alert(data.message, {icon: 2,title: '失败',closeBtn: 0,btnAlign: 'c'});
+                        }
+                    }
+                });
+                layer.close(index);
+            },
+
+        });
+    }
+    function setTop(id) {
+        //置顶
+        $.ajax({
+            type: 'POST',
+            url: "/web/show/setTopShow",
+            data: {"showId":id},
+            success: function (data) {
+                if (data.success){
+                    //修改成功
+                    layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0});
+                    tb.draw();
+                } else {
+                    //修改失败
+                    layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                }
+            },
+            dataType: "json"
+        });
+    }
+    function cancelTop(id) {
+        //取消置顶
+        $.ajax({
+            type: 'POST',
+            url: "/web/show/cancelTopShow",
+            data: {"showId":id},
+            success: function (data) {
+                if (data.success){
+                    //修改成功
+                    layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0});
+                    tb.draw();
+                } else {
+                    //修改失败
+                    layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                }
+            },
+            dataType: "json"
+        });
+    }
+    function hideShow(id) {
+        //隐藏品秀
+        $.ajax({
+            type: 'POST',
+            url: "/web/show/hideShow",
+            data: {"showId":id},
+            success: function (data) {
+                if (data.success){
+                    //修改成功
+                    layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0});
+                    tb.draw();
+                } else {
+                    //修改失败
+                    layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                }
+            },
+            dataType: "json"
+        });
+    }
+
+    function displayShow(id) {
+        //显示品秀
+        $.ajax({
+            type: 'POST',
+            url: "/web/show/displayShow",
+            data: {"showId":id},
+            success: function (data) {
+                if (data.success){
+                    //修改成功
+                    layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0});
+                    tb.draw();
+                } else {
+                    //修改失败
+                    layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+                }
+            },
+            dataType: "json"
+        });
+    }
+</script>
+</body>
+</html>

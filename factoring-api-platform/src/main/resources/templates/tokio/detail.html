@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>结算信息</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">订单结算</a>&nbsp;&gt;&nbsp;<span>结算详情</span> </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit no_border">
+            <h2>线下订单结算详情</h2>
+        </div>
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList product" >
+                <thead>
+                <tr>
+                    <th>商品名称</th>
+                    <th>商品规格</th>
+                    <th>数量</th>
+                    <th>单价</th>
+                    <th>总价</th>
+                    <th>普惠补贴</th>
+                    <th>店铺所得</th>
+                    <th>服务专员所得</th>
+                    <th>推广经理</th>
+                    <th>平台所得</th>
+                    <th>普惠所得</th>
+                </tr>
+                </thead>
+                <tbody >
+                <tr th:each="prod,iterStat:${prodlist}" >
+                    <!--<td th:class="${prod.id}" th:text="${iterStat.count}"></td>-->
+                    <td th:text="${prod.productName}"></td>
+                    <td th:text="${prod.productSpecificationName}"></td>
+                    <td th:text="${prod.num}"></td>
+                    <td th:text="${prod.productSalePrice}"></td>
+                    <td th:text="${prod.totalPrice}"></td>
+                    <td ></td>
+                    <td th:text="${prod.recommendHunterFen}"></td>
+                    <td th:text="${prod.directHunterFen}"></td>
+                    <td th:text="${prod.directHunterManagerFen}"></td>
+                    <td th:text="${prod.industryFen}"></td>
+                    <td th:text="${prod.puhuiFen}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--返回按钮-->
+        <div class="PopupBtn">
+            <input name="" type="button" value="返回" th:onclick="'toPageList();'">
+        </div>
+        <!--end 返回按钮-->
+    </div>
+    <!--end 主体内容-->
+</div>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/common/number.js}"></script>
+<script type="text/javascript">
+
+    /*$(function (){
+
+     var userId = $("#userId").val();
+     $.ajax({
+     async: false,
+     url: "/web/orderUnline/findDeatilProductList",
+     data: {userId: userId},
+     type: "GET",
+     cache:false,
+     dataType: "json",
+     success: function (data) {
+     console.log(data.data);
+     if (data.data) {
+     //MenuTree(data.data);
+
+     }
+     /!*layer.alert("当前用户无菜单权限", {
+     icon: 2,
+     title: '失败',
+     closeBtn: 0,
+     btnAlign: 'c'
+     });*!/
+     },
+     error: function (data) {
+     layer.alert("菜单加载异常", {
+     icon: 2,
+     title: '失败',
+     closeBtn: 0,
+     btnAlign: 'c'
+     });
+     }
+     });
+     });*/
+
+    /**
+     * 返回到列表页面
+     */
+    function toPageList() {
+        window.location.href="/web/onlineSettlement/toSettlementPage";
+    }
+</script>
+</body>
+</html>

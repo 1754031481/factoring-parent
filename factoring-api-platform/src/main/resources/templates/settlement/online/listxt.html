@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>订单结算</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">订单结算</a></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit">
+            <h2>线上结算</h2>
+            <div class="ph_snbBtn">
+                <shiro:hasPermission name="orderSettlementOnlineExport">
+                    <input name="" type="button" th:onclick="'exportExcel();'" value="导出">
+                </shiro:hasPermission>
+            </div>
+        </div>
+        <!--end 标题-->
+        <!--筛选条件-->
+        <form id="queryForm">
+            <div class="ph_screen">
+                <shiro:hasPermission name="orderOnlineQuery">
+                    <table class="ph_tableBox">
+                        <tr>
+                            <th>订单号：</th>
+                            <td><input type="text" name = "orderNo" id="orderNo"></td>
+                            <!--<th>推广服务专员账号：</th>
+                            <td><input type="text" name = "hunterPhone" id="hunterPhone"></td>-->
+                            <th>店铺账号：</th>
+                            <td><input type="text" name = "merchantTelphone" id="merchantTelphone"></td>
+                        </tr>
+                        <tr>
+                            <th>结算时间：</th>
+                            <td colspan="2">
+                                <p class="dayBox"><input class="start_rise date start" name="startTime" type="text" id="startTime">&nbsp;-&nbsp;
+                                    <input class="start_rise date end" name="endTime" type="text" id="endTime"></p>
+                            </td>
+                            <td>
+                                <input name="" type="button" th:onclick="'query();'" value="查询">
+                                <input name="" type="button" th:onclick="'resetForm();'" value="重置">
+                            </td>
+                        </tr>
+                    </table>
+                </shiro:hasPermission>
+            </div>
+        </form>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox" style=" overflow:scroll;">
+            <table class="ph_wareList" id="example" >
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+
+<form id="validateForm">
+    <!--订单发货弹窗-->
+    <div class="PopupBox" id="deliverBox">
+        <!--内容-->
+        <div class="PopupCon">
+            <div class="ph_subPoCon ph_screen">
+                <table class="ph_tableBox">
+                    <tr>
+                        <th><span class="require">*</span>发货地址：</th>
+                        <td>
+                            <select class="selectpicker" data-live-search="true" name="sendAddressName" id="sendAddressId">
+
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>物流公司：</th>
+                        <td>
+                            <select class="selectpicker" data-live-search="true" name="logisticsName" id="logisticsId">
+
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>物流编号：</th>
+                        <td><input name="" type="text" id="logisticsNo"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <!--end 内容-->
+    </div>
+    <!--end 订单发货弹窗-->
+</form>
+
+    <!--导出start-->
+    <div hidden>
+        <form action="/web/onlineSettlementxt/export"  id="orderExport" method="post">
+            <input type="hidden" name="startTime" value="" id="e_starTime"/>
+            <input type="hidden" name="endTime" value="" id="e_endTime"/>
+            <input type="hidden" name="orderNo" value="" id="e_orderNo"/>
+            <input type="hidden" name="hunterPhone" value="" id="e_hunterPhone"/>
+            <input type="hidden" name="merchantTelphone" value="" id="e_merchantTelphone"/>
+        </form>
+    </div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+
+    $('#startTime').datepicker({
+        'format': 'yyyy-mm-dd',
+        'autoclose': true,
+        endDate : new Date()
+    })
+    //结束时间：
+    $('#endTime').datepicker({
+        'format': 'yyyy-mm-dd',
+        'autoclose': true,
+        endDate : new Date()
+    })
+
+    var tb;
+    $(function() {
+        $('.ph_wareBox').on('click','.Js_deliver',function(){
+            layer.open({
+                type: 1,
+                title: '订单发货',
+                closeBtn : 0,
+                area: ['442px','280px'],
+                btn:['发货', '取消'],
+                btnAlign: 'c',
+                content: $('#deliverBox')
+            });
+        });
+        //分页
+        tb = $('#example').DataTable({
+            "lengthChange": false,
+            "ordering": false,
+            "searching": false,
+
+            "bServerSide": true,
+             "sPaginationType": "full_numbers",
+             "bJQueryUI": true,
+             "sDom": '<"">t<"F"ip>',
+             "sAjaxSource": "/web/onlineSettlementxt/list", //ajax调用接口
+             "aoColumnDefs": [{sDefaultContent: '',aTargets: [ '_all' ]}],
+             "aoColumns": [
+             { "sTitle" : "序号","mData": "id","sWidth" : "50px" },
+             { "sTitle" : "订单号","mData": "orderNo","sWidth" : "180px" },
+             { "sTitle" : "店铺账号","mData": "matchantPhone" ,"sWidth":"120px"},
+             { "sTitle" : "订单金额","mData": "totalPriceD","sWidth":"100px" },
+               /*  { "sTitle" : "成本总价","mData": "totalPrice" ,"sWidth" : "100px"},*/
+                 { "sTitle" : "物流配送费","mData": "freightFee","sWidth" : "100px" },
+                 { "sTitle" : "店铺服务费","mData": "recommendHunterFenD","sWidth" : "100px" },
+                 { "sTitle" : "旗舰店管理费","mData": "flagShipFee" ,"sWidth" : "100px"},
+
+                 /*{ "sTitle" : "分享费用","mData": "shareFee" ,"sWidth" : "100px"},*/
+                 { "sTitle" : "一级分享费","mData": "oneLevelShareFee" , "sWidth" : "100px"},
+                 { "sTitle" : "二级分享费","mData": "twoLevelShareFee" ,"sWidth" : "100px"},
+                 { "sTitle" : "三级分享费","mData": "threeLevelShareFee" ,"sWidth" : "100px"},
+
+
+                 { "sTitle" : "创作分享费用","mData": "createShareFee" ,"sWidth" : "100px"},
+
+                 { "sTitle" : "旗舰店专员管理费","mData": "flagShipHunterFee" ,"sWidth" : "120px"},
+                 { "sTitle" : "卫星店专员管理费","mData": "satelliteShopHunterFee" ,"sWidth" : "120px"},
+
+                 { "sTitle" : "售后服务费","mData": "afterServiceFee" ,"sWidth" : "100px"},
+                 { "sTitle" : "平台收入","mData": "industryFen" ,"sWidth" : "100px"},
+             /*{ "sTitle" : "服务专员所得","mData": "directHunterFenD" },
+             { "sTitle" : "推广经理所得","mData": "directHunterManagerFenD" },
+             { "sTitle" : "奖励方式","mData": "fenRunType" , "mRender": function (data, type, full) {
+                 var text;
+                 if (full.fenRunType == 0) {
+                     text = "天天奖";
+                 }
+                 if (full.fenRunType == 1) {
+                     text = "开红包";
+                 }
+                 return text;
+             }
+             },*/
+             /*{ "sTitle" : "普惠所得","mData": "puhuiFenD" },*/
+             { "sTitle" : "结算时间","mData": "settlementTime","sWidth" : "150px" },
+             {"sTitle" : "操作","mData" : "id","class":"ph_tableShow","sWidth" : "150px", "mRender" : function ( data, type, full ) {
+             var text = '<div class="ph_operateBox"><input class="ph_operate" name="" type="button" value="操作选项">';
+                 text = text+'<ul class="ph_operateList hide">';
+
+
+                 text += '<li><a class="Js_btn" href="javascript:void(0);" onclick="toDetail(\'' + full.id + '\',\'' + full.orderNo + '\');">订单详情</a></li>';
+                 text = text + '</ul></div>';
+                 return text;
+             }
+             }
+             ],
+            "oLanguage" : {
+                "sProcessing" : "数据加载中······",
+                "sLengthMenu" : "显示 _MENU_ 条记录",
+                "sZeroRecords" : "没有您要搜索的内容！",
+                "sEmptyTable" : "列表中无数据存在！",
+                "sInfo" : "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+                "sInfoEmpty" : "显示 0 到 0 条记录",
+                "sInfoFiltered" : "数据列表中共  _MAX_ 条记录",
+                "oPaginate" : {
+                    "sFirst" : "首页",
+                    "sPrevious" : "上一页",
+                    "sNext" : "下一页",
+                    "sLast" : "末页"
+                }
+            },
+            "fnServerData" : function ( sSource, aoData, fnCallback, oSettings ) {
+                oSettings.jqXHR = $.ajax( {
+                    "dataType" 	: 'json',
+                    "type" 		: "GET",
+                    "async"     : 'false',
+                    "url" 		: sSource,
+                    "data" 		: {
+                        'pageNum': (aoData[3].value/aoData[4].value)+1,
+                        'pageSize' :  aoData[4].value,
+                        'orderNo'  :  $.trim($("#orderNo").val()),
+                        'startTime' : $.trim($('#startTime').val()),
+                        'endTime' : $.trim($('#endTime').val()),
+                        'terminalUnit' : $.trim($('#terminalUnit').val()),
+                        'hunterPhone' : $.trim($('#hunterPhone').val()),
+                        'merchantTelphone' : $.trim($('#merchantTelphone').val()),
+                        'status' : $.trim($('#status').val())
+                    },
+                    "success"	: fnCallback
+                } );
+            },
+            "fnDrawCallback" : function(){
+                var api = this.api();
+                var startIndex= api.context[0]._iDisplayStart;//获取到本页开始的条数
+                api.column(0).nodes().each(function(cell, i) {
+                    cell.innerHTML = startIndex + i + 1;
+                });
+            }
+        });
+    });
+
+    //条件查询重新加载数据
+    function query() {
+        tb.draw();
+    }
+    /**
+     * 重置内容
+     */
+    //重置查询条件--star
+    function resetForm() {
+        clearData("queryForm");
+    }
+    function clearData(id) {
+        $("#" + id)[0].reset();
+        var selected = $("#" + id).find("select");
+        if (selected.length > 0) {
+            for (var i = 0, length = selected.length; i< length; i++) {
+                selected.eq(i).selectpicker('val','');
+            }
+        }
+    }
+    //重置查询条件-end
+    /**
+     * 查看订单的物流信息
+     * @param subOrderId
+     */
+    function toLogistics(subOrderId) {
+        HtmlHelper.generateAutoSubmitForm({
+            url: "/web/orderOnline/logistics",
+            data: {
+                id : subOrderId,
+            }
+        });
+    }
+    /**
+     * 发货
+     * @param subOrderId
+     */
+    function toSend(subOrderId) {
+        //查出数据进行回填
+        $.ajax({
+            async:false,
+            url:"/web/orderOnline/getSendAddressAndLogistics",
+            data:{},
+            type:"POST",
+            dataType:"json",
+            success:function(data){
+                if (data.success) {
+                    //填充数据
+                    var dataList = data.data;
+                    if(dataList.address.length>0){//仓库地址
+                        var sendAddress;
+                        var sendAddressDefaul;
+                        for(var i=0; i< dataList.address.length;i++){
+                            if (dataList.address[i].isDefault == 1){ //默认
+                                sendAddressDefaul = "<option value='"+ dataList.address[i].id +"'>" + dataList.address[i].address + "</option>";
+                            }else {
+                                sendAddress += "<option value='"+ dataList.address[i].id +"'>" + dataList.address[i].address + "</option>";
+                            }
+                        }
+                        $("#sendAddressId").append(sendAddressDefaul+sendAddress);
+                        $('.selectpicker').selectpicker('refresh');
+                    }
+                    if (dataList.logistics.length>0){
+                        for(var i=0; i< dataList.logistics.length;i++){
+                            $("#logisticsId").append("<option value='"+ dataList.logistics[i].id +"'>" + dataList.logistics[i].logisticsName + "</option>");
+                        }
+                        $('.selectpicker').selectpicker('refresh');
+                    }
+                    layer.open({
+                        type: 1,
+                        title: '订单发货',
+                        closeBtn : 0,
+                        area: ['500px','300px'],
+                        btn:['发货', '取消'],
+                        btnAlign: 'c',
+                        content: $('#deliverBox'),
+                        yes:function (index, layero) {
+                            var flag = $("#validateForm").validationEngine("validate");
+                            if(!flag){
+                                return false;
+                            }
+                            var data = {};
+                            data.orderId = subOrderId;
+                            var sendAddress = $('#sendAddressId').find("option:selected");
+                            data.sendAddressId = sendAddress.val();
+                            data.sendAddressName = sendAddress.text();
+
+                            var logistics = $('#logisticsId').find("option:selected");
+                            data.logisticsId = logistics.val();
+                            data.logisticsName = logistics.text();
+
+                            data.logisticsNo = $('#logisticsNo').val();
+                            $.ajax({
+                                async:false,
+                                url:"/web/orderOnline/sendOrder",
+                                data:data,
+                                type:"POST",
+                                dataType:"json",
+                                success:function(data){
+                                    if (data.success) {
+                                        layer.close(index);
+                                        tb.draw(false);
+                                        layer.alert(data.message, {icon: 1,btnAlign: 'c', closeBtn : 0});
+                                    } else {
+                                        layer.alert(data.message, {icon: 2,btnAlign: 'c', closeBtn : 0});
+                                    }
+                                }
+                            });
+                        }, btn2: function(index, layero){
+                            layer.close(index);
+                        }
+                    });
+                } else {
+                    layer.alert(data.message, {icon: 2,btnAlign: 'c', closeBtn : 0});
+                }
+            }
+        });
+
+
+
+    }
+    /**
+     * 订单详情
+     * @param subOrderId
+     */
+    function toDetail(subOrderId,orderNo) {
+        HtmlHelper.generateAutoSubmitForm({
+            url: "/web/onlineSettlementxt/detail",
+            data: {
+                id : subOrderId,
+                orderNo : orderNo
+            }
+        });
+    }
+
+    /**
+     * 导出数据
+     */
+    function exportExcel() {
+        $('#e_starTime').val($('#startTime').val());
+        $('#e_endTime').val($('#endTime').val());
+        $('#e_orderNo').val($('#orderNo').val());
+        $('#e_hunterPhone').val($('#hunterPhone').val());
+        $('#e_merchantTelphone').val($('#merchantTelphone').val());
+        $('#orderExport').submit();
+    }
+</script>
+</body>
+</html>

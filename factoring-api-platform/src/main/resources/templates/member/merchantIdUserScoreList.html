@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<head>
+    <meta charset="UTF-8">
+    <title>店铺积分</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <!--<div class="current">当前位置：<a href="#">账户管理</a>&nbsp;&gt;&nbsp;<span>店铺积分</span></div>-->
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+       <!-- <div class="ph_subTit">
+            <h2>店铺积分</h2>
+            <div class="ph_snbBtn">
+                <input type="button" th:onclick="'getExcel();'" value="导出">
+            </div>
+        </div>-->
+        <!--end 标题-->
+        <!--筛选条件-->
+        <form id="queryForm">
+            <div class="ph_screen">
+                <shiro:hasPermission name="merchantIdUserScoreQuery">
+                    <div>
+                        <p class="yes" style="display:none">
+                            <!--<p th:if="${merchantByUserId.getXytPhone() != null}">-->
+                            <span style="display:inline-block;padding-left:2%;text-align:right;">账号积分：</span>
+                            <span class="number" style="display:inline-block;"></span>
+                            <span style="display:inline-block;padding-left:5%;text-align:right;">新业态账号：</span>
+                            <span class="phone" style="display:inline-block;padding-right:5%;"></span>
+                            <input name="" class="Js_delZr" type="button" value="转入积分">
+
+
+                        </p>
+                        <p class="no" style="display:none;margin-left:22%;">
+                                <input class="Js_deliver" name="" type="button" value="绑定专卖账号">
+                        </p>
+                    </div>
+                    <table class="ph_tableBox">
+                        <!--<tr class="yes" style="display:none">-->
+                            <!--&lt;!&ndash;<p th:if="${merchantByUserId.getXytPhone() != null}">&ndash;&gt;-->
+                                <!--<th>账号积分：</th>-->
+                                <!--<td th:value="${merchantByUserId.getXytScore()}"></td>-->
+                                <!--<th>新业态账号：</th>-->
+                                <!--<td th:value="${merchantByUserId.getXytPhone()}"></td>-->
+                                <!--<td colspan="3">-->
+                                        <!--<input name="" class="Js_delZr" type="button" value="转入积分">-->
+                                <!--</td>-->
+
+                        <!--</tr>-->
+                        <!--<tr class="no" style="display:none">-->
+                            <!--<td colspan="3">-->
+                                 <!--<input class="Js_deliver" name="" type="button" value="绑定新业态">-->
+                            <!--</td>-->
+                        <!--</tr>-->
+                        <tr>
+                            <th>订单号：</th>
+                            <td><input name="orderNo" id="orderNo" type="text"></td>
+                            <!--<th>店铺账号：</th>
+                            <td><input name="phone" id="phone" type="text"></td>-->
+                            <th>资金变动类型：</th>
+                            <td>
+                                <select class="selectpicker" data-live-search="true" name="payType" id="payType">
+                                    <option value="">全部</option>
+                                    <option value="2">积分转入</option>
+                                    <option value="3">积分抵扣</option>
+                                    <option value="4">积分返还</option>
+                                    <option value="5">订单撤销</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>操作时间：</th>
+                            <td colspan="2">
+                                <p class="dayBox">
+                                    <input class="start_rise date start" name="starTime" id="starTime" type="text">&nbsp;-&nbsp;
+                                    <input class="start_rise date end" name="endTime" id="endTime" type="text">
+                                </p>
+                            </td>
+                            <td colspan="3">
+                                <input name="" onclick="query()" type="button" value="查询">
+                                <input name="" th:onclick="'resetForm();'" type="button" value="重置">
+                            </td>
+                        </tr>
+                    </table>
+                </shiro:hasPermission>
+            </div>
+        </form>
+        <!--end 筛选条件-->
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList" id="example">
+            </table>
+        </div>
+        <!--end 商品列表-->
+    </div>
+    <!--end 主体内容-->
+</div>
+
+<!--绑定新业态弹窗-->
+<div class="PopupBox" id="deliverBox">
+    <!--内容-->
+    <div class="PopupCon">
+        <div class="ph_subPoCon ph_screen">
+            <form id="addXytForm">
+                <table class="ph_tableBox">
+                    <!--<input id="editUserId" name="id" type="hidden">-->
+                    <tr>
+                        <th><span class="require">*</span>普济一城账号：</th>
+                        <td>
+                            <input id="tyPhone" class="validate[required, maxSize[16]]" name="tyPhone" th:value="${merchantByUserId.getTelPhone()}" type="text" disabled>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>专卖账号：</th>
+                        <td><input id="telphone" name="telphone"
+                                   type="text"></td>
+                    </tr>
+                    <!--<tr>
+                        <th><span class="require">*</span>专卖昵称：</th>
+                        <td><input id="name" name="name" type="text"></td>
+                    </tr>-->
+                    <tr>
+                        <th><span class="require">*</span>图形验证码：</th>
+                        <td><input class="proving validate[required]" id="MsgCode" name="MsgCode" style="width: 100px" type="text">
+                            <img th:src="@{/loadverify}" class="get_yzm img img_pointer" alt="图片验证"
+                                 id="verify_codeid"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>验证码：</th>
+                        <td><input id="code" name="code" style="width: 100px" class="proving validate[required]" type="text"/>
+                            <input name="" id="button"  type="button" th:value="获取验证码"/>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+<!--end 内容-->
+
+
+<!--转入积分弹窗-->
+<div class="PopupBox" id="deliver">
+    <!--内容-->
+    <div class="PopupCon">
+        <div class="ph_subPoCon ph_screen">
+            <form id="addScoreForm">
+                <table class="ph_tableBox">
+                    <input id="editRoleId" name="id" type="hidden">
+                    <tr>
+                        <th><span class="require">*</span>专卖积分：</th>
+                        <td><span id="phone">&nbsp;123456789</span></td>
+                    </tr>
+                    <tr>
+                        <th>专卖账号：</th>
+                        <td>
+                            <input id="zmPhone" class="validate[required, maxSize[16]]" name="zmPhone" th:value="${merchantByUserId.getXytPhone()}" type="text" disabled>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>验证码：</th>
+                        <td><input id="code1" name="code1" style="width: 100px"
+                                   class="validate[required]"
+                                   type="text"/>
+                            <input name="" id="btn" type="button" th:value="获取验证码"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>转入积分：</th>
+                        <td>
+                            <input id="zrScore" class="validate[required, maxSize[16]]" name="zrScore" value="" type="text">
+                            <span class="btnAll" style="cursor:pointer;border: none;background: none;position: relative;left: -40px;color: blue;">全部</span>
+                        </td>
+                    </tr>
+                </table>
+                <p style="color: red; font-size: small; margin-left: 60px">商城积分转账到普济一城后不可撤回，此部分积分只能
+                    <span style="margin-left: 100px">在普济一城消费</span></p>
+            </form>
+        </div>
+    </div>
+</div>
+<!--end 内容-->
+
+<!-- 导出 -->
+<!--<div hidden>
+    <form action="/web/member/export" id="orderExport" method="post">
+        <input type="hidden" name="orderNo" value="" id="e_orderNo"/>
+        <input type="hidden" name="starTime" value="" id="e_starTime"/>
+        <input type="hidden" name="endTime" value="" id="e_endTime"/>
+        <input type="hidden" name="type" value="" id="e_type"/>
+        <input type="hidden" name="userType" value="4"/>
+    </form>
+</div>-->
+
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!-- 验证 -->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<script type="text/javascript">
+    var xytPhone = [[${xytPhone}]];
+    $("#xytPhone").html(xytPhone);
+    console.log(xytPhone)
+    if(xytPhone=="-1234"){
+        $(".no").show()
+    }else{
+        $(".yes").show()
+        //获取账号
+        var number=[[${xytScore}]];
+        $(".number").html(number+"分");
+        $(".phone").html(xytPhone)
+    }
+
+    var tb;
+    $(function () {
+        //分页
+        tb = $('#example').DataTable({
+            "lengthChange": false,
+            "ordering": true,
+            "searching": false,
+            "bServerSide": true,
+            "sPaginationType": "full_numbers",
+            "bJQueryUI": true,
+            "sDom": '<"">t<"F"ip>',
+            "sAjaxSource": "/web/member/getMerchantIdUserScoreList", //ajax调用接口
+            "aoColumnDefs": [{sDefaultContent: '', aTargets: ['_all']}],
+            "aoColumns": [
+                {"sWidth": "50px", "sTitle": "序号", "mData": "id", "class": "sClass"},
+                {"sWidth": "150px", "sTitle": "订单号", "mData": "orderNo", "class": "sClass"},
+                {
+                    "sWidth": "100px",
+                    "sTitle": "变动积分",
+                    "mData": "xytScore",
+                    "class": "sClass",
+                    "mRender": function (data, type, full) {
+                        var text;
+                        if (full.payType == '2') {
+                            text = "+" + full.xytScore;
+                        } else if (full.payType == '3') {
+                            text = "-" + full.xytScore;
+                        } else if (full.payType == '4') {
+                            text = "+" + full.xytScore;
+                        } else if (full.payType == '5' ) {
+                            text = "+" + full.xytScore;
+                        }
+                        return text;
+                    }
+                },
+                {"sWidth": "100px", "sTitle": "当前积分", "mData": "afterXyt", "class": "sClass"},
+                {
+                    "sWidth": "100px",
+                    "sTitle": "资金变动类型",
+                    "mData": "payType",
+                    "class": "sClass",
+                    "mRender": function (data, type, full) {
+                        var text;
+                        if (full.payType == '2') {
+                            text = "积分转入";
+                        } else if (full.payType == '3') {
+                            text = "积分抵扣"
+                        } else if (full.payType == '4') {
+                            text = "积分返还"
+                        } else if (full.payType == '5' ) {
+                            text = "积分订单撤销"
+                        }
+                        return text;
+                    }
+                },
+                {"sWidth": "100px", "sTitle": "时间", "mData": "createTime", "class": "sClass"}
+            ],
+            "oLanguage": {
+                "sProcessing": "数据加载中······",
+                "sLengthMenu": "显示 _MENU_ 条记录",
+                "sZeroRecords": "没有您要搜索的内容！",
+                "sEmptyTable": "列表中无数据存在！",
+                "sInfo": "当前显示 _START_ 到 _END_ 条数据，共 _TOTAL_ 条数据",
+                "sInfoEmpty": "显示 0 到 0 条记录",
+                "sInfoFiltered": "数据列表中共  _MAX_ 条记录",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "fnServerData": function (sSource, aoData, fnCallback, oSettings) {
+                oSettings.jqXHR = $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "async": 'false',
+                    "url": sSource,
+                    "data": {
+                        'pageNum': (aoData[3].value / aoData[4].value) + 1,
+                        'pageSize': aoData[4].value,
+                        'pageNum': (aoData[3].value / aoData[4].value) + 1,
+                        'pageSize': aoData[4].value,
+                        'orderNo': $.trim($('#orderNo').val()),
+                        'starTime': $.trim($('#starTime').val()),
+                        'endTime': $.trim($('#endTime').val()),
+                        'payType': $.trim($('#payType').val())
+
+                    },
+                    "success": fnCallback
+                });
+            },
+            "fnDrawCallback": function () {
+                var api = this.api();
+                var startIndex = api.context[0]._iDisplayStart;//获取到本页开始的条数
+                api.column(0).nodes().each(function (cell, i) {
+                    cell.innerHTML = startIndex + i + 1;
+                });
+            }
+        });
+    });
+
+    //条件查询重新加载数据
+    function query() {
+        tb.draw();
+    }
+
+    /**
+     * 重置内容
+     */
+    function resetForm() {
+        clearData("queryForm");
+    }
+
+    function clearData(id) {
+        $("#" + id)[0].reset();
+        var selected = $("#" + id).find("select");
+        if (selected.length > 0) {
+            for (var i = 0, length = selected.length; i < length; i++) {
+                selected.eq(i).selectpicker('val', '');
+            }
+        }
+    }
+
+    //绑定账号弹层
+    $('.Js_deliver').on('click', function () {
+        loadVerifyCode();//图片加载验证码
+        //defhiden();
+        bingClosetipsIndex();
+
+        layer.open({
+            type: 1,
+            title: '绑定账号',
+            closeBtn: 1,
+            area: ['442px', '350px'],
+            btn: ['提交'],
+            btnAlign: 'c',
+            content: $('#deliverBox'),
+            btn1: function (index) {
+
+
+                var flag = $("#addXytForm").validationEngine();
+                console.log(flag)
+                if (!flag) {
+                    return false;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "/web/xyt/bound",
+                    data: $("#addXytForm").serialize(),
+                    success: function (d) {
+                        console.log(d)
+                        if (d.success) {
+                            console.log(d)
+                            layer.alert("绑定成功！", {
+                                icon: 1,
+                                title: '提示',
+                                closeBtn: 0,
+                                btnAlign: 'c',
+                                end: function () {
+                                    window.location.reload();
+                                }
+                            });
+                            tb.draw();
+                            $('#addXytForm')[0].reset()
+                            layer.close(index);
+                        } else {
+                            console.log(d)
+                            layer.alert(d.message, {
+                                icon: 2,
+                                title: '提示',
+                                closeBtn: 0,
+                                btnAlign: 'c'
+                            });
+                        }
+                        $('#addXytForm')[0].reset()
+                        layer.close(index);
+                    }
+                });
+            }
+        });
+    });
+
+
+    //导入积分弹层
+    $('.Js_delZr').on('click', function () {
+        //请求积分
+        $.ajax({
+//              async       : false,
+            type: "POST",
+            url: "/web/xyt/selectScore",
+            data: {"phone":xytPhone},
+            success: function (d) {
+                console.log(d);
+                if (d.success) {
+                    //获取到积分
+                    $("#phone").html(d.data)
+                    layer.open({
+                        type: 1,
+                        title: '转入积分',
+                        closeBtn: 1,
+                        area: ['442px', '350px'],
+                        btn: ['确定'],
+                        btnAlign: 'c',
+                        content: $('#deliver'),
+                        btn1: function (index) {
+                            var flag = $("#addScoreForm").validationEngine();
+                            if (!flag) {
+                                return false;
+                            }
+                            $.ajax({
+                                type: "POST",
+                                url: "/web/xyt/zrScore",
+                                data: $("#addScoreForm").serialize(),
+                                success: function (d) {
+                                    console.log(d);
+                                    if (d.success) {
+                                        layer.alert("保存成功！", {
+                                            icon: 1,
+                                            title: '提示',
+                                            closeBtn: 0,
+                                            btnAlign: 'c',
+                                            end: function () {
+                                                window.location.reload();
+                                            }
+                                        });
+                                        tb.draw();
+
+                                    }else if (d.code == "0000"){
+                                        layer.alert("验证码错误或已失效", {
+                                            icon: 2,
+                                            title: '失败',
+                                            closeBtn: 0,
+                                            btnAlign: 'c'
+                                        });
+                                    } else {
+                                        layer.alert(d.message, {
+                                            icon: 2,
+                                            title: '失败',
+                                            closeBtn: 0,
+                                            btnAlign: 'c'
+                                        });
+                                    }
+                                }
+                            });
+                            $('#addScoreForm')[0].reset()
+                            layer.close(index);
+                        }
+                    });
+                } else {
+                    layer.alert("积分查询失败", {
+                        icon: 2,
+                        title: '转入失败',
+                        closeBtn: 0,
+                        btnAlign: 'c'
+                    });
+                }
+                // $('#addScoreForm')[0].reset()
+                // layer.close(index);
+            },
+        });
+    });
+
+    $(".btnAll").on("click",function(){
+        $("#zrScore").val($("#phone").html())
+
+    })
+
+    var tipsIndex;
+    $(function () {
+        //验证初始化
+        $('#addXytForm').validationEngine({
+            promptPosition: 'bottomLeft'
+            , autoPositionUpdate: false
+            , addPromptClass: 'formError-text'
+            , autoHidePrompt: true
+            , autoHideDelay: 3000
+            , fadeDuration: 0.3
+        });
+
+        loadVerifyCode();//加载验证码
+        //defhiden();
+        bingClosetipsIndex();
+
+    });
+
+    //点击跟新验证码
+    $("#verify_codeid").click(function () {
+        loadVerifyCode();
+    })
+    function loadVerifyCode() {
+        var url = "/loadverify";
+        $("#verify_codeid").attr("src", url + "?" + Date.parse(new Date()));
+    }
+    //处理得到焦点后去掉提示
+    function bingClosetipsIndex() {
+        $('#login_user').on("focus", function () {
+            if (tipsIndex) {
+                layer.close(tipsIndex);
+            }
+        });
+        $('#login_pwd').on("focus", function () {
+            if (tipsIndex) {
+                layer.close(tipsIndex);
+            }
+        });
+        $('#verify_codeval').on("focus", function () {
+            if (tipsIndex) {
+                layer.close(tipsIndex);
+            }
+        });
+    }
+    //获取验证码
+    var countdown=120;
+    function settime(obj) { //发送验证码倒计时
+        if (countdown == 0) {
+            obj.attr('disabled',false);
+            //obj.removeattr("disabled");
+            obj.val("获取验证码");
+            countdown = 120;
+            return;
+        } else {
+            obj.attr('disabled',true);
+            obj.val("重新发送(" + countdown + ")");
+            countdown--;
+        }
+        setTimeout(function() {
+                settime(obj) }
+            ,1000)
+    }
+    //校验专卖账号是否正确
+    $("#telphone").blur(function(){
+        var telPhone = $("#telphone").val();
+        var pattern = /^((13[0-9])|(15[0-9])|(18[0-9])|(17[0-8])|(147)|(199))\d{8}$/;
+
+        if (!pattern.test(telPhone)){
+            layer.alert("请输入正确的手机号", {icon: 1,btnAlign: 'c', closeBtn : 1});
+            $("#button").attr('disabled',true)
+        }else {
+            $("#button").attr('disabled',false);
+        }
+    });
+
+    //转入积分获取验证码
+    $("#btn").on("click",function(){
+        var s = $(this);
+        console.log("------obj-------"+s)
+        var sourceCode = 2;
+
+        var codeType = "ty_XytScore";
+        var telPhone = $("#zmPhone").val();
+        console.log(telPhone)
+
+        var data = {
+            "telPhone" : $("#zmPhone").val(),
+            "smsCodeTypeCode" : codeType,
+            "sourceCode" : sourceCode
+        };
+        //获取电话号码
+        $.post("/web/sms/sendMessageCodeXyt", data, function(data, textStatus, req) {
+            if(data.success) {
+                settime(s)
+                console.log(data)
+                layer.alert("短信验证码发送成功", {icon: 1,btnAlign: 'c', closeBtn : 0});
+            }else {
+                console.log(data)
+                Dialog.alertWarn("短信验证码发送失败");
+            }
+        }, 'json');
+    })
+    //绑定新业态获取验证码
+    $("#button").on("click",function(){
+        console.log("------obj-------"+$(this))
+        var s = $(this);
+        console.log("------obj-------"+s)
+
+        var sourceCode = 2;
+
+        var codeType = "ty_saveXyt";
+        var telPhone = $("#telphone").val();
+        console.log(telPhone)
+
+        var data = {
+            "telPhone" : $("#telphone").val(),
+            "smsCodeTypeCode" : codeType,
+            "sourceCode" : sourceCode
+        };
+
+        //获取电话号码
+        $.post("/web/sms/sendMessageCodeXyt", data, function(data, textStatus, req) {
+            if(data.success) {
+                settime(s)
+                console.log(data)
+                layer.alert("短信验证码发送成功", {icon: 1,btnAlign: 'c', closeBtn : 1});
+            }else {
+                console.log(data)
+                if(data.code = "1001"){
+                    layer.alert(data.message, {icon: 1,btnAlign: 'c', closeBtn : 0});
+                }else {
+                    layer.alert("验证码发送失败", {icon: 1,btnAlign: 'c', closeBtn : 0});
+                }
+                // Dialog.alertWarn(data.message);
+            }
+            console.log("---------------45647981521")
+        }, 'json');
+    })
+</script>
+</body>
+</html>

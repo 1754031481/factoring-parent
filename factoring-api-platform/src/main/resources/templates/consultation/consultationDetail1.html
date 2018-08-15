@@ -1,0 +1,131 @@
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>资讯详情</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}"/>
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}"/>
+    <style>
+        .csc_tp {
+            width: 177px;
+            height: 135px;
+        }
+
+        .csc_c {
+            padding-top: 25px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="MainContent">
+    <div class="current">当前位置：<a href="index.html" alt="">资讯管理&gt;</a><a href="#" alt="">资讯审核&gt;</a><span>资讯详情</span>
+    </div>
+    <div class="MainCont ">
+        <div class="ph_subConTit">
+            <h2>资讯详情</h2>
+        </div>
+        <form id="form">
+            <div class="mainFrom">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">标题:</span>
+                </label>
+                <input th:value="${consultation.title}" name="supplierName" type="text" class="left" placeholder=""
+                       disabled/>
+            </div>
+            <div th:if="${consultation.modelType} != 0">
+                <div class="mainFrom imgupbox">
+                    <label class="left">
+                        <span class="require">*</span>
+                        <span class="">封面图片:</span>
+                    </label>
+                    <div class="content-box">
+                        <div class="img-box addIndustry">
+                            <div class="img-box full ">
+                                <section class=" img-section">
+                                    <div class="z_photo upimg-div" data-file-type=1>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mainFrom imgupbox">
+                <label class="left">
+                    <span class="require">*</span>
+                    <span class="">资讯正文:</span>
+                </label>
+                <div class="content-box">
+                    <div class="img-box addIndustry csc_m">
+                        <div class="img-box full" th:each="consultationDetail:${consultationDetailList}">
+
+                            <div th:if="${consultationDetail.type == 0}">
+                                <p class="csc_c" th:text="${consultationDetail.content}"></p>
+                            </div>
+                            <div th:if="${consultationDetail.type == 1 && consultationDetail.cover!=1}">
+                                <img th:src="'http://yst-images.img-cn-hangzhou.aliyuncs.com/'+${consultationDetail.attachmentAddress}"
+                                     class="up-img zoom-img csc_tp">
+                            </div>
+                            <div th:if="${consultationDetail.type == 2}">
+                                <div class="mainFrom imgupbox csc_1">
+                                    <label class="left csc_l">
+                                        <span class="">商品信息:</span>
+                                    </label>
+                                    <div class="content-box">
+                                        <div class="img-box addIndustry  csc_3">
+                                            名称: <span th:text="${consultationDetail.productName}"></span><br>
+                                            价钱: <span th:text="${consultationDetail.salePrice}"></span>元<br>
+                                            <span class="left">图片:</span>&nbsp;<img
+                                                th:src="${consultationDetail.imageurl}" class="up-img zoom-img csc_tp">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="PopupBtn btnLeft" style="margin-bottom: 20px;padding-left: 104px;">
+                <input id="cancel" class="submit addSupplier_cancel" type="button" value="返回">
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<!--图片点击放大-->
+<script type="text/javascript" th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+<script th:inline="javascript">
+    var consultationDetail = [[${consultationDetailList}]];
+    //回填图片
+    $(consultationDetail).each(function (i, img) {
+        if (img.cover == 1) {
+            var section =
+                    '<section class="up-section left">' +
+                    '<img class="up-img zoom-img"  src="http://yst-images.img-cn-hangzhou.aliyuncs.com/' + img.attachmentAddress + '">' +
+                    '</div>' +
+                    '</section>';
+            var divDataFileType = $("div[data-file-type=1]");
+            $(document).on('click','img',function(){
+                console.log(this)
+            })
+            $(section).appendTo(divDataFileType);
+        }
+    });
+    $(function () {
+        $('.zoom-img').viewer({
+            url: 'src',
+            navbar: false,
+            keyboard: true,
+            title: true
+        });
+        //取消
+        $("#cancel").click(function () {
+            window.history.back();
+        });
+    })
+</script>
+</body>
+</html>
+

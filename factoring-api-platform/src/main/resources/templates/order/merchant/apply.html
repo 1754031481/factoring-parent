@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>发票管理</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <!--bootstrap css 文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+
+    <!--图片点击放大  css文件-->
+    <link rel="stylesheet" th:href="@{/static/js/plugins/viewer/css/viewer.min.css}"/>
+    <!--上传-->
+    <link rel="stylesheet" th:href="@{/static/css/common/shangchuan.css}"/>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}"/>
+
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">发票管理</a>&nbsp;&gt;&nbsp;<span>申请开票</span></div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit no_border">
+            <h2 style="color: #edde34">注：请于每月15号24点前申请开票，16日开始寄送</h2>
+        </div>
+        <!--商品列表-->
+        <div>
+            <input type="hidden" th:value="${invoiceVO.month}" id="moth"/>
+            <input type="hidden" th:value="${invoiceVO.money}" id="money"/>
+
+            <table border="0px" style="width:30%;background:none;font-size: 18px;margin-left: 30%;
+             border-collapse:separate; border-spacing:0px 15px;" th:align="left">
+                <thead th:if="${invoiceVO != null && invoiceVO != ''}">
+                <tr>
+                    <td style="width: 35%">发票月份:</td>
+                    <td th:if="${invoiceVO.month != null && invoiceVO.month != ''}" th:text="${invoiceVO.month}"></td>
+                    <td th:if="${invoiceVO.month == null || invoiceVO.month == ''}">2018-03</td>
+                </tr>
+                <tr>
+                    <td style="width: 35%">订单总金额:</td>
+                    <td th:if="${invoiceVO.totalPrice != null && invoiceVO.totalPrice != ''}"
+                        th:text="${invoiceVO.totalPrice}+'元'"></td>
+                    <td th:if="${invoiceVO.totalPrice == null || invoiceVO.totalPrice == ''}">0.00元</td>
+                </tr>
+                <tr>
+                    <td style="width: 35%">总服务费:</td>
+                    <td th:if="${invoiceVO.money != null && invoiceVO.money != ''}"
+                        th:text="${invoiceVO.money}+'元'"></td>
+                    <td th:if="${invoiceVO.money == null || invoiceVO.money == ''}">0.00元</td>
+                </tr>
+                <tr>
+                    <td style="width: 35%">付款方式:</td>
+                    <td>线下订单</td>
+                </tr>
+                <tr>
+                    <td style="width: 35%">银行:</td>
+                    <td th:text="中国建设银行股份有限公司北京朝内南小街支行"></td>
+                </tr>
+                <tr>
+                    <td style="width: 35%">银行卡号:</td>
+                    <td th:text="11001175200052502159"></td>
+                </tr>
+                <tr>
+                    <td style="width: 35%">持卡人姓名:</td>
+                    <td th:text="北京易商通科技股份有限公司"></td>
+                </tr>
+                <tr>
+                    <td style="width: 35%">公司名称:</td>
+                    <td><input id="companyName" name="companyName" type="text" th:value="${invoiceVO.companyName}" placeholder="请输入公司名称"/></td>
+                </tr>
+                <tr>
+                    <td style="width: 35%">纳税人识别号:</td>
+                    <td><input id="mark" name="mark" type="text"  th:value="${invoiceVO.mark}"  placeholder="请输入纳税人识别号"/></td>
+                </tr>
+                <tr>
+                    <td style="width: 35%">收票人地址:</td>
+                    <td><input id="billingAddress" name="billingAddress" type="text" th:value="${invoiceVO.billingAddress}" placeholder="请输入收票人地址"/></td>
+                </tr>
+                <tr>
+                    <td style="width: 35%">收票人姓名:</td>
+                    <td><input id="billingUserName" name="billingUserName" type="text" th:value="${invoiceVO.billingUserName}"  placeholder="请输入收票人姓名"/></td>
+                </tr>
+                <tr>
+                    <td style="width: 35%">联系电话:</td>
+                    <td><input id="billingPhone" name="billingPhone" type="text" th:value="${invoiceVO.billingPhone}"  placeholder="请输入联系电话"/></td>
+                </tr>
+                <tr>
+                    <td style="width: 35%">上传凭证:</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="content-box" style="width:140px;height: 140px;">
+                            <div class="img-box">
+                                <div class="img-box full">
+                                    <section class=" img-section">
+
+                                        <div class="z_photo upimg-div">
+                                            <section class="z_file left">
+                                                <img id="img" th:src="@{/static/images/add.png}" class="up-img">
+                                                <!--<img id="img" th:src="${invoiceVO.url}" class="up-img">-->
+                                                <input type="file" name="file" id="file" class="file" value=""
+                                                       accept="image/jpg,image/jpeg,image/png,image/bmp" multiple/>
+                                                <input type="hidden" value="${invoiceVO.url}" id="imgValue">
+                                            </section>
+                                        </div>
+                                        <p><h6 style="color: #edde34">注：双击放大图片</h6></p>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </thead>
+                <thead th:if="${invoiceVO == null || invoiceVO == ''}">
+                <tr>
+                    <td>发票月份</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>订单总金额</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>总服务费</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>付款方式</td>
+                    <td>线下订单</td>
+                </tr>
+                <tr>
+                    <td>银行</td>
+                    <td th:text="中国建设银行股份有限公司北京朝内南小街支行"></td>
+                </tr>
+                <tr>
+                    <td>银行卡号</td>
+                    <td th:text="11001175200052502159"></td>
+                </tr>
+                <tr>
+                    <td>持卡人姓名</td>
+                    <td th:text="北京易商通科技股份有限公司"></td>
+                </tr>
+                <tr>
+                    <td>纳税人识别号</td>
+                    <td><input id="mark" name="mark" type="text" placeholder="请输入纳税人识别号"/></td>
+                </tr>
+                <tr>
+                    <td>上传凭证</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <!--<img id="img" th:src="${invoiceDatil.url}"/>-->
+                        <div class="content-box" style="width:140px;height: 140px;">
+                            <div class="img-box">
+                                <div class="img-box full">
+                                    <section class=" img-section">
+
+                                        <div class="z_photo upimg-div">
+                                            <section class="z_file left">
+                                                <img id="img" th:src="@{/static/images/add.png}" class="up-img">
+                                                <!--<img id="img" src="http://d.hiphotos.baidu.com/image/h%3D300/sign=1b72d56df7f2b211fb2e834efa806511/bd315c6034a85edf86fb4d3d45540923dd5475bc.jpg" class="up-img">-->
+                                                <input type="file" name="file" id="file" class="file" value=""
+                                                       accept="image/jpg,image/jpeg,image/png,image/bmp" multiple/>
+                                                <input type="hidden"
+                                                       value="http://d.hiphotos.baidu.com/image/h%3D300/sign=1b72d56df7f2b211fb2e834efa806511/bd315c6034a85edf86fb4d3d45540923dd5475bc.jpg"
+                                                       id="imgValue">
+                                            </section>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </thead>
+            </table>
+            <div class="row" style="margin-top: 3%">
+                <div class="col-md-3 col-md-offset-4">
+                    <input class="btn btn-primary btn-lg" style="float: left;" type="button" value="返回"
+                           onclick="history.back(-1)">
+                    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    <input class="btn btn-primary btn-lg" type="button" value="申请开票" th:onclick="'apply();'">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--end 主体内容-->
+</div>
+
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/number.js}"></script>
+
+<!--bootstrap-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+
+<!--图片上传-->
+<script type="text/javascript" th:src="@{/static/js/common/imgUp.js}"></script>
+<!--图片点击放大-->
+<script type="text/javascript" th:src="@{/static/js/plugins/viewer/viewer-jquery.min.js}"></script>
+<script type="text/javascript">
+    $(function () {
+        //图片初始化
+        var value = $('#file').attr('value');
+        $("#file" + value).takungaeImgup({
+            formData: {
+                'module': 'product',
+                'name': 'url',
+                'filesname': 'urlfile'
+            },
+            url: '/web/attachment/uploadProductImage',
+            maxImage: 1,
+            success: function (data) {
+            },
+            error: function (err) {
+                layer.alert(err, {icon: 2, btnAlign: 'c', closeBtn: 0});
+            }
+        });
+        //图片放大使用
+        $('.zoom-img').viewer({
+            url: 'src',
+            navbar: false,
+            keyboard: true,
+            title: true
+        });
+
+
+    });
+
+    //申请开票
+    function apply() {
+        var imgUrls;
+        if (confirm("请确认图片是否正确或足够清晰，提交成功后不可更换图片")) {
+            if ($("input[name = 'url']").val() != undefined && $("input[name = 'url']").val() != '' && $("input[name = 'url']").val() != null) {
+                imgUrls = $("input[name = 'url']").val();
+                console.log("imgUrls ---> " + imgUrls);
+            } else {
+                imgUrls = $("#imgValue").val();
+                console.log("imgUrls ---> " + imgUrls);
+            }
+            if (imgUrls == '${invoiceVO.url}') {
+                alert("请上传凭证");
+                return false
+            }
+            var money = $("#money").val();
+            if (money == '' || money == undefined) {
+                money = 0;
+            }
+            var companyName = $("#companyName").val();
+            if (companyName == "") {
+                alert("请填写公司名称")
+                return false
+            }
+            var mark = $("#mark").val();
+            if (mark == "") {
+                alert("请填写纳税人识别号")
+                return false
+            }
+            var billingAddress = $("#billingAddress").val();
+            if (billingAddress == "") {
+                alert("请填写收票人地址")
+                return false
+            }
+            var billingUserName = $("#billingUserName").val();
+            if (billingUserName == "") {
+                alert("请填写收票人姓名")
+                return false
+            }
+            var billingPhone = $("#billingPhone").val();
+            if (billingPhone == "") {
+                alert("请输入收票人电话")
+                return false
+            }
+            if (!(/^((0\d{2,3}-\d{7,8})|(1[35849]\d{9}))$/.test(billingPhone))) {
+                // Dialog.alertWarn('输入联系电话有误!');
+                alert("输入联系电话有误")
+                return false;
+            }
+            $.ajax({
+                type: "POST",
+                url: "/merchant/invoice/save",
+                data: {
+                    money: money,
+                    url: imgUrls,
+                    applyMonth: $("#moth").val(),
+                    companyName: companyName,
+                    mark: mark,
+                    billingAddress: billingAddress,
+                    billingUserName: billingUserName,
+                    billingPhone: billingPhone
+                },
+                success: function (result) {
+                    console.log(result)
+                    if (result.code == 1) {
+                        layer.alert("申请成功", {icon: 1, btnAlign: 'c', closeBtn: 0}, function () {
+                            location.href = "/merchant/invoice/toList";
+//                            window.location.href = document.referrer;//返回上一页并刷新
+                        });
+                    } else {
+                        layer.alert("【" + result.message + "】", {icon: 2, btnAlign: 'c', closeBtn: 0}, function () {
+                            location.reload(true)
+                        })
+                    }
+                }
+            });
+        }
+
+
+    }
+</script>
+</body>
+</html>

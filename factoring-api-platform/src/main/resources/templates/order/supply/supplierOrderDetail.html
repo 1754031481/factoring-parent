@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单信息</title>
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--日期  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/datepicker/css/bootstrap-datepicker.css}">
+    <style>
+        .ph_infoConList {
+            overflow: hidden;
+        }
+
+        .ph_infoConList li {
+            float: left;
+            width: 300px;
+            height: 280px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 20px;
+            padding: 10px;
+        }
+
+        .ph_infoConList li span {
+            margin-right: 0;
+        }
+    </style>
+    <!--物流信息 CSS START-->
+    <style>
+        body{font-size: 12px;}
+        ul li{list-style: none;}
+        .track-rcol{width: 900px; border: 1px solid #eee;}
+        .track-list{margin: 20px; padding-left: 5px; position: relative;}
+        .track-list li{position: relative; padding: 9px 0 0 25px; line-height: 18px; border-left: 1px solid #d9d9d9; color: #999;}
+        .track-list li.first{color: red; padding-top: 0; border-left-color: #fff;}
+        .track-list li .node-icon{border-radius:50%;position: absolute; left: -6px; top: 50%; width: 11px; height: 11px; background: url(/static/img/wuliu.png)  -21px -72px no-repeat;}
+        .track-list li.first .node-icon{background-position:0 -72px;}
+        .track-list li .time{margin-right: 20px; position: relative; top: 4px; display: inline-block; vertical-align: middle;}
+        .track-list li .txt{max-width: 600px; position: relative; top: 4px; display: inline-block; vertical-align: middle;}
+        .track-list li.first .time{margin-right: 20px; }
+        .track-list li.first .txt{max-width: 600px; }
+        .track-img{display: flex;align-items: center;justify-content:space-between;width: 90%;margin: auto;}
+        .track-img dl{text-align: center;}
+        .track-img dl dt{width: 100%;}
+        .track-img dl dd{width: 100%;text-align: center;margin: 0;line-height: 30px; color: orangered;}
+        .track-img span{margin-top: -25px; color: orangered;font-weight: bold;}
+    </style>
+    <!--物流信息 CSS END-->
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">供货管理</a>&nbsp;&gt;&nbsp;<a href="#">供货订单</a>&nbsp;&gt;&nbsp;<span>订单信息</span>
+    </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--物流信息 START-->
+        <div th:if="${supplierOrder.status == 3 || supplierOrder.status == 2 }">
+            <div th:if="${not #lists.isEmpty(LogisticsResult) }">
+                <div th:if="${LogisticsResult.success == true }">
+                    <div th:if="${LogisticsResult.state == 2 || LogisticsResult.state == 3 || LogisticsResult.state == 4}">
+                        <div class="track-rcol">
+                            <h2>物流信息：<span th:text="${LogisticsResult.shipperName}">顺丰快递</span></h2>
+                            <h2>物流单号：<span th:text="${LogisticsResult.logisticCode}">物流单号</span></h2>
+                            <div class="track-list">
+                                <div class="track-img" th:if="${LogisticsResult.state == 4}">
+                                    <dl>
+                                        <dt><img th:src="@{/static/img/lanjian.png}"></dt>
+                                        <dd>揽件</dd>
+                                    </dl>
+                                    <span>····························</span>
+                                    <dl>
+                                        <dt><img th:src="@{/static/img/yunshu.png}"></dt>
+                                        <dd>运输</dd>
+                                    </dl>
+                                    <span>····························</span>
+                                    <dl>
+                                        <dt><img th:src="@{/static/img/paisong.png}"></dt>
+                                        <dd>派送</dd>
+                                    </dl>
+                                    <span>····························</span>
+                                    <dl>
+                                        <dt><img th:src="@{/static/img/lanshou.png}"></dt>
+                                        <dd>已签收</dd>
+                                    </dl>
+                                </div>
+
+                                <div class="track-img" th:if="${LogisticsResult.state == 3}">
+                                    <dl>
+                                        <dt><img th:src="@{/static/img/lanjian.png}"></dt>
+                                        <dd>揽件</dd>
+                                    </dl>
+                                    <span>····························</span>
+                                    <dl>
+                                        <dt><img th:src="@{/static/img/yunshu.png}"></dt>
+                                        <dd>运输</dd>
+                                    </dl>
+                                    <span>····························</span>
+                                    <dl>
+                                        <dt><img th:src="@{/static/img/paisong.png}"></dt>
+                                        <dd>派送</dd>
+                                    </dl>
+                                    <span>····························</span>
+                                    <dl>
+                                        <dt><img th:src="@{/static/img/daiqianshou.png}"></dt>
+                                        <dd>待签收</dd>
+                                    </dl>
+                                </div>
+
+                                <div class="track-img" th:if="${LogisticsResult.state == 2}">
+                                    <dl>
+                                        <dt><img th:src="@{/static/img/lanjian.png}"></dt>
+                                        <dd>揽件</dd>
+                                    </dl>
+                                    <span>····························</span>
+                                    <dl>
+                                        <dt><img th:src="@{/static/img/yunshu.png}"></dt>
+                                        <dd>运输</dd>
+                                    </dl>
+                                    <span>····························</span>
+                                    <dl>
+                                        <dt><img th:src="@{/static/img/daipeisong.png}"></dt>
+                                        <dd>待派送</dd>
+                                    </dl>
+                                    <span>····························</span>
+                                    <dl>
+                                        <dt><img th:src="@{/static/img/daiqianshou.png}"></dt>
+                                        <dd>待签收</dd>
+                                    </dl>
+                                </div>
+                                <ul>
+                                    <div th:each="LogisticsResult,LogisticsResultStat : ${LogisticsResult.traces}">
+                                        <li th:class="${LogisticsResultStat.index == 0 ? 'first' : ''}" >
+                                            <i class="node-icon"></i>
+                                            <span class="time" th:text="${LogisticsResult.time}">2016-03-10 18:07:15</span>
+                                            <span class="txt" th:text="${LogisticsResult.context}">感谢您在京东购物，欢迎您再次光临！</span>
+                                        </li>
+                                    </div>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--物流信息 END-->
+        <!--标题-->
+        <div class="ph_subTit no_border">
+            <h2>订单详情</h2>
+        </div>
+        <div class="ph_subTit no_border">
+            <h2>订单号：<span th:text="${supplierOrder.orderNo}"></span></h2>
+        </div>
+        <!--end 标题-->
+        <!--订单信息状态-->
+        <ul class="ph_infoConList">
+            <li class=" ph_infoCon" style="float: left">
+                <p class="ph_infoHome">
+                    <span>收货人信息</span><br>
+                    <span>收货人姓名：<span th:text="${supplierOrder.receiveName}"></span></span>
+                    <span>联系电话：<span th:text="${supplierOrder.receivePhone}"></span></span>
+                    <span>收货地址：<span th:text="${supplierOrder.receiveAddress}"></span></span>
+                </p>
+            </li>
+            <li class=" ph_infoCon">
+                <p class="ph_infoHome">
+                    <span>订单备注：</span>
+                    <span th:text="${supplierOrder.message}"></span></span><br>
+                    <span>发票抬头: <span th:text="${supplierOrder.invoiceName}"></span></span><br>
+                    <span th:if="${supplierOrder.payType == 3}">
+                        <span th:if="${roleCode == 6}">
+                            <span>实付金额：<span th:text="${#numbers.formatDecimal((supplierOrder.totalScorePrice/10000.0000),1,2)}"></span>元</span>
+                        </span>
+                        <span th:if="${roleCode == 2}">
+                            <span>实付金额：<span th:text="${#numbers.formatDecimal((supplierOrder.totalPrice/10000.0000),1,2)}"></span>元</span>
+                        </span>
+
+                    </span>
+
+                    <span th:if="${supplierOrder.payType == 0}">
+                        <span>实付金额：<span th:text="${#numbers.formatDecimal((supplierOrder.totalPrice/10000.0000),1,2)}"></span>积分</span>
+                    </span>
+                    <br/>
+                    <span>发票类型：
+                        <span th:if="${supplierOrder.invoiceType == '' || supplierOrder.invoiceType == null}"></span>
+                        <span th:if="${supplierOrder.invoiceType == 1}">个人</span>
+                        <span th:if="${supplierOrder.invoiceType == 0}">单位</span>
+                    </span><br>
+                    <span  th:if="${supplierOrder.invoiceType == '' || supplierOrder.invoiceType == null}">发票抬头类型： <span></span>
+                    <span th:if="${supplierOrder.invoiceType == 0}">发票抬头类型： <span ></span>个人 </span><br>
+                    <span th:if="${supplierOrder.invoiceType == 1}">发票抬头类型： <span ></span>单位</span><br>
+                    <br>
+                    </span>
+                </p>
+
+            </li>
+            <li class=" ph_infoCon">
+                <p class="ph_infoHome">
+                    <span>订单时间</span><br>
+                    <span>创建时间：<span th:text="${#dates.format(supplierOrder.createdTime,'yyyy-MM-dd HH:mm:ss')}"></span></span>
+                    <span>支付时间：<span
+                            th:text="${#dates.format(supplierOrder.payTime,'yyyy-MM-dd HH:mm:ss')}"></span>
+                    </span>
+                    <span>支付方式 ：
+                        <span th:if="${supplierOrder.payType == 0}">余额支付</span>
+                        <span th:if="${supplierOrder.payType == 1}">银行卡</span>
+                        <span th:if="${supplierOrder.payType == 2}">花呗支付</span>
+                        <span th:if="${supplierOrder.payType == 3}">积分</span>
+                    </span>
+                </p>
+            </li>
+        </ul>
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList product">
+                <thead>
+                <tr>
+                    <th>选择</th>
+                    <th>商品名称</th>
+                    <th>商品规格</th>
+                    <th>进货价</th>
+                    <th>数量</th>
+                    <th>重量(kg)</th>
+                    <th>总价</th>
+                    <th colspan="2">发货时间</th>
+                    <th colspan="2">收货时间</th>
+                    <th colspan="2">撤销时间</th>
+                    <th>订单状态</th>
+                    <th>商品来源</th>
+                    <!--<th>配送方式</th>-->
+                    <th>物流信息</th>
+                </tr>
+                </thead>
+                <tbody class="orderbody">
+                <tr th:each="prod,sn:${supplierOrderDetail}">
+                    <!--<td th:class="${prod.id}" th:text="${iterStat.count}"></td>-->
+                    <td th:if="${prod.status != 1}"><input name="detailId" type="checkbox" disabled th:value="${prod.id}" th:alt="${prod.status}"></td>
+                    <td th:if="${prod.status == 1}"><input name="detailId" type="checkbox" th:value="${prod.id}" th:alt="${prod.status}"></td>
+                    <td th:text="${prod.productName}" th:title="${prod.productName}"></td>
+                    <td th:text="${prod.productSpecificationName}"></td>
+                    <!--<td th:text="${#numbers.formatDecimal((detail.productPrice/10000.0000),1,2)}"></td>-->
+
+                   <!-- <span th:if="${supplierOrder.payType == 0}">
+                        <td th:text="${#numbers.formatDecimal((prod.productPrice/10000.0000),1,2)}"></td>&lt;!&ndash;余额  单价&ndash;&gt;
+                    </span>-->
+                    <span th:if="${supplierOrder.payType == 3}">
+                        <span th:if="${roleCode == 6}">
+                            <td th:text="${#numbers.formatDecimal((prod.scorePrice/10000.0000),1,2)}"></td><!--积分  单价-->
+                        </span>
+                        <span th:if="${roleCode == 2}">
+                            <td th:text="${#numbers.formatDecimal((prod.productPrice/10000.0000),1,2)}"></td><!--余额  单价-->
+                        </span>
+
+                    </span>
+                    <td th:text="${prod.num}"></td>
+                    <td th:text="${prod.weight}"></td><!--重量(kg)-->
+                    <span th:if="${supplierOrder.payType == 0}">
+                        <td th:text="${prod.totalPrice}"></td><!-- 余额 订单金额-->
+                    </span>
+                    <span th:if="${supplierOrder.payType == 3}">
+                        <span th:if="${roleCode == 6}">
+                            <td th:text="${#numbers.formatDecimal((prod.totalScorePrice/10000.0000),1,2)}"></td><!--积分 订单金额-->
+                        </span>
+                        <span th:if="${roleCode == 2}">
+                            <td th:text="${prod.totalPrice}/10000"></td><!-- 余额 订单金额-->
+                        </span>
+                    </span>
+                    <td th:text="${#dates.format(prod.sendTime, 'yyyy-MM-dd HH:mm:ss')}" colspan="2"></td>
+                    <td th:text="${#dates.format(prod.receiveTime, 'yyyy-MM-dd HH:mm:ss')}" colspan="2"></td>
+                    <td th:text="${#dates.format(prod.refundTime, 'yyyy-MM-dd HH:mm:ss')}" colspan="2"></td>
+                    <td th:if="${prod.status == 0}">待付款</td>
+                    <td th:if="${prod.status == 1}">待发货</td>
+                    <td th:if="${prod.status == 2}">待收货</td>
+                    <td th:if="${prod.status == 3}">已完成</td>
+                    <td th:if="${prod.status == 4}">已撤销</td>
+                    <td th:if="${prod.status == 5}">已完成</td>
+                    <td th:if="${prod.status == 6}">已完成</td>
+                    <td th:if="${prod.productType == '0'}">专卖商品</td>
+                    <td th:if="${prod.productType == '1'}">本地商品</td>
+                    <td th:if="${prod.productType == '' || prod.productType == null }">-</td>
+
+
+                    <!--<td th:if="${prod.deliveryType == 0}">物流快递</td>
+                    <td th:if="${prod.deliveryType == 1}">上门取货</td>
+                    <td th:if="${prod.deliveryType == '' || prod.deliveryType == null }">-</td>-->
+
+                    <td th:if="${prod.logisticsName != '' && prod.logisticsName != null}" th:text="${prod.logisticsName}"></td>
+                    <td th:if="${prod.logisticsName == '' || prod.logisticsName == null }">-</td>
+                </tr>
+                </tbody>
+            </table>
+            <table class="ph_wareList product" style="margin-top: 1%">
+                <thead>
+                    <tr>
+                        <th class="col-md-2">订单总金额：</th>
+                        <td class="col-md-10" align="left">
+                            <span th:if="${supplierOrder.payType == 0}">
+                                <span style="float: left;">￥</span><span th:text="${#numbers.formatDecimal((supplierOrder.totalPrice),1,2)}/10000" style="float: left;"></span>
+                            </span>
+                            <span th:if="${supplierOrder.payType == 3}">
+                                <span th:if="${roleCode == 6}">
+                                    <span style="float: left;">￥<span th:text="${#numbers.formatDecimal((supplierOrder.totalScorePrice),1,2)}/10000"></span>元</span><!--店铺  积分-->
+                                </span>
+                                <span th:if="${roleCode == 2}">
+                                    <span style="float: left;">￥<span th:text="${#numbers.formatDecimal((supplierOrder.totalPrice),1,2)}/10000"></span>元</span><!--供应商  钱-->
+                                </span>
+                            </span>
+
+                        </td>
+                        <td style="border: none"></td>
+                    </tr>
+                    <tr>
+                        <th class="col-md-2">实付款金额：</th>
+                        <td class="col-md-10">
+                            <span style="float: left;">￥</span>
+                            <span th:if="${supplierOrder.payType == 0}">
+                                <span style="float: left;"></span><span th:text="${#numbers.formatDecimal((supplierOrder.totalPrice),1,2)}/10000" style="float: left;"></span>
+                            </span>
+                            <span th:if="${supplierOrder.payType == 3}">
+                                <span th:if="${roleCode == 6}">
+                                    <span style="float: left;"><span th:text="${#numbers.formatDecimal((supplierOrder.totalScorePrice),1,2)}/10000"></span>元</span>
+                                </span>
+                                <span th:if="${roleCode == 2}">
+                                    <span style="float: left;"><span th:text="${#numbers.formatDecimal((supplierOrder.totalPrice),1,2)}/10000"></span>元</span>
+                                </span>
+                            </span>
+                            <!--<span th:text="${#numbers.formatDecimal((supplierOrder.totalPrice),1,2)}" style="float: left;">
+
+                            </span>-->
+                        </td>
+                        <td style="border: none"></td>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <!--发货按钮-->
+        <!--<div class="PopupBtn">-->
+            <!--<input name="" type="button" value="发货" th:onclick="'toSend();'">-->
+            <!--<input name="" type="button" value="撤销" th:onclick="'refundAppli();'">-->
+            <!--<input name="" type="button" th:onclick="'toPageList();'" value="返回">-->
+        <!--</div>-->
+        <div class="PopupBtn">
+            <input name="" id="sendBtn"  type="button" th:onclick="'sendGood();'" value="发货" >
+            <input name=""  id="cancelBtn"  type="button" th:onclick="'cancel();'" value="撤销" >
+            <input name="" id="returnBtn" type="button" th:onclick="'returnList();'" value="返回">
+        </div>
+    </div>
+
+</div>
+
+<!--end 发货按钮-->
+</div>
+<!--end 主体内容-->
+</div>
+
+<form id="validateForm">
+    <!--订单发货弹窗-->
+    <div class="PopupBox" id="deliverBox">
+        <!--内容-->
+        <div class="PopupCon">
+            <div class="ph_subPoCon ph_screen">
+                <table class="ph_tableBox">
+                    <tr>
+                        <th><span class="require">*</span>物流公司：</th>
+                        <td>
+                            <select class="selectpicker validate[required]" data-live-search="true" id="logisticsId" name="logisticsId">
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="require">*</span>物流编号：</th>
+                        <td><input class="validate[required]" name="logisticsNo" type="text" id="logisticsNo" oninput="this.value=this.value.replace(/\D/g,'')"></td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+        <!--end 内容-->
+    </div>
+    <!--end 订单发货弹窗-->
+
+    <!--申请退款弹窗-->
+    <div class="PopupBox" id="Js_refundBox">
+        <!--内容-->
+        <div class="PopupCon">
+            <div class="ph_subPoCon ph_screen">
+                <table class="ph_tableBox">
+                    <tr>
+                        <!--<th>退款备注：</th>-->
+                        <td>
+                            <textarea class="ph_txtAreaBg validate[required]" name="" id="appliReason"></textarea>
+                        </td>
+                    </tr>
+                    <input type="hidden" id="orderId" value="">
+                </table>
+            </div>
+        </div>
+        <!--end 内容-->
+    </div>
+    <!--end 申请退款弹窗-->
+</form>
+
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--分页-->
+<script type="text/javascript" th:src="@{/static/js/plugins/pages/jquery.dataTables.min.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<!--日期控件-->
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.timepicker.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/jquery.datepair.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/datepicker/datepicker.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<script type="text/javascript">
+    var roleCode ="[[${roleCode}]]";
+    console.log(roleCode)
+    /*$(function (){
+
+     var userId = $("#userId").val();
+     $.ajax({
+     async: false,
+     url: "/web/orderUnline/findDeatilProductList",
+     data: {userId: userId},
+     type: "GET",
+     cache:false,
+     dataType: "json",
+     success: function (data) {
+     console.log(data.data);
+     if (data.data) {
+     //MenuTree(data.data);
+
+     }
+     /!*layer.alert("当前用户无菜单权限", {
+     icon: 2,
+     title: '失败',
+     closeBtn: 0,
+     btnAlign: 'c'
+     });*!/
+     },
+     error: function (data) {
+     layer.alert("菜单加载异常", {
+     icon: 2,
+     title: '失败',
+     closeBtn: 0,
+     btnAlign: 'c'
+     });
+     }
+     });
+     });*/
+
+//    /**
+//     * 返回到列表页面
+//     */
+//    function toPageList() {
+//        window.location.href = "/web/orderOnline/toListPage";
+//    }
+//
+//    function clearData(id) {
+//        $("#" + id)[0].reset();
+//        var selected = $("#" + id).find("select");
+//        if (selected.length > 0) {
+//            for (var i = 0, length = selected.length; i < length; i++) {
+//                selected.eq(i).selectpicker('val', '');
+//            }
+//        }
+//    }
+//
+//    /**
+//     * 发货
+//     * @param subOrderId
+//     */
+//    function toSend() {
+//        //查出数据进行回填
+//        $.ajax({
+//            async: false,
+//            url: "/web/orderOnline/getSendAddressAndLogistics",
+//            data: {},
+//            type: "POST",
+//            dataType: "json",
+//            success: function (data) {
+//                if (data.success) {
+//                    //填充数据
+//                    var dataList = data.data;
+//                    //物流信息
+//                    if (dataList.logistics.length > 0) {
+//                        for (var i = 0; i < dataList.logistics.length; i++) {
+//                            $("#logisticsId").append("<option value='" + dataList.logistics[i].id + "'>" + dataList.logistics[i].logisticsName + "</option>");
+//                        }
+//                        $('.selectpicker').selectpicker('refresh');
+//                    }
+//                    layer.open({
+//                        type: 1,
+//                        title: '订单发货',
+//                        closeBtn: 0,
+//                        area: ['500px', '300px'],
+//                        btn: ['发货', '取消'],
+//                        btnAlign: 'c',
+//                        content: $('#deliverBox'),
+//                        yes: function (index, layero) {
+//                            var flag = $("#validateForm").validationEngine("validate");
+//                            if (!flag) {
+//                                return false;
+//                            }
+//                            var data = {};
+//
+//
+//                            obj = document.getElementsByName("orderSubNo");
+//                            check_val = [];
+//                            for (k in obj) {
+//                                if (obj[k].checked)
+//                                    check_val.push(obj[k].value);
+//                            }
+//
+//                            text = $("input:checkbox[name='orderSubNo']:checked").map(function (index, elem) {
+//                                return $(elem).val();
+//                            }).get().join(',');
+//
+//
+//                            data.check_val = check_val;
+//                            console.log("**********************" + text);
+//
+//                            var logistics = $('#logisticsId').find("option:selected");
+//                            data.logisticsId = logistics.val();
+//                            data.logisticsName = logistics.text();
+//
+//                            data.logisticsNo = $('#logisticsNo').val();
+//                            $.ajax({
+//                                async: false,
+//                                url: "/web/orderOnline/sendOrder2",
+//                                data: {
+//                                    logisticsId: logistics.val(),
+//                                    logisticsName: logistics.text(),
+//                                    logisticsNo: $('#logisticsNo').val(),
+//                                    check_val: text
+//                                },
+//                                type: "POST",
+//                                dataType: "json",
+//                                success: function (data) {
+//                                    if (data.success) {
+//                                        layer.close(index);
+//                                        //tb.draw(false);
+//                                        location.reload();
+//                                        layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0});
+//                                    } else {
+//                                        layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+//                                    }
+//                                }
+//                            });
+//                        }, btn2: function (index, layero) {
+//                            $('.selectpicker').empty();
+//                            layer.close(index);
+//                        }
+//                    });
+//                } else {
+//                    layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0});
+//                }
+//            }
+//        });
+//
+//
+//    }
+//
+//    function refundAppli() {
+//        layer.open({
+//            type: 1,
+//            title: '请填写撤销原因',
+//            closeBtn: 0,
+//            area: ['500px', '300px'],
+//            btn: ['确定', '取消'],
+//            btnAlign: 'c',
+//            content: $('#Js_refundBox'),
+//            yes: function (index, layero) {
+//                var flag = $("#validateForm").validationEngine("validate");
+//                if (!flag) {
+//                    return false;
+//                }
+//                text = $("input:checkbox[name='orderSubNo']:checked").map(function (index, elem) {
+//                    return $(elem).val();
+//                }).get().join(',');
+//
+//                $.ajax({
+//                    async: false,
+//                    url: "/web/order/purchase/refundorder",
+//                    data: {BoxOrderId: text, appliReason: $('#appliReason').val()},
+//                    type: "POST",
+//                    dataType: "json",
+//                    success: function (data) {
+//                        if (data.success) {
+//                            layer.close(index);
+//                            layer.alert(data.message, {icon: 1, btnAlign: 'c', closeBtn: 0}, function () {
+//                                location.reload(true);
+//                            });
+//
+//                        } else {
+//                            layer.alert(data.message, {icon: 2, btnAlign: 'c', closeBtn: 0}, function () {
+//                                location.reload(true);
+//                            });
+//                        }
+//
+//
+//                    }
+//                });
+//            }, btn2: function (index, layero) {
+//                $('#appliReason').val('');
+//                layer.close(index);
+//            }
+//        });
+//    }
+    /**
+     * 查看规格属性
+     * @param product
+     */
+
+    function returnList() {
+        window.location.href = "/web/order/supply/toListPage";
+    }
+
+    function sendGood(){
+        var s=$("input:checked");
+        if(s.length==0){
+            layer.alert("请选择操作订单", {icon: 2,btnAlign: 'c', closeBtn : 0});
+            return false;
+        }
+        var chk_length = $("input:checkbox[alt=1]:checked").length;
+        var all_length = $("input:checkbox[alt=1]").length;
+        if(chk_length<all_length){
+            layer.alert("发货需一次性全部发完！", {icon: 2,btnAlign: 'c', closeBtn : 0});
+            return false;
+        }
+
+        var checked_num=$("input[name='detailId']:checked").size();
+        if(checked_num==0){
+            layer.alert("请选择要操作订单", {icon: 2,btnAlign: 'c', closeBtn : 0});
+            return false;
+        }
+        var flg = false;
+        var id_arr = new Array();
+        $(this).attr("alt");
+        $.each($("input[name='detailId']:checked"),function(){
+            if(this.alt!=1){
+                layer.alert("订单不能发货，请重新选择", {icon: 2,btnAlign: 'c', closeBtn : 0});
+                flg=true;
+                return false;
+            }
+            id_arr.push(this.value);
+        });
+        if(flg){
+            return false;
+        }
+        //获取物流列表
+        $.ajax({
+            url:"/web/order/supply/getLogistics",
+            dateType:"json",
+            type:"post",
+            success:function(data){
+                if (data.data && data.data.length > 0) {
+                    var data1 = data.data;
+                    $("#logisticsId").empty();
+                    for(var i=0; i< data1.length;i++){
+                        $("#logisticsId").append("<option value='"+ data1[i].id +"'>" + data1[i].logisticsName + "</option>");
+                    }
+                    $('.selectpicker').selectpicker('refresh');
+                }
+
+            }
+        });
+        layer.open({
+            type: 1,
+            title: '订单发货',
+            closeBtn: 0,
+            area: ['350px', '280px'],
+            btn: ['确认发货', '取消'],
+            btnAlign: 'c',
+            content: $('#deliverBox'),
+            yes:function (index, layero) {
+                //参数校验
+                var flag = $("#validateForm").validationEngine("validate");
+                if(!flag){
+                    return false;
+                }
+                var data = {};
+                data.detailIds = id_arr.join(",");
+                data.logisticsNo = $('#logisticsNo').val().trim();
+                var logistics = $('#logisticsId').find("option:selected");
+                data.logisticsId = logistics.val();
+                data.logisticsName = logistics.text();
+                $.ajax({
+                    url:"/web/order/supply/sendGoods",
+                    data:data,
+                    datetype:"json",
+                    type:"POST",
+                    success:function(data){
+                        if(data.success==true){
+                            clearData("validateForm");
+                            layer.close(index);
+                            layer.alert(data.message, {icon: 1,btnAlign: 'c', closeBtn : 0,btn1:function(index, layero){
+                                window.location.reload();
+                            }});
+                        }else {
+                            layer.alert(data.message==null?"请勿重复提交":data.message, {icon: 2,btnAlign: 'c', closeBtn : 0});
+                        }
+                    },error:function(data){
+                        layer.alert('系统繁忙，请重试！', {icon: 2,closeBtn: 0});
+                    }
+                });
+            },btn2:function (index, layero) {
+                clearData("validateForm");
+                layer.close(index);
+            }
+        });
+    }
+
+    function cancel(){
+        var s=$("input:checked");
+        if(s.length==0){
+            layer.alert("请选择操作订单", {icon: 2,btnAlign: 'c', closeBtn : 0});
+            return false;
+        }
+        var checked_num=$("input[name='detailId']:checked").size();
+        if(checked_num==0){
+            layer.alert("请选择要操作订单", {icon: 2,btnAlign: 'c', closeBtn : 0});
+            return false;
+        }
+        var flg = false;
+        var id_arr = new Array();
+        $.each($("input[name='detailId']:checked"),function(){
+            if(this.alt!=1){
+                layer.alert("订单不能撤销，请重新选择", {icon: 2,btnAlign: 'c', closeBtn : 0});
+                flg=true;
+                return false;
+            }
+            id_arr.push(this.value);
+        });
+        if(flg){
+            return false;
+        }
+        layer.prompt({title: '请填写撤销原因', formType: 2}, function(text, index){
+            var data = {};
+            data.detailIds = id_arr.join(",");
+            data.refundMsg = text;
+            $.ajax({
+                url:"/web/order/supply/revoke",
+                data:data,
+                datetype:"json",
+                type:"POST",
+                success:function(data){
+                    if(data.success==true){
+                        layer.close(index);
+                        layer.alert(data.message, {icon: 1,btnAlign: 'c', closeBtn : 0,btn1:function(index, layero){
+                            window.location.reload();
+                        }});
+                    }else {
+                        layer.alert(data.message==null?"请勿重复提交":data.message, {icon: 2,btnAlign: 'c', closeBtn : 0});
+                    }
+                },error:function(data){
+                    layer.alert('系统繁忙，请重试！', {icon: 2,closeBtn: 0});
+                }
+            });
+        });
+    }
+
+    function clearData(id) {
+        $("#" + id)[0].reset();
+        var selected = $("#" + id).find("select");
+        if (selected.length > 0) {
+            for (var i = 0, length = selected.length; i< length; i++) {
+                var id = selected.eq(i).attr("id");
+                selected.eq(i).selectpicker('val','');
+            }
+        }
+    }
+//    //0代付款 1待发货 2待收货 3已完成 4已撤销  5待还款
+//    $(document).on('click','input',function(){
+//        if($(this).prop('checked')){//选中状态
+//            console.log("点一次");
+//            $.each($('input:checked'),function(){
+//                var item=$(this).attr('alt');
+//                if (item == 1){
+//                    $("#sendBtn").attr('disabled',false);
+//                    $("#cancelBtn").attr('disabled',false);
+//                    console.log("可以点了");
+//                    return ;
+//                }
+//            });
+//        } else {
+//            console.log("未选中");
+//            $("#sendBtn").attr('disabled',true);
+//            $("#cancelBtn").attr('disabled',true);
+//        }
+//    });
+
+    //勾选要操作的订单
+//    $(document).on('click','input',function(){
+//        console.log($(this).prop('checked'));
+//        var thisid=$(this).attr('value');
+//        if($(this).prop('checked')){//选中状态
+//            $(this).prop('checked',false);
+//            $(this).prop('checked',true);
+//        }
+//    });
+</script>
+</body>
+</html>

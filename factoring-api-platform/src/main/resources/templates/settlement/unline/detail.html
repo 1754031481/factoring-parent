@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>结算信息</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+</head>
+<body>
+<div class="MainContent">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">订单结算</a>&nbsp;&gt;&nbsp;<span>结算详情</span> </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont">
+        <!--标题-->
+        <div class="ph_subTit no_border">
+            <h2>线下订单结算详情</h2>
+        </div>
+        <!--商品列表-->
+        <div class="ph_wareBox">
+            <table class="ph_wareList product" >
+                <thead>
+                <tr>
+                    <th>商品名称</th>
+                    <th>商品规格</th>
+                    <th>数量</th>
+                    <th>单价</th>
+                    <th>总价</th>
+                    <!--<th>店铺所得</th>
+                    <th>服务专员所得</th>
+                    <th>推广经理</th>-->
+                    <!--<th>普惠所得</th>-->
+
+                    <th>成本价</th>
+                    <th>物流配送费</th>
+                    <th>店铺服务费</th>
+                    <th class="qijian">旗舰店管理费</th>
+
+
+                    <!--<th>一级分享费用</th>
+                    <th>二级分享费用</th>
+                    <th>三级分享费用</th>
+                    <th>创作分享费用</th>
+                    <th class="qijian">旗舰店专员管理费</th>-->
+                    <!--<th>卫星店专员管理费</th>-->
+                   <!-- <th>售后服务费</th>
+                    <th>平台收入</th>-->
+                    <th>商品类型</th>
+                </tr>
+                </thead>
+                <tbody >
+                <tr th:each="prod,iterStat:${prodlist}" >
+                    <!--<td th:class="${prod.id}" th:text="${iterStat.count}"></td>-->
+                    <td th:text="${prod.productName}"></td>
+                    <td th:text="${prod.productSpecificationName}"></td>
+                    <td th:text="${prod.num}"></td>
+                    <td th:text="${prod.productSalePrice}"></td>
+                    <td th:text="${prod.totalPriceD}"></td>
+                    <!-- <td th:text="${prod.recommendHunterFen}"></td>
+                     <td th:text="${prod.directHunterFen}"></td>
+                     <td th:text="${prod.directHunterManagerFen}"></td>-->
+                    <!--<td th:text="${prod.puhuiFen}"></td>-->
+
+                    <td th:text="${prod.purchasePrice}"></td>
+                    <td th:text="${prod.freightFee}"></td>
+                    <td th:text="${prod.recommendHunterFen}"></td>
+                    <td class="qijian">
+                        <span th:if="${prod.merchantType eq 2}"><span th:text="${prod.flagShipFee}"></span></span>
+
+                    </td>
+                    <!--<td th:if="${prod.merchantType eq 2}">-->
+                    <!--<td th:text="${prod.flagShipFee}"></td>-->
+                   <!-- </td>-->
+   <!--                 <td th:text="${prod.oneLevelShareFee}"></td>
+                    <td th:text="${prod.twoLevelShareFee}"></td>
+                    <td th:text="${prod.threeLevelShareFee}"></td>
+                    <td th:text="${prod.createShareFee}"></td>-->
+             <!--     <td th:text="${prod.flagShipHunterFee}"></td>-->
+                   <!-- <td class="qijian">
+                        <span th:if="${prod.merchantType eq 2}"><span th:text="${prod.flagShipHunterFee}"></span></span>
+
+                    </td>-->
+                   <!-- <td th:text="${prod.satelliteShopHunterFee}"></td>-->
+                   <!-- <td th:text="${prod.afterServiceFee}"></td>
+                    <td th:text="${prod.industryFen}"></td>-->
+                    <!--<td th:text="${prod.totalPrice}"></td>
+                    <td th:text="${prod.totalPrice}"></td>
+                    <td th:text="${prod.totalPrice}"></td>
+                    <td th:text="${prod.totalPrice}"></td>-->
+                    <td >
+                        <span th:if="${prod.productType eq 1}" id="mechants">本地商品</span>
+                        <span th:if="${prod.productType eq 0}" >专卖商品</span>
+                    </td>
+
+                    <td style="display:none" >
+                        <span th:if="${prod.merchantType eq 2}" >旗舰店</span>
+                        <span th:if="${prod.merchantType eq 1}" id="mechant">卫星店</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--返回按钮-->
+        <div class="PopupBtn">
+            <input name="" type="button" value="返回" th:onclick="'toPageList();'">
+        </div>
+        <!--end 返回按钮-->
+    </div>
+    <!--end 主体内容-->
+</div>
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<script type="text/javascript">
+
+    $(function (){
+        var type = $("#mechant").text();
+        // alert(type + "....")
+        if (type == "卫星店") {
+             // alert(type + ".....");
+            $(".qijian").hide();
+        }
+     });
+
+    /**
+     * 返回到列表页面
+     */
+    function toPageList() {
+        window.location.href="/web/unlineSettlement/toSettlementPage";
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org" 
+		xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>普济一城商城后台系统</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/base.css}">
+    <link rel="stylesheet" th:href="@{/static/css/common/page.css}">
+</head>
+<body>
+<div id="container">
+    <div class="header">
+        <form class="searchForm" onsubmit="return false;">
+            <input type="text" class="searchBox" id="keyword" name="keyword" oninput="searchBrand()">
+            <ul class="assQuery" style="display: none;" id="brand">
+                <li>
+                    <span class="title">专卖品牌</span>
+                    <ul class="clearfix" id="zm">
+                        <li><a href="javascript:void(0)">恒安集团</a></li>
+                        <li>
+                            <a href="javascript:void(0)">恒星</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="title">本地品牌</span>
+                    <ul class="clearfix" id="bd">
+                        <li>
+                            <a href="javascript:void(0)">恒安集团</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)">恒星</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </form>
+    </div>
+    <div class="section">
+    </div>
+    <div class="pagediv"></div>
+</div>
+<!--end 添加猎头标签-->
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/page.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript">
+    var hunterId = "[[${hunterId}]]";
+    $(function(){
+        $(".section").load("/web/headhunting/toHunterCheckBrandList?hunterId="+hunterId);
+    })
+
+    function searchBrand(){
+        var keyword=$("#keyword").val().trim();
+        if(keyword!=""){
+            $.ajax({
+                url:"/web/headhunting/getSearchBrandList",
+                data:{keyword:keyword},
+                dateType:"json",
+                type:"POST",
+                success:function(data){
+                    if(data.success==true){
+                        var zmList=data.data.zmList;
+                        var bdList=data.data.bdList;
+                        $("#brand").show();
+                        $("#bd").empty();
+                        $.each(bdList,function(){
+                            $("#bd").append("<li><a href='javascript:;' onclick='addBrand("+this.id+")'>"+this.name+"</a></li>");
+                        });
+                        $("#zm").empty();
+                        $.each(zmList,function(){
+                            $("#zm").append("<li><a href='javascript:;' onclick='addBrand("+this.id+")'>"+this.name+"</a></li>");
+                        });
+                    }else {
+                        layer.alert(data.message, {icon: 2,btnAlign: 'c', closeBtn : 0});
+                    }
+                },error:function(data){
+                    layer.alert('系统繁忙，请重试！', {icon: 2,closeBtn: 0});
+                }
+            });
+        }else {
+            $("#brand").hide();
+        }
+    }
+
+    function  addBrand(id) {
+        //询问框
+        layer.confirm('您确认要添加吗？', {
+            btn: ['确认','取消'] //按钮
+        }, function(){
+            $("#brand").hide();
+            $.ajax({
+                url:"/web/headhunting/addHunterCheckBrand",
+                data:{hunterId:hunterId,brandId:id},
+                dateType:"json",
+                type:"POST",
+                success:function(data){
+                    if(data.success==true){
+                        layer.alert(data.message, {icon: 1,btnAlign: 'c', closeBtn : 0,btn1:function(index, layero){
+                            window.location.reload();
+                        }});
+                    }else {
+                        layer.alert(data.message, {icon: 2,btnAlign: 'c', closeBtn : 0});
+                    }
+                },error:function(data){
+                    layer.alert('系统繁忙，请重试！', {icon: 2,closeBtn: 0});
+                }
+            });
+        });
+    }
+
+    function  deleteBrand(id) {
+        //询问框
+        layer.confirm('您确认要删除吗？', {
+            btn: ['确认','取消'] //按钮
+        }, function(){
+            $.ajax({
+                url:"/web/headhunting/deleteHunterCheckBrand",
+                data:{hunterCheckBrandId:id},
+                dateType:"json",
+                type:"POST",
+                success:function(data){
+                    if(data.success==true){
+                        layer.alert(data.message, {icon: 1,btnAlign: 'c', closeBtn : 0,btn1:function(index, layero){
+                            window.location.reload();
+                        }});
+                    }else {
+                        layer.alert(data.message, {icon: 2,btnAlign: 'c', closeBtn : 0});
+                    }
+                },error:function(data){
+                    layer.alert('系统繁忙，请重试！', {icon: 2,closeBtn: 0});
+                }
+            });
+        });
+    }
+
+</script>
+</body>
+</html>
+

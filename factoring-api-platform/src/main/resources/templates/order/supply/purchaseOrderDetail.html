@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单信息</title>
+    <link rel="stylesheet" th:href="@{/static/css/common/models.css}">
+    <!--bootstrap-select  css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/bootstrapselect/css/bootstrap-select.css}"/>
+    <!--弹窗 css文件-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/plugins/layer/layer.css}">
+    <style>
+        .ph_infoConBox{
+            overflow: hidden;
+        }
+        .ph_infoConBox > li{
+            float:left;
+            padding:10px;
+            height:270px;
+            width:230px;
+            background: #f9f9f9;
+            border:1px solid #ddd;
+            border-radius: 5px;
+            margin-right:20px;
+        }
+    </style>
+    <!--物流信息 CSS START-->
+    <style>
+        body{font-size: 12px;}
+        ul li{list-style: none;}
+        .track-rcol{width: 900px; border: 1px solid #eee;}
+        .track-list{margin: 20px; padding-left: 5px; position: relative;}
+        .track-list li{position: relative; padding: 9px 0 0 25px; line-height: 18px; border-left: 1px solid #d9d9d9; color: #999;}
+        .track-list li.first{color: red; padding-top: 0; border-left-color: #fff;}
+        .track-list li .node-icon{border-radius:50%;position: absolute; left: -6px; top: 50%; width: 11px; height: 11px; background: url(/static/img/wuliu.png)  -21px -72px no-repeat;}
+        .track-list li.first .node-icon{background-position:0 -72px;}
+        .track-list li .time{margin-right: 20px; position: relative; top: 4px; display: inline-block; vertical-align: middle;}
+        .track-list li .txt{max-width: 600px; position: relative; top: 4px; display: inline-block; vertical-align: middle;}
+        .track-list li.first .time{margin-right: 20px; }
+        .track-list li.first .txt{max-width: 600px; }
+        .track-img{display: flex;align-items: center;justify-content:space-between;width: 90%;margin: auto;}
+        .track-img dl{text-align: center;}
+        .track-img dl dt{width: 100%;}
+        .track-img dl dd{width: 100%;text-align: center;margin: 0;line-height: 30px; color: orangered;}
+        .track-img span{margin-top: -25px; color: orangered;font-weight: bold;}
+    </style>
+    <!--物流信息 CSS END-->
+</head>
+<body>
+<div class="MainContent" style="overflow-x:auto">
+    <!--面包屑-->
+    <div class="current">当前位置：<a href="#">进货管理</a>&nbsp;&gt;&nbsp;<a href="#">进货订单</a>&nbsp;&gt;&nbsp;<span>订单详情</span> </div>
+    <!--end 面包屑-->
+    <!--主体内容-->
+    <div class="MainCont" style="min-width:1470px">
+        <!--物流信息 START-->
+        <div th:if="${supplierOrder.status == 3 || supplierOrder.status == 2 }">
+            <div th:if="${not #lists.isEmpty(LogisticsResult) }">
+                <div th:if="${LogisticsResult.success == true }">
+                <div th:if="${LogisticsResult.state == 2 || LogisticsResult.state == 3 || LogisticsResult.state == 4}">
+                    <div class="track-rcol">
+                        <h2>物流信息：<span th:text="${LogisticsResult.shipperName}"></span></h2>
+                        <h2>物流单号：<span th:text="${LogisticsResult.logisticCode}"></span></h2>
+                        <div class="track-list">
+                            <div class="track-img" th:if="${LogisticsResult.state == 4}">
+                                <dl>
+                                    <dt><img th:src="@{/static/img/lanjian.png}"></dt>
+                                    <dd>揽件</dd>
+                                </dl>
+                                <span>····························</span>
+                                <dl>
+                                    <dt><img th:src="@{/static/img/yunshu.png}"></dt>
+                                    <dd>运输</dd>
+                                </dl>
+                                <span>····························</span>
+                                <dl>
+                                    <dt><img th:src="@{/static/img/paisong.png}"></dt>
+                                    <dd>派送</dd>
+                                </dl>
+                                <span>····························</span>
+                                <dl>
+                                    <dt><img th:src="@{/static/img/lanshou.png}"></dt>
+                                    <dd>已签收</dd>
+                                </dl>
+                            </div>
+
+                            <div class="track-img" th:if="${LogisticsResult.state == 3}">
+                                <dl>
+                                    <dt><img th:src="@{/static/img/lanjian.png}"></dt>
+                                    <dd>揽件</dd>
+                                </dl>
+                                <span>····························</span>
+                                <dl>
+                                    <dt><img th:src="@{/static/img/yunshu.png}"></dt>
+                                    <dd>运输</dd>
+                                </dl>
+                                <span>····························</span>
+                                <dl>
+                                    <dt><img th:src="@{/static/img/paisong.png}"></dt>
+                                    <dd>派送</dd>
+                                </dl>
+                                <span>····························</span>
+                                <dl>
+                                    <dt><img th:src="@{/static/img/daiqianshou.png}"></dt>
+                                    <dd>待签收</dd>
+                                </dl>
+                            </div>
+
+                            <div class="track-img" th:if="${LogisticsResult.state == 2}">
+                                <dl>
+                                    <dt><img th:src="@{/static/img/lanjian.png}"></dt>
+                                    <dd>揽件</dd>
+                                </dl>
+                                <span>····························</span>
+                                <dl>
+                                    <dt><img th:src="@{/static/img/yunshu.png}"></dt>
+                                    <dd>运输</dd>
+                                </dl>
+                                <span>····························</span>
+                                <dl>
+                                    <dt><img th:src="@{/static/img/daipeisong.png}"></dt>
+                                    <dd>待派送</dd>
+                                </dl>
+                                <span>····························</span>
+                                <dl>
+                                    <dt><img th:src="@{/static/img/daiqianshou.png}"></dt>
+                                    <dd>待签收</dd>
+                                </dl>
+                            </div>
+                            <ul>
+                                <div th:each="LogisticsResult,LogisticsResultStat : ${LogisticsResult.traces}">
+                                    <li th:class="${LogisticsResultStat.index == 0 ? 'first' : ''}" >
+                                        <i class="node-icon"></i>
+                                        <span class="time" th:text="${LogisticsResult.time}">2016-03-10 18:07:15</span>
+                                        <span class="txt" th:text="${LogisticsResult.context}">感谢您在京东购物，欢迎您再次光临！</span>
+                                    </li>
+                                </div>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        <!--物流信息 END-->
+        <!--标题-->
+        <div class="ph_subTit no_border">
+            <h2>订单详情</h2>
+        </div>
+        <!--end 标题-->
+        <!--订单信息状态-->
+        <!--end 订单信息状态-->
+        <div class="ph_infoCon">
+            <p class="ph_infoHome"><span>订单号：</span><span th:text="${supplierOrder.orderNo}"></span></p>
+        </div>
+        <ul class="ph_infoConBox">
+            <!--订单角色信息-->
+            <li class="ph_infoCon">
+                <p class="ph_infoHome"><span>供应商信息：</span></p>
+                <p class="ph_infoDel">
+                    <span>供应商名称：<span th:text="${supplierOrder.supplierName}"></span></span>
+                    <span>联系电话：<span th:text="${supplierOrder.supplierPhone}"></span></span>
+                </p>
+            </li>
+            <!--订单角色信息-->
+            <li class="ph_infoCon">
+                <p class="ph_infoHome"><span>收货人信息：</span></p>
+                <p class="ph_infoDel">
+                    <span>收货人名称：<span th:text="${supplierOrder.receiveName}"></span></span>
+                    <span>联系电话：<span th:text="${supplierOrder.receivePhone}"></span></span>
+                    <span>收货地址：<span th:text="${supplierOrder.receiveAddress}"></span></span>
+                </p>
+            </li>
+            <li class="ph_infoCon">
+                <p class="ph_infoHome"><span>订单备注：</span><span th:text="${supplierOrder.message}"></span></p>
+            </li>
+            <li class="ph_infoCon">
+                <p class="ph_infoDel">
+                    <span>创建时间：<span th:text="${#dates.format(supplierOrder.createdTime,'yyyy-MM-dd HH:mm:ss')}"></span></span>
+                    <span>支付时间：<span th:text="${#dates.format(supplierOrder.payTime,'yyyy-MM-dd HH:mm:ss')}"></span></span>
+                </p>
+            </li>
+            <!--end 订单角色信息-->
+        </ul>
+
+        <!--标题-->
+        <!--end 标题-->
+        <!--商品信息-->
+        <div class="ph_wareBox ph_infoWare">
+            <table class="ph_wareList">
+                <thead>
+                <tr>
+                    <th style="width:60px">选择</th>
+                    <!--<th width="50">序号</th>-->
+                    <th style="width: 80px">商品名称</th>
+                    <th style="width: 80px">商品规格</th>
+                    <th style="width: 50px">单价</th>
+                    <th style="width: 80px">积分进货价</th>
+                    <th>数量</th>
+                    <th>重量</th>
+                    <th>长</th>
+                    <th>宽</th>
+                    <th>高</th>
+                    <!--<th style="width: 80px">总价（元）</th>-->
+                    <th style="width: 100px">积分总价（分）</th>
+                    <th style="width: 80px">订单状态</th>
+                    <th width="150">发货时间</th>
+                    <th width="150">收货时间</th>
+                    <th width="150">撤销时间</th>
+                    <th width="200">物流信息</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="detail,sn:${supplierOrderDetail}">
+                    <td th:if="${detail.status==2||detail.status==0}"><input type="checkbox" name="detailId" th:alt="${detail.status}" th:value="${detail.id}"></td>
+                    <td th:if="${detail.status!=2&&detail.status!=0}"><input type="checkbox" name="detailId" disabled th:alt="${detail.status}" th:value="${detail.id}"></td>
+                    <!--<td th:text="${sn.count}"></td>-->
+                    <td th:text="${detail.productName}" th:title="${detail.productName}"></td>
+                    <td th:text="${detail.productSpecificationName}" th:title="${detail.productSpecificationName}"></td>
+                    <td th:text="${#numbers.formatDecimal((detail.productPrice /10000.0000),1,2)}" th:title="${#numbers.formatDecimal((detail.productPrice /10000.0000),1,2)}" ></td>
+                    <td th:text="${detail.scorePrice}" th:title="${detail.scorePrice}" ></td>
+                    <td th:text="${detail.num}" th:title="${detail.num}"></td>
+                    <td th:text="${detail.weight}" th:title="${detail.weight}"></td>
+                    <td th:text="${detail.length}" th:title="${detail.length}"></td>
+                    <td th:text="${detail.width}" th:title="${detail.width}"></td>
+                    <td th:text="${detail.height}" th:title="${detail.height}"></td>
+                    <!--<td th:text="${detail.totalPrice}"></td>-->
+                    <!--<td th:text="${#numbers.formatDecimal((detail.totalPrice/10000.0000),1,2)}" th:title="${#numbers.formatDecimal((detail.totalPrice/10000.0000),1,2)}"></td>-->
+                    <td th:text="${detail.totalScorePrice}" th:title="${detail.totalScorePrice}"></td>
+                    <td th:if="${detail.status==0}" >待付款</td>
+                    <td th:if="${detail.status==1}" >待发货</td>
+                    <td th:if="${detail.status==2}" >待收货</td>
+                    <td th:if="${detail.status==3}" >已完成</td>
+                    <td th:if="${detail.status==4}" >已撤销</td>
+                    <td th:if="${detail.status==5}" >待还款</td>
+                    <td th:if="${detail.status==6}" >已还款</td>
+
+                    <td th:if="${detail.sendTime !=null && detail.sendTime != ''}" th:text="${#dates.format(detail.sendTime,'yyyy-MM-dd HH:mm:ss')}" th:title="${#dates.format(detail.sendTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:if="${detail.sendTime ==null || detail.sendTime == ''}" >-</td>
+
+                    <td th:if="${detail.receiveTime !=null && detail.receiveTime != ''}" th:text="${#dates.format(detail.receiveTime,'yyyy-MM-dd HH:mm:ss')}" th:title="${#dates.format(detail.receiveTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:if="${detail.receiveTime ==null || detail.receiveTime == ''}" >-</td>
+
+                    <td th:if="${detail.refundTime !=null && detail.refundTime != ''}" th:text="${#dates.format(detail.refundTime,'yyyy-MM-dd HH:mm:ss')}" th:title="${#dates.format(detail.refundTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:if="${detail.refundTime ==null || detail.refundTime == ''}" >-</td>
+
+                    <td th:text="${detail.logisticsName==null}? '-':${detail.logisticsName}+','+${detail.logisticsNum}" th:title="${detail.logisticsName==null}? '-':${detail.logisticsName}+','+${detail.logisticsNum}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--end 商品信息-->
+        <!--返回按钮-->
+        <div class="PopupBtn">
+            <input type="button" th:onclick="'payOrder(\''+${supplierOrder.orderNo}+'\')'" value="支付" th:if="${supplierOrder.status==0}">
+            <input type="button" onclick="confirmGood();" value="确认收货" th:if="${supplierOrder.status!=0}">
+            <input name="" type="button" th:onclick="'fh();'" value="返回">
+        </div>
+        <!--end 返回按钮-->
+    </div>
+    <!--end 主体内容-->
+</div>
+
+<!--遮罩层-->
+<div class="maskBox"></div>
+<!--end 遮罩层-->
+
+<script type="text/javascript" th:src="@{/static/js/common/jquery-1.11.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/index.js}"></script>
+<!--bootstrap-select-->
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/bootstrap-select.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/bootstrapselect/select.js}"></script>
+<!--地址三级联动-->
+<script type="text/javascript" th:src="@{/static/js/common/area.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/htmlHelper.js}"></script>
+<!--验证-->
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/plugins/validat/jquery.validationEngine-zh_CN.js}"></script>
+<!--弹窗-->
+<script type="text/javascript" th:src="@{/static/js/plugins/layer/layer.js}"></script>
+<script type="text/javascript"  th:src="@{/static/js/common/number.js}"></script>
+<script type="text/javascript">
+
+    /**
+     * 查看规格属性
+     * @param product
+     */
+
+    function fh() {
+        window.location.href = "/web/order/supply/toListPage";
+    }
+    
+
+    function clearData(id) {
+        $("#" + id)[0].reset();
+        var selected = $("#" + id).find("select");
+        if (selected.length > 0) {
+            for (var i = 0, length = selected.length; i< length; i++) {
+                var id = selected.eq(i).attr("id");
+                selected.eq(i).selectpicker('val','');
+            }
+        }
+    }
+    function confirmGood(){
+        var checked_num=$("input[name='detailId']:checked").size();
+        if(checked_num==0){
+            layer.alert("请选择要操作订单", {icon: 2,btnAlign: 'c', closeBtn : 0});
+            return false;
+        }
+        // var checkbox_num = $("input[name='detailId']").size();
+        var chk_length = $("input:checkbox[alt=2]:checked").length;
+        var all_length = $("input:checkbox[alt=2]").length;
+        if (chk_length<all_length){
+            layer.alert("商品需一次性全部收货", {icon: 2,btnAlign: 'c', closeBtn : 0});
+            return false;
+        }
+        var flg = false;
+        var id_arr = new Array();
+        $.each($("input:checkbox[alt=2]:checked"),function(){
+            if(this.alt!=2){
+                layer.alert("订单不能确认收货，请重新选择", {icon: 2,btnAlign: 'c', closeBtn : 0});
+                flg=true;
+                return false;
+            }
+            id_arr.push(this.value);
+        });
+        if(flg){
+            return false;
+        }
+        var data = {};
+        data.detailIds = id_arr.join(",");
+        $.ajax({
+            url:"/web/order/supply/confirmGoods",
+            data:data,
+            datetype:"json",
+            type:"POST",
+            success:function(data){
+                if(data.success==true){
+                    layer.alert(data.message, {icon: 1,btnAlign: 'c', closeBtn : 0,btn1:function(index, layero){
+                        window.location.reload();
+                    }});
+                }else {
+                    layer.alert(data.message==null?"请勿重复提交":data.message, {icon: 2,btnAlign: 'c', closeBtn : 0});
+                }
+            },error:function(data){
+                layer.alert('系统繁忙，请重试！', {icon: 2,closeBtn: 0});
+            }
+        });
+    }
+
+    function payOrder(orderNo) {
+        var checked_num=$("input[name='detailId']:checked").size();
+        if(checked_num==0){
+            layer.alert("请选择要操作订单", {icon: 2,btnAlign: 'c', closeBtn : 0});
+            return false;
+        }
+        var checkbox_num = $("input[name='detailId']").size();
+        if (checkbox_num!=checked_num){
+            layer.alert("商品需一次性全部支付", {icon: 2,btnAlign: 'c', closeBtn : 0});
+            return false;
+        }
+        sessionStorage.setItem("dataUrl","/web/order/purchase/toPurchaseOrderPay?orderNos="+orderNo);
+        HtmlHelper.generateAutoSubmitForm({
+            url: "/web/order/purchase/toPurchaseOrderPay",
+            method: "POST",
+            data: {
+                orderNos: orderNo
+            }
+        });
+    }
+    
+</script>
+</body>
+</html>
